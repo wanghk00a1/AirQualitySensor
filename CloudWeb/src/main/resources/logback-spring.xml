@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- scan    属性设置为true时，配置文件如果发生改变，将会被重新加载，默认值为true。
+scanPeriod   设置监测配置文件是否有修改的时间间隔，如果没有给出时间单位，默认单位是毫秒 -->
+<configuration scan="true" scanPeriod="60 seconds">
+	<!-- appender可以理解为一个日志处理策略  -->
+	<appender name="consoleLog" class="ch.qos.logback.core.ConsoleAppender">
+		<layout class="ch.qos.logback.classic.PatternLayout">
+			<!-- <pattern>%d - %msg%n</pattern> -->
+			<pattern>%d{yyyy-MM-dd HH:mm:ss.SSS} : [%thread] %-5level %logger{36} - %msg%n</pattern>
+		</layout>
+	</appender>
+	<appender name="fileInfoLog" class="ch.qos.logback.core.rolling.RollingFileAppender">
+		<!-- ThresholdFilter : 临界值过滤器，过滤掉低于指定临界值的日志。
+			当日志级别等于或高于临界值时，过滤器返回NEUTRAL；
+			当日志级别低于临界值时，日志会被拒绝 --> 
+		<filter class="ch.qos.logback.classic.filter.ThresholdFilter">
+			<level>INFO</level>
+		</filter>
+		<append>true</append> 
+		<encoder>
+			<pattern>%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n</pattern>
+		</encoder>
+		<!-- 滚动策略:设置按时间滚动 -->
+		<rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+			<fileNamePattern>./logs/info/%d{yyyy-MM-dd}.log</fileNamePattern>
+		</rollingPolicy>
+	</appender>
+	<appender name="fileErrorLog" class="ch.qos.logback.core.rolling.RollingFileAppender">
+		<!-- LevelFilter : 日志级别等于配置级别，过滤器会根据onMath 和 onMismatch接收或拒绝日志 -->
+		<filter class="ch.qos.logback.classic.filter.LevelFilter">
+			<level>ERROR</level>
+			<onMatch>ACCEPT</onMatch>
+			<onMismatch>DENY</onMismatch>
+		</filter>
+		<append>true</append>
+		<encoder>
+			<pattern>%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n</pattern>
+		</encoder>
+		<rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+			<fileNamePattern>./logs/error/%d{yyyy-MM-dd}.log</fileNamePattern>
+		</rollingPolicy>
+	</appender>
+
+	<root level="info">
+		<appender-ref ref="consoleLog" />
+		<appender-ref ref="fileInfoLog" />
+		<appender-ref ref="fileErrorLog" />
+	</root>
+</configuration>
