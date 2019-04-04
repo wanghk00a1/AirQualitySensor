@@ -39,6 +39,12 @@ object PropertiesLoader {
   val groupIdProducer = conf.getString("GROUP_ID_PRODUCER")
   val topicProducer = conf.getString("KAFKA_TOPICS_PRODUCER")
 
+  //往mysql 写结果数据
+  val mysqlAddress = conf.getString("MYSQL_ADDRESS")
+  val mysqlUserName = conf.getString("MYSQL_USERNAME")
+  val mysqlPassword = conf.getString("MYSQL_PASSWORD")
+  val mysqlDataBase = conf.getString("MYSQL_DATABASE")
+  
   def main(args: Array[String]): Unit = {
     println(PropertiesLoader.saveRawTweets)
   }

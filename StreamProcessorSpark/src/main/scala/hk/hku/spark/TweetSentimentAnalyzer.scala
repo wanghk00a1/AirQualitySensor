@@ -2,8 +2,12 @@ package hk.hku.spark
 
 import java.text.SimpleDateFormat
 import java.util.{Date, Properties}
+import java.sql.{PreparedStatement, Connection, DriverManager, Statement}
+import scala.collection.JavaConversions._
 
 import com.fasterxml.jackson.databind.ObjectMapper
+import com.huaban.analysis.jieba.JiebaSegmenter
+import com.huaban.analysis.jieba.SegToken
 import hk.hku.spark.corenlp.CoreNLPSentimentAnalyzer
 import hk.hku.spark.mllib.MLlibSentimentAnalyzer
 import hk.hku.spark.utils._
@@ -84,8 +88,16 @@ object TweetSentimentAnalyzer {
       *         Profile Image URL, Tweet Date.
       */
     def predictSentiment(status: String): (String, Int, Int) = {
-      val tweetText = replaceNewLines(status)
-      
+      val sentence = replaceNewLines(status)
+      val segmenter = new JiebaSegmenter
+      val segTokenList = segmenter.process(sentence, JiebaSegmenter.SegMode.INDEX)
+      val newSentence = new StringBuffer
+      import scala.collection.JavaConversions._
+      for (seg <- segTokenList) {
+        newSentence.append(seg.word).append(" ")
+      }
+      val tweetText = newSentence.toString
+
       log.info("tweetText : " + tweetText)
 
       val (corenlpSentiment, mllibSentiment) =
@@ -140,30 +152,60 @@ object TweetSentimentAnalyzer {
 
     val classifiedTweets = rawTweets
       .filter(line => !line.value().isEmpty)
-      //.map(line=>line.value())
-      //.filter({
-      //  case null =>
-      //     false
-      //  case _ =>
-      //     true
-      //})
-        .map(line=>predictSentiment(line.value()))
+      .map(line=>{ predictSentiment(line.value) })
 
     // 分隔符 was chosen as the probability of this character appearing in tweets is very less.
     val DELIMITER = "¦"
     val tweetsClassifiedPath = PropertiesLoader.tweetsClassifiedPath
 
+    var connection: Connection = null
+
     classifiedTweets.foreachRDD { rdd =>
+      
       try {
         if (rdd != null && !rdd.isEmpty() && !rdd.partitions.isEmpty) {
           // saveClassifiedTweets(rdd, tweetsClassifiedPath)
 
           // produce message to kafka
-          rdd.foreach(message => {
-            log.info("producer msg to kafka : " + message)
+          //rdd.foreach(message => {
+          //    log.info("producer msg to kafka : " + message._3)
             // id, screenName, text, sent1, sent2, lat, long, profileURL, date
-            kafkaProducer.value.send(PropertiesLoader.topicProducer, message.productIterator.mkString(DELIMITER))
-          })
+            //kafkaProducer.value.send(PropertiesLoader.topicProducer, message.productIterator.mkString(DELIMITER))
+          //})
+        
+          val df = ssc.sparkContext.parallelize(List((1,0),(2,0),(3,0)))
+          val allMessage = rdd
+            .map(message => message._3)
+            .map((_,1))
+            .union(df)
+            .reduceByKey(_+_)
+//            .map(t=>(t._1, t._2.size))
+//            .sortBy(_._1)
+            .sortBy(x=>x._1,true,1).values.collect()
+
+          //val str = allMessage.mkString("|")
+
+          //log.info("++++++ : " + str)
+          val time = System.currentTimeMillis()
+          val sql: String = "Insert " + PropertiesLoader.mysqlDataBase + " VALUES (NULL, " + time + " , " + allMessage.mkString(" , ")+");"
+          log.info("++++++++ : "+ sql)
+          try {
+            classOf[com.mysql.jdbc.Driver]
+            connection = DriverManager.getConnection(
+              PropertiesLoader.mysqlAddress, 
+              PropertiesLoader.mysqlUserName, 
+              PropertiesLoader.mysqlPassword)
+            val statement1 = connection.createStatement()
+            val resultSet1 = statement1.executeUpdate(sql)
+          }catch {
+            case e: Exception => e.printStackTrace()
+          } finally {
+            //release the resource
+            if (connection == null) {
+              connection.close()
+            }
+          }
+
         } else {
           log.warn("classifiedTweets rdd is null")
         }
@@ -175,7 +217,7 @@ object TweetSentimentAnalyzer {
           log.error(e)
       }
     }
-
+    
     ssc.start()
     ssc.awaitTerminationOrTimeout(PropertiesLoader.totalRunTimeInMinutes * 60 * 1000) // auto-kill after processing rawTweets for n mins.
   }
