@@ -143,25 +143,24 @@ object TweetSentimentAnalyzer {
       .filter(line => !line.value().isEmpty)
       .map(line=>{ predictSentiment(line.value) })
 
-    // 分隔符 was chosen as the probability of this character appearing in tweets is very less.
-    val DELIMITER = "¦"
-    val tweetsClassifiedPath = PropertiesLoader.tweetsClassifiedPath
-
     var connection: Connection = null
+    var statement1: Statement = null
+    try {
+      //classOf[com.mysql.jdbc.Driver]
+      connection = DriverManager.getConnection(
+        PropertiesLoader.mysqlAddress,
+        PropertiesLoader.mysqlUserName,
+        PropertiesLoader.mysqlPassword)
+      statement1 = connection.createStatement()
+    }catch {
+      case e: Exception => e.printStackTrace()
+    }
+
 
     classifiedTweets.foreachRDD { rdd =>
-      
       try {
         if (rdd != null && !rdd.isEmpty() && !rdd.partitions.isEmpty) {
-          // saveClassifiedTweets(rdd, tweetsClassifiedPath)
 
-          // produce message to kafka
-          //rdd.foreach(message => {
-          //    log.info("producer msg to kafka : " + message._3)
-            // id, screenName, text, sent1, sent2, lat, long, profileURL, date
-            //kafkaProducer.value.send(PropertiesLoader.topicProducer, message.productIterator.mkString(DELIMITER))
-          //})
-        
           val df = ssc.sparkContext.parallelize(List((1,0),(2,0),(3,0)))
           val allMessage = rdd
             .map(message => message._3)
@@ -172,27 +171,12 @@ object TweetSentimentAnalyzer {
 //            .sortBy(_._1)
             .sortBy(x=>x._1,true,1).values.collect()
 
-          //val str = allMessage.mkString("|")
-
           //log.info("++++++ : " + str)
           val time = System.currentTimeMillis()
           val sql: String = "Insert " + PropertiesLoader.mysqlDataBase + " VALUES (NULL, " + time + " , " + allMessage.mkString(" , ")+");"
-          //log.info("++++++++ : "+ sql)
-          try {
-            //classOf[com.mysql.jdbc.Driver]
-            connection = DriverManager.getConnection(
-              PropertiesLoader.mysqlAddress, 
-              PropertiesLoader.mysqlUserName, 
-              PropertiesLoader.mysqlPassword)
-            val statement1 = connection.createStatement()
+          log.info("++++++++ : "+ sql)
+          if(statement1!= null) {
             val resultSet1 = statement1.executeUpdate(sql)
-          }catch {
-            case e: Exception => e.printStackTrace()
-          } finally {
-            //release the resource
-            if (connection == null) {
-              connection.close()
-            }
           }
 
         } else {
