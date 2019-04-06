@@ -161,14 +161,11 @@ object TweetSentimentAnalyzer {
       try {
         if (rdd != null && !rdd.isEmpty() && !rdd.partitions.isEmpty) {
 
-          val df = ssc.sparkContext.parallelize(List((1,0),(2,0),(3,0)))
+//          val df = ssc.sparkContext.parallelize(List((1,0),(2,0),(3,0)))
           val allMessage = rdd
-            .map(message => message._3)
-            .map((_,1))
-            .union(df)
+            .map(message => (message._3, 1))
+            //.union(df)
             .reduceByKey(_+_)
-//            .map(t=>(t._1, t._2.size))
-//            .sortBy(_._1)
             .sortBy(x=>x._1,true,1).values.collect()
 
           //log.info("++++++ : " + str)
