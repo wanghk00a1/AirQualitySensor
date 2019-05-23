@@ -4,18 +4,17 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
-    <groupId>hk.hku.cloud</groupId>
-    <artifactId>CloudProject</artifactId>
-    <inceptionYear>2019.02</inceptionYear>
-    <description>COMP7305 Project Realtime Twitter Stream Analysis System</description>
-    <url>www.github.com</url>
+    <groupId>hk.hku.project</groupId>
+    <artifactId>COMP7705</artifactId>
+    <inceptionYear>2019</inceptionYear>
+    <description>COMP7705 MSc(CompSc) Project : Social Media as a Sensor of Air Quality and Public Response</description>
+    <url>https://github.com/wanghk00a1/AirQualitySensor</url>
     <packaging>pom</packaging>
     <version>1.0-SNAPSHOT</version>
     <modules>
         <module>StreamProcessorFlink</module>
         <module>StreamProcessorSpark</module>
         <module>Collector</module>
-        <module>HBaser</module>
         <module>CloudWeb</module>
     </modules>
 
@@ -24,58 +23,12 @@
         <maven.compiler.encoding>UTF-8</maven.compiler.encoding>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
         <java.version>1.8</java.version>
-        <flink.version>1.5.1</flink.version>
+        <flink.version>1.7.2</flink.version>
         <log4j.version>2.11.2</log4j.version>
         <scala.binary.version>2.11</scala.binary.version>
         <maven.compiler.source>${java.version}</maven.compiler.source>
         <maven.compiler.target>${java.version}</maven.compiler.target>
     </properties>
-
-    <build>
-        <pluginManagement>
-            <plugins>
-                <plugin>
-                    <groupId>org.apache.maven.plugins</groupId>
-                    <artifactId>maven-compiler-plugin</artifactId>
-                    <version>3.8.0</version>
-                    <configuration>
-                        <source>${java.version}</source>
-                        <target>1.8</target>
-                        <encoding>${maven.compiler.encoding}</encoding>
-                    </configuration>
-                </plugin>
-                <plugin>
-                    <groupId>org.apache.maven.plugins</groupId>
-                    <artifactId>maven-resources-plugin</artifactId>
-                    <version>3.1.0</version>
-                    <configuration>
-                        <encoding>${project.build.sourceEncoding}</encoding>
-                    </configuration>
-                </plugin>
-            </plugins>
-        </pluginManagement>
-    </build>
-
-    <dependencyManagement>
-        <dependencies>
-            <dependency>
-                <groupId>com.fasterxml.jackson.core</groupId>
-                <artifactId>jackson-core</artifactId>
-                <version>2.9.8</version>
-            </dependency>
-            <dependency>
-                <groupId>org.apache.logging.log4j</groupId>
-                <artifactId>log4j-core</artifactId>
-                <version>${log4j.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.apache.logging.log4j</groupId>
-                <artifactId>log4j-api</artifactId>
-                <version>${log4j.version}</version>
-            </dependency>
-        </dependencies>
-    </dependencyManagement>
-
 
     <organization>
         <name>HKU</name>
@@ -83,18 +36,7 @@
 
     <developers>
         <developer>
-            <id>GaryGao</id>
-            <name>YU Gao</name>
-            <email>yugao829@connect.hku.hk</email>
-            <url>https://github.com/GaryGao829</url>
-            <organization>HKU</organization>
-            <roles>
-                <role>architect</role>
-                <role>developer</role>
-            </roles>
-        </developer>
-        <developer>
-            <id>lexkaing</id>
+            <id>Lexkaing</id>
             <name>ZHANG Kai</name>
             <email>lexkaing@connect.hku.hk</email>
             <url>https://github.com/AlexTK2012</url>
@@ -105,10 +47,10 @@
             </roles>
         </developer>
         <developer>
-            <id>BZbyr</id>
-            <name>ZHANG Boyang</name>
-            <email>b.zhang966@outlook.com</email>
-            <url>https://github.com/BZbyr</url>
+            <id>Hanke</id>
+            <name>WANG Hanke</name>
+            <email>hanke@hku.hk</email>
+            <url>https://github.com/wanghk00a1/</url>
             <organization>HKU</organization>
             <roles>
                 <role>architect</role>
@@ -116,10 +58,10 @@
             </roles>
         </developer>
         <developer>
-            <id>yyx</id>
-            <name>YANG Yuxiang</name>
-            <email>ulyhash@connect.hku.hk</email>
-            <url>https://github.com/ulysses1881826</url>
+            <id>Everstar</id>
+            <name>ZENG Jiaxin</name>
+            <email>everstar@hku.hk</email>
+            <url>https://github.com/tsengkasing/</url>
             <organization>HKU</organization>
             <roles>
                 <role>architect</role>
