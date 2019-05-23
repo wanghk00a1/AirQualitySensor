@@ -13,7 +13,7 @@ class BroadcastKafkaProducer[K, V](createproducer: () => KafkaProducer[K, V]) ex
 }
 
 
-object broadcastKafkaProducer {
+object BroadcastKafkaProducer {
 
   import scala.collection.JavaConversions._
 

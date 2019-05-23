@@ -31,9 +31,9 @@ object MLlibSentimentAnalyzer {
     */
   def normalizeMLlibSentiment(sentiment: Double) = {
     sentiment match {
-      case x if x == 1 => 1 // negative
-      case x if x == 2 => 2 // neutral
-      case x if x == 3 => 3 // positive
+      case x if x == 0 => -1 // negative
+      case x if x == 2 => 0 // neutral
+      case x if x == 4 => 1 // positive
       case _ => 0 // if cant figure the sentiment, term it as neutral
     }
   }
@@ -59,9 +59,9 @@ object MLlibSentimentAnalyzer {
       .replaceAll("(?:https?|http?)://[\\w/%.-]+\\s+", "")
       .replaceAll("(?:https?|http?)//[\\w/%.-]+\\s+", "")
       .replaceAll("(?:https?|http?)//[\\w/%.-]+", "")
-      .split(" ")
-      //.filter(_.matches("^[a-zA-Z]+$"))
-      //.filter(!stopWordsList.contains(_))
+      .split("\\W+")
+      .filter(_.matches("^[a-zA-Z]+$"))
+      .filter(!stopWordsList.contains(_))
     //.fold("")((a,b) => a.trim + " " + b.trim).trim
   }
 
@@ -78,7 +78,8 @@ object MLlibSentimentAnalyzer {
   }
 
   def main(args: Array[String]): Unit = {
-    val tweetText = "今天 天气 真 好 啊！"
+    var tweetText = "@stellargirl I loooooooovvvvvveee my Kindle2. Not that the DX is cool, but the 2 is fantastic in its own right."
+    tweetText = "hello world"
     println(tweetText)
 
     val result = tweetText.toLowerCase()
@@ -92,10 +93,9 @@ object MLlibSentimentAnalyzer {
       .replaceAll("(?:https?|http?)://[\\w/%.-]+\\s+", "")
       .replaceAll("(?:https?|http?)//[\\w/%.-]+\\s+", "")
       .replaceAll("(?:https?|http?)//[\\w/%.-]+", "")
-      .split(" ")
-      //.filter(_.matches("^[a-zA-Z]+$"))
+      .split("\\W+")
+      .filter(_.matches("^[a-zA-Z]+$"))
 
     println(result.mkString(","))
-
   }
 }

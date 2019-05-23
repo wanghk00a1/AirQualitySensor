@@ -9,7 +9,7 @@ import org.apache.hadoop.fs.{FileSystem, Path}
 import org.apache.zookeeper.common.IOUtils
 
 /**
-  * 通过scala操作HDFS
+  * HDFS 工具类
   */
 object HDFSUtils {
   val hdfsUrl = "hdfs://gpu7:9000"
