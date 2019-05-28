@@ -17,16 +17,29 @@ LA_AREA = [-118.6682,33.7037,-118.1553,34.3373]
 CHICAGO = [-87.940267,41.644335,-87.524044,42.023131]
 G_locations = [-123.1512,37.0771,-121.3165,38.5396,-74.255735,40.496044,-73.700272,40.915256,-118.6682,33.7037,-118.1553,34.3373,-87.940267,41.644335,-87.524044,42.023131]
 
+# 判断语句包含 关键词
+def str_contain_tracks(str):
+    for word in G_track:
+        if word in str:
+            return True
+    return False
+
 ## This is the listener, resposible for receiving data
 class StdOutListener(tweepy.StreamListener):
     def on_data(self, data):
         # print to strout withput any filter to decoding
         # print ('%s' % json.dumps(json.loads(data)))
         # str(json.load(data.strip())).replace("{u'","{'").replace(" u'"," '")
-        print (data)
-        f=open('twitter.log','a')
-        f.write(data)
-        f.close()
+        tmp = json.loads(data)
+        if tmp['lang']=="en" and str_contain_tracks(tmp['text']):
+            f1=open('/Users/Kai/Workspace/AirQualitySensor/Collector/log/twitter.log','a')
+            f1.write(data)
+            f1.close()
+            print (data)
+        else :
+            f2=open('/Users/Kai/Workspace/AirQualitySensor/Collector/log/twitter_useless.log','a')
+            f2.write(data)
+            f2.close()
         # print (json.dumps(data))
         return True
 
