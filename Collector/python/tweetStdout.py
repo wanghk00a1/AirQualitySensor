@@ -4,12 +4,18 @@ import sys, os, getopt, argparse, logging, logging.handlers, traceback, re, subp
 import tweepy, json
 
 # Authentication details. To obtain these visit dev.twitter.com
-G_consumer_key = 'pH8zAmloqT0xBwit303LI0zPd'
-G_consumer_secret = 'h1NfmL8t3Ry60eranoz61PYWXNir9539QyzQ0i4L2jqaU0IQDC'
-G_access_token = '4244469072-FxT513aKjBWrSZipMYzhMdlN6AYha77d90MV3Hh'
-G_access_token_secret = 'ks69jGoDCEVeKarwBqztsoWt0xdPIamllVKq9MgGu3NMi'
+G_consumer_key = 'Uuco488uOvdCCbIpemP9nwdN8'
+G_consumer_secret = 'GuNz81y2jtkLncOQCOrrmHqwBlAjLD3SAhO735cWAzBvt3fm96'
+G_access_token = '1133252394383335424-KGDg30Qr1am9dIs4yUmyMtW5XImt3n'
+G_access_token_secret = 'Z8kGB9EBjJN4WqxZv91beRdlVYC8J8PBxODrZRnJLkfO8'
 # keywords
-G_track = ['Oscar','football','Avengers']
+G_track = ['New York','weather','aqi','air quality']
+# San Francisco Bay area, New York, LA and Chicago
+SF_AREA = [-123.1512,37.0771,-121.3165,38.5396]
+NY_AREA = [-74.255735,40.496044,-73.700272,40.915256]
+LA_AREA = [-118.6682,33.7037,-118.1553,34.3373]
+CHICAGO = [-87.940267,41.644335,-87.524044,42.023131]
+G_locations = [-123.1512,37.0771,-121.3165,38.5396,-74.255735,40.496044,-73.700272,40.915256,-118.6682,33.7037,-118.1553,34.3373,-87.940267,41.644335,-87.524044,42.023131]
 
 ## This is the listener, resposible for receiving data
 class StdOutListener(tweepy.StreamListener):
@@ -18,6 +24,9 @@ class StdOutListener(tweepy.StreamListener):
         # print ('%s' % json.dumps(json.loads(data)))
         # str(json.load(data.strip())).replace("{u'","{'").replace(" u'"," '")
         print (data)
+        f=open('twitter.log','a')
+        f.write(data)
+        f.close()
         # print (json.dumps(data))
         return True
 
@@ -36,8 +45,8 @@ def main(argv):
     auth.set_access_token(G_access_token, G_access_token_secret)
 
     stream = tweepy.Stream(auth, listener)
-    stream.filter(track=G_track)
-
+    # stream.filter(locations=NY_AREA,languages=["en"],track=G_track)
+    stream.filter(locations=G_locations)
 
 ## callin main
 if __name__ == '__main__':
