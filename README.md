@@ -71,3 +71,7 @@ $ mvn package
 - [flume\_kafka\_spark\_solr\_hive](https://github.com/obaidcuet/flume_kafka_spark_solr_hive/tree/master/codes) 
 
 - [corenlp-scala-examples](https://github.com/harpribot/corenlp-scala-examples)
+
+## Data
+
+Collect AQI Data from [Air Visual](https://www.airvisual.com/usa/california/san-francisco)
