@@ -1,4 +1,4 @@
-package hk.hku.spark.corenlp
+package hk.hku.flink.corenlp
 
 import java.util.Properties
 
