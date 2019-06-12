@@ -26,14 +26,15 @@ hduser => student
 4. 保持步骤3的terminal活跃状态，可以在本地访问 [kubernetes管理页面](http://localhost:8001/api/v1/namespaces/kube-system/services/https:kubernetes-dashboard:/proxy/#!/login)
 5. 创建其他tunnel（需要先启动对应服务）
 
-| |Srk8s机器上执行|Student@cocserver执行
+||Srk8s机器上执行|Student@cocserver执行|
 |--|:--|:--|
 |NameNode|`ssh -Nf -L localhost:10331:10.244.1.7:50070 root@10.244.1.7` |`ssh -NfL 10331:127.0.0.1:10331 srk8s@202.45.128.243 -p 10846`|
 |ResourceManager| `ssh -Nf -L localhost:10332:10.244.1.7:8088 root@10.244.1.7` |`ssh -NfL 10332:127.0.0.1:10332 srk8s@202.45.128.243 -p 10846`|
 |MapReducer<br>JobHistory Server|`ssh -Nf -L localhost:10333:10.244.1.7:19888 root@10.244.1.7` |`ssh -NfL 10333:127.0.0.1:10333 srk8s@202.45.128.243 -p 10846`|
 |NodeManager|`ssh -Nf -L localhost:10334:10.244.1.7:8042 root@10.244.1.7` | `ssh -NfL 10334:127.0.0.1:10334 srk8s@202.45.128.243 -p 10846`|
-|Spark JobHistory|`ssh -Nf -L localhost:10335:10.244.1.7:18080 root@10.244.1.7` |`ssh -NfL 10335:127.0.0.1:10335 srk8s@202.45.128.243 -p 10846`
-|CloudWeb|`ssh -Nf -L localhost:10336:10.244.1.7:9999 root@10.244.1.7` |`ssh -NfL 10336:127.0.0.1:10336 srk8s@202.45.128.243 -p 10846`
+|Spark JobHistory|`ssh -Nf -L localhost:10335:10.244.1.7:18080 root@10.244.1.7` |`ssh -NfL 10335:127.0.0.1:10335 srk8s@202.45.128.243 -p 10846`|
+|CloudWeb|`ssh -Nf -L localhost:10336:10.244.1.7:9999 root@10.244.1.7` |`ssh -NfL 10336:127.0.0.1:10336 srk8s@202.45.128.243 -p 10846`|
+|Flink|`ssh -Nf -L localhost:10337:10.244.1.7:8081 root@10.244.1.7` |`ssh -NfL 10337:127.0.0.1:10337 srk8s@202.45.128.243 -p 10846`|
 
 #### 构建镜像
 
@@ -118,6 +119,8 @@ hduser => student
     `ssh -L 10335:127.0.0.1:10335 student@202.45.128.135`
 7. 访问 CloudWeb 页面需要:
     `ssh -L 10336:127.0.0.1:10336 student@202.45.128.135`
+8. 访问 Flink 页面需要:
+    `ssh -L 10337:127.0.0.1:10337 student@202.45.128.135`
 
 #### 基本使用
 
@@ -134,3 +137,8 @@ hduser => student
 `spark-submit --class "hk.hku.spark.TweetSentimentAnalyzer" --master yarn --deploy-mode client --num-executors 8 --executor-memory 4g --executor-cores 4 --driver-memory 4g --conf spark.yarn.executor.memoryOverhead=2048 /home/hduser/app/RealtimeTwitterAnalysis/StreamProcessorSpark/target/StreamProcessorSpark-jar-with-dependencies.jar`
 
 6. 启动cloudweb: `nohup java -jar /home/hduser/app/RealtimeTwitterAnalysis/CloudWeb/target/CloudWeb-1.0-SNAPSHOT.jar`
+
+7. 启动/关闭 Flink 集群: /opt/flink-1.7.2/bin/start-cluster.sh  stop-cluster.sh
+
+8. 启动 flink 任务: flink run xxx.jar, 之后在 Flink 管理页面查看任务执行情况
+
