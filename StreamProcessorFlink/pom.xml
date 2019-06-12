@@ -25,19 +25,34 @@
             <version>1.7.2</version>
         </dependency>
 
-        <!-- https://mvnrepository.com/artifact/org.apache.flink/flink-scala -->
+        <!-- https://mvnrepository.com/artifact/org.apache.flink/flink-java -->
         <dependency>
             <groupId>org.apache.flink</groupId>
-            <artifactId>flink-scala_2.11</artifactId>
+            <artifactId>flink-java</artifactId>
             <version>1.7.2</version>
         </dependency>
 
-        <!-- https://mvnrepository.com/artifact/org.apache.flink/flink-streaming-scala -->
+        <!-- https://mvnrepository.com/artifact/org.apache.flink/flink-scala -->
+        <!--<dependency>-->
+            <!--<groupId>org.apache.flink</groupId>-->
+            <!--<artifactId>flink-scala_2.11</artifactId>-->
+            <!--<version>1.7.2</version>-->
+        <!--</dependency>-->
+
+        <!-- https://mvnrepository.com/artifact/org.apache.flink/flink-streaming-java -->
         <dependency>
             <groupId>org.apache.flink</groupId>
-            <artifactId>flink-streaming-scala_2.11</artifactId>
+            <artifactId>flink-streaming-java_2.11</artifactId>
             <version>1.7.2</version>
+            <!--<scope>provided</scope>-->
         </dependency>
+
+        <!-- https://mvnrepository.com/artifact/org.apache.flink/flink-streaming-scala -->
+        <!--<dependency>-->
+            <!--<groupId>org.apache.flink</groupId>-->
+            <!--<artifactId>flink-streaming-scala_2.11</artifactId>-->
+            <!--<version>1.7.2</version>-->
+        <!--</dependency>-->
 
         <!-- https://mvnrepository.com/artifact/org.apache.flink/flink-connector-kafka -->
         <!-- kafka 1.0.0+ 连接器-->
@@ -81,24 +96,6 @@
                 </configuration>
             </plugin>
 
-            <plugin>
-                <groupId>org.scala-tools</groupId>
-                <artifactId>maven-scala-plugin</artifactId>
-                <version>2.15.2</version>
-                <executions>
-                    <execution>
-                        <id>scala-compile-first</id>
-                        <goals>
-                            <goal>compile</goal>
-                        </goals>
-                        <configuration>
-                            <includes>
-                                <include>**/*.scala</include>
-                            </includes>
-                        </configuration>
-                    </execution>
-                </executions>
-            </plugin>
 
             <!-- 单独的项目的话，用这个 mvn package 无需assembly:single-->
             <plugin>
