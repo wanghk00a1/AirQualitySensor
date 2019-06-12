@@ -26,6 +26,7 @@ public class TweetFlinkAnalyzer {
     private static final Logger logger = LoggerFactory.getLogger(TweetFlinkAnalyzer.class);
 
     public static void main(String[] args) {
+        logger.info("TweetFlinkAnalyzer job start");
         TweetFlinkAnalyzer tweetFlinkAnalyzer = new TweetFlinkAnalyzer();
         tweetFlinkAnalyzer.startJob();
     }
@@ -37,7 +38,8 @@ public class TweetFlinkAnalyzer {
         final StreamExecutionEnvironment env = StreamExecutionEnvironment.getExecutionEnvironment();
         // 启用容错 checkpoint every 5000 msecs
         env.setStreamTimeCharacteristic(TimeCharacteristic.EventTime);
-
+        // 启用容错 checkpoint every 5000 msec
+        env.enableCheckpointing(5000);
 
         // 初始化 Consumer 配置
         Properties propConsumer = new Properties();
