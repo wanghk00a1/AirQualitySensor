@@ -69,10 +69,10 @@ public class TweetFlinkAnalyzer {
                         status = TwitterObjectFactory.createStatus(value);
                     } catch (TwitterException e) {
                         logger.error("TwitterException : ", e);
-                    } finally {
-                        return status;
                     }
-                }).filter(tweet -> tweet != null).name("Tweets Stream");
+                    return status;
+                })
+                .filter(tweet -> tweet != null).name("Tweets Stream");
 
         // output
         tweepyStream.map(line -> {
