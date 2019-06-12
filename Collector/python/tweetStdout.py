@@ -9,7 +9,7 @@ G_consumer_secret = 'GuNz81y2jtkLncOQCOrrmHqwBlAjLD3SAhO735cWAzBvt3fm96'
 G_access_token = '1133252394383335424-KGDg30Qr1am9dIs4yUmyMtW5XImt3n'
 G_access_token_secret = 'Z8kGB9EBjJN4WqxZv91beRdlVYC8J8PBxODrZRnJLkfO8'
 # keywords
-G_track = ['New York','weather','aqi','air quality']
+G_track = ['weather','aqi','air quality','nice','bad','health']
 # San Francisco Bay area, New York, LA and Chicago
 SF_AREA = [-123.1512,37.0771,-121.3165,38.5396]
 NY_AREA = [-74.255735,40.496044,-73.700272,40.915256]
@@ -32,12 +32,12 @@ class StdOutListener(tweepy.StreamListener):
         # str(json.load(data.strip())).replace("{u'","{'").replace(" u'"," '")
         tmp = json.loads(data)
         if tmp['lang']=="en" and str_contain_tracks(tmp['text']):
-            f1=open('/Users/Kai/Workspace/AirQualitySensor/Collector/log/twitter.log','a')
+            f1=open('./log/twitter.log','a')
             f1.write(data)
             f1.close()
             print (data)
         else :
-            f2=open('/Users/Kai/Workspace/AirQualitySensor/Collector/log/twitter_useless.log','a')
+            f2=open('./log/twitter_useless.log','a')
             f2.write(data)
             f2.close()
         # print (json.dumps(data))
