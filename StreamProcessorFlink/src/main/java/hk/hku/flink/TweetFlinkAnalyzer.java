@@ -1,5 +1,7 @@
 package hk.hku.flink;
 
+import hk.hku.flink.process.ComputeSentiment;
+import hk.hku.flink.process.ParseTwitter;
 import hk.hku.flink.utils.PropertiesLoader;
 import org.apache.flink.api.common.functions.MapFunction;
 import org.apache.flink.streaming.api.TimeCharacteristic;
@@ -14,6 +16,7 @@ import twitter4j.Status;
 import twitter4j.TwitterException;
 import twitter4j.TwitterObjectFactory;
 
+import java.util.Objects;
 import java.util.Properties;
 
 /**
@@ -26,7 +29,7 @@ public class TweetFlinkAnalyzer {
     private static final Logger logger = LoggerFactory.getLogger(TweetFlinkAnalyzer.class);
 
     public static void main(String[] args) {
-        logger.info("TweetFlinkAnalyzer job start");
+        logger.info("Tweets Flink Analyzer job start");
         TweetFlinkAnalyzer tweetFlinkAnalyzer = new TweetFlinkAnalyzer();
         tweetFlinkAnalyzer.startJob();
     }
@@ -36,9 +39,8 @@ public class TweetFlinkAnalyzer {
 
         // 创建运行环境
         final StreamExecutionEnvironment env = StreamExecutionEnvironment.getExecutionEnvironment();
-        // 启用容错 checkpoint every 5000 msecs
         env.setStreamTimeCharacteristic(TimeCharacteristic.EventTime);
-        // 启用容错 checkpoint every 5000 msec
+        // 启用容错 checkpoint every 5000 msecs
         env.enableCheckpointing(5000);
 
         // 初始化 Consumer 配置
@@ -46,40 +48,59 @@ public class TweetFlinkAnalyzer {
         propConsumer.setProperty("bootstrap.servers", PropertiesLoader.bootstrapServers);
         propConsumer.setProperty("group.id", PropertiesLoader.groupId);
         propConsumer.setProperty("auto.offset.reset", PropertiesLoader.autoOffsetReset);
-        FlinkKafkaConsumer kafkaConsumer =
-                new FlinkKafkaConsumer<String>(PropertiesLoader.topicConsumer, new SimpleStringSchema(), propConsumer);
 
         // 初始化 Producer 配置
         Properties propProducer = new Properties();
         propProducer.setProperty("bootstrap.servers", PropertiesLoader.bootstrapServersProducer);
         propProducer.setProperty("group.id", PropertiesLoader.groupIdProducer);
-        FlinkKafkaProducer kafkaProducer =
-                new FlinkKafkaProducer<String>(PropertiesLoader.topicProducer, new SimpleStringSchema(), propProducer);
 
         logger.info("Data Stream init");
 
-        // get kafka input data
-        DataStream<String> stream = env.addSource(kafkaConsumer).name("KafkaConsumer");
+        // kafka input data
+        DataStream<String> stream = env
+                .addSource(new FlinkKafkaConsumer<>(PropertiesLoader.topicConsumer, new SimpleStringSchema(), propConsumer))
+                .name("Kafka Consumer");
 
-        // parse tweepy
-        DataStream<Status> tweepyStream = stream.filter(line -> line.length() > 0)
-                .map(value -> {
-                    Status status = null;
-                    try {
-                        status = TwitterObjectFactory.createStatus(value);
-                    } catch (TwitterException e) {
-                        logger.error("TwitterException : ", e);
+        // parse tweets
+        DataStream<Status> tweetsStream = stream
+                .filter(line -> line.length() > 0)
+                .map(new ParseTwitter())
+                .filter(Objects::nonNull)
+                .name("Tweets Stream");
+
+        // process tweets
+        DataStream tweetsInfo = tweetsStream
+                .map(new ComputeSentiment())
+                .name("Sentiment Stream");
+
+
+        // 记录地区信息
+        DataStream geoInfo = tweetsStream
+                .map(tweet -> {
+                    if (tweet.getGeoLocation() != null) {
+                        return tweet.getGeoLocation().getLatitude()
+                                + ":" + tweet.getGeoLocation().getLongitude();
+                    } else {
+
+                        return tweet.getPlace().getCountry() + "|"
+                                + tweet.getPlace().getPlaceType()
+                                + "|" + tweet.getPlace().getFullName();
                     }
-                    return status;
                 })
-                .filter(tweet -> tweet != null).name("Tweets Stream");
+                .name("Geo Stream");
 
-        // output
-        tweepyStream.map(line -> {
-            String text = line.getText();
-            logger.info(text);
-            return text;
-        }).addSink(kafkaProducer);
+
+        // output geo info
+        geoInfo.addSink(new FlinkKafkaProducer("flink-geo",new SimpleStringSchema(),propProducer))
+                .name("Geo Info Sink");
+
+        geoInfo.print()
+                .name("Geo Print");
+
+        // output tweets process info
+        tweetsInfo.addSink(new FlinkKafkaProducer<>(PropertiesLoader.topicProducer, new SimpleStringSchema(), propProducer))
+                .name("Tweets Sentiment Result Sink");
+
 
         try {
             env.execute("COMP7705 Flink Job");
@@ -87,4 +108,5 @@ public class TweetFlinkAnalyzer {
             e.printStackTrace();
         }
     }
+
 }

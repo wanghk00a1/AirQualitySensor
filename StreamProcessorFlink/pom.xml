@@ -54,6 +54,13 @@
             <!--<version>1.7.2</version>-->
         <!--</dependency>-->
 
+        <!-- https://mvnrepository.com/artifact/org.apache.flink/flink-ml -->
+        <dependency>
+            <groupId>org.apache.flink</groupId>
+            <artifactId>flink-ml_2.11</artifactId>
+            <version>1.7.2</version>
+        </dependency>
+
         <!-- https://mvnrepository.com/artifact/org.apache.flink/flink-connector-kafka -->
         <!-- kafka 1.0.0+ 连接器-->
         <dependency>
@@ -75,11 +82,20 @@
         </dependency>
 
         <!-- https://mvnrepository.com/artifact/edu.stanford.nlp/stanford-corenlp -->
-        <!--<dependency>-->
-            <!--<groupId>edu.stanford.nlp</groupId>-->
-            <!--<artifactId>stanford-corenlp</artifactId>-->
-            <!--<version>3.8.0</version>-->
-        <!--</dependency>-->
+        <dependency>
+            <groupId>edu.stanford.nlp</groupId>
+            <artifactId>stanford-corenlp</artifactId>
+            <version>3.9.2</version>
+        </dependency>
+
+        <!--  will get the dependent model jars -->
+        <!-- 需要设置 export MAVEN_OPTS="-Xmx14000m" -->
+        <!--<dependency>
+            <groupId>edu.stanford.nlp</groupId>
+            <artifactId>stanford-corenlp</artifactId>
+            <version>3.9.2</version>
+            <classifier>models</classifier>
+        </dependency>-->
 
     </dependencies>
 
