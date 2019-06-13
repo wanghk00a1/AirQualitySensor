@@ -30,16 +30,7 @@ class StdOutListener(tweepy.StreamListener):
         # print to strout withput any filter to decoding
         # print ('%s' % json.dumps(json.loads(data)))
         # str(json.load(data.strip())).replace("{u'","{'").replace(" u'"," '")
-        tmp = json.loads(data)
-        if tmp['lang']=="en" and str_contain_tracks(tmp['text']):
-            f1=open('./log/twitter.log','a')
-            f1.write(data)
-            f1.close()
-            print (data)
-        else :
-            f2=open('./log/twitter_useless.log','a')
-            f2.write(data)
-            f2.close()
+        print (data)
         # print (json.dumps(data))
         return True
 
