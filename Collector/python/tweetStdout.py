@@ -4,10 +4,10 @@ import sys, os, getopt, argparse, logging, logging.handlers, traceback, re, subp
 import tweepy, json
 
 # Authentication details. To obtain these visit dev.twitter.com
-G_consumer_key = 'Uuco488uOvdCCbIpemP9nwdN8'
-G_consumer_secret = 'GuNz81y2jtkLncOQCOrrmHqwBlAjLD3SAhO735cWAzBvt3fm96'
-G_access_token = '1133252394383335424-KGDg30Qr1am9dIs4yUmyMtW5XImt3n'
-G_access_token_secret = 'Z8kGB9EBjJN4WqxZv91beRdlVYC8J8PBxODrZRnJLkfO8'
+G_consumer_key = 'aZVfiXFSFYmRCbabANPG9fONQ'
+G_consumer_secret = 'S1oqGNfnrdlw24TBd9TvcHqdtglhainhwETC7loDuGlFY22ICk'
+G_access_token = '1133252394383335424-GiofM2WUeEuesmuZqfo03P70pPl7X6'
+G_access_token_secret = 'DMTSobTusIrGi3rlnsRqKuKMnUtcsijsa7FClSzVMSp6t'
 # keywords
 G_track = ['weather','aqi','air quality','nice','bad','health']
 # San Francisco Bay area, New York, LA and Chicago
