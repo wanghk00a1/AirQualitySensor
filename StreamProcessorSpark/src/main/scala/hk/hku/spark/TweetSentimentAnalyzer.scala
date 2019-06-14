@@ -121,14 +121,14 @@ object TweetSentimentAnalyzer {
     // 数据格式:id, screenName, text, nlp, mllib, latitude, longitude, profileURL, date
     classifiedTweets.foreachRDD { rdd =>
       try {
-        if (rdd != null && !rdd.isEmpty() && !rdd.partitions.isEmpty) {
+//        if (rdd != null && !rdd.isEmpty() && !rdd.partitions.isEmpty) {
           rdd.foreach(message => {
             // log.info(s"producer msg to kafka ${message.toString()}")
             kafkaProducer.value.send(PropertiesLoader.topicProducer, message.productIterator.mkString(DELIMITER))
           })
-        } else {
-          log.warn("classifiedTweets rdd is null")
-        }
+//        } else {
+//          log.warn("classifiedTweets rdd is null")
+//        }
       } catch {
         case e: TwitterException =>
           log.error("classifiedTweets TwitterException")

@@ -25,7 +25,7 @@ object PropertiesLoader {
   val bootstrapServers = conf.getString("BOOTSTRAP_SERVER")
   val groupId = conf.getString("GROUP_ID")
   val autoOffsetReset = conf.getString("AUTO_OFFSET_RESET")
-  val topics = conf.getString("KAFKA_TOPICS")
+  val topics = conf.getString("KAFKA_TOPIC_CONSUMER")
 
   // produce kafka 吐结果数据
   val bootstrapServersProducer = conf.getString("BOOTSTRAP_SERVER_PRODUCER")
