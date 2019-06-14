@@ -106,13 +106,13 @@ object TweetSentimentAnalyzer {
         // 解析 twitter 元数据
         TwitterObjectFactory.createStatus(line.value())
       })
-      .filter(status => {
-        // 去除空数据，去除非英文数据
-        if (status == null || !isTweetInEnglish(status))
-          false
-        else
-          true
-      })
+//      .filter(status => {
+//        // 去除空数据，去除非英文数据
+//        if (status == null || !isTweetInEnglish(status))
+//          false
+//        else
+//          true
+//      })
       .map(predictSentiment)
 
     // 分隔符 was chosen as the probability of this character appearing in tweets is very less.
