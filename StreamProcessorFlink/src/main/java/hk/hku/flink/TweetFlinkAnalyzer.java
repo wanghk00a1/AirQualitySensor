@@ -69,6 +69,7 @@ public class TweetFlinkAnalyzer {
                 .name("Tweets Stream");
 
         // process tweets
+        // 需要加关键词过滤
         DataStream tweetsInfo = tweetsStream
                 .map(new ComputeSentiment())
                 .name("Sentiment Stream");
