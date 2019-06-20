@@ -31,7 +31,10 @@ public class PropertiesLoader {
     public static String groupIdProducer = conf.getString("GROUP_ID_PRODUCER");
     public static String topicProducer = conf.getString("KAFKA_TOPICS_PRODUCER");
 
-    public static void main(String[] args){
+    // weather keywords
+    public static String weatherKeywords = conf.getString("WEATHER_KEYWORD");
+
+    public static void main(String[] args) {
         System.out.println(PropertiesLoader.sentiment140TestingFilePath);
     }
 

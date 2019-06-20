@@ -10,6 +10,13 @@
     <artifactId>StreamProcessorFlink</artifactId>
     <name>StreamProcessorFlink</name>
 
+    <properties>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <!-- The main class to start by executing java -jar -->
+        <start-class>hk.hku.flink.TweetFlinkAnalyzer</start-class>
+    </properties>
+
+
     <dependencies>
         <!-- https://mvnrepository.com/artifact/org.apache.flink/flink-core -->
         <dependency>
@@ -95,6 +102,13 @@
             <artifactId>stanford-corenlp</artifactId>
             <version>3.9.2</version>
             <classifier>models</classifier>
+        </dependency>
+
+        <!--language detector-->
+        <dependency>
+            <groupId>com.optimaize.languagedetector</groupId>
+            <artifactId>language-detector</artifactId>
+            <version>0.6</version>
         </dependency>
 
     </dependencies>

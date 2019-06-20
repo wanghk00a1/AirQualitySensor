@@ -1,20 +1,15 @@
 package hk.hku.flink.corenlp;
 
 import edu.stanford.nlp.ling.CoreAnnotations;
-import edu.stanford.nlp.ling.CoreLabel;
 import edu.stanford.nlp.neural.rnn.RNNCoreAnnotations;
 import edu.stanford.nlp.pipeline.Annotation;
 import edu.stanford.nlp.pipeline.StanfordCoreNLP;
-import edu.stanford.nlp.semgraph.SemanticGraph;
-import edu.stanford.nlp.semgraph.SemanticGraphCoreAnnotations;
 import edu.stanford.nlp.sentiment.SentimentCoreAnnotations;
 import edu.stanford.nlp.trees.Tree;
-import edu.stanford.nlp.trees.TreeCoreAnnotations;
 import edu.stanford.nlp.util.CoreMap;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
 
@@ -30,7 +25,7 @@ public class CoreNLPSentimentAnalyzer {
     private static String propKey = "annotators";
     private static String propValue = "tokenize, ssplit, pos, lemma, parse, sentiment";
 
-    private StanfordCoreNLP pipeline;
+    private static StanfordCoreNLP pipeline;
 
     private CoreNLPSentimentAnalyzer() {
         Properties props = new Properties();
