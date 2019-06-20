@@ -129,16 +129,16 @@ hduser => student
 2. [Flume 使用](https://gist.github.com/AlexTK2012/1d3288f0e474b4ad66db80950b402230)
 
 3. 启动flume:
-`nohup flume-ng agent -f /home/hduser/app/RealtimeTwitterAnalysis/Collector/TwitterToKafka.conf -Dflume.root.logger=DEBUG,console -n a1 >> flume.log 2>&1 &`
+`nohup flume-ng agent -f /home/hduser/app/AirQualitySensor/Collector/TwitterToKafka.conf -Dflume.root.logger=DEBUG,console -n a1 >> flume.log 2>&1 &`
 
-4. Spark Streaming 训练Naive Bayes模型: `spark-submit --class "hk.hku.spark.mllib.SparkNaiveBayesModelCreator" --master local /home/hduser/app/RealtimeTwitterAnalysis/StreamProcessorSpark/target/StreamProcessorSpark-jar-with-dependencies.jar`
+4. Spark Streaming 训练Naive Bayes模型: `spark-submit --class "hk.hku.spark.mllib.SparkNaiveBayesModelCreator" --master local /home/hduser/app/AirQualitySensor/StreamProcessorSpark/target/StreamProcessorSpark-jar-with-dependencies.jar`
 
 5. 启动spark streaming 读取kafka twitter 数据
-`spark-submit --class "hk.hku.spark.TweetSentimentAnalyzer" --master yarn --deploy-mode client --num-executors 8 --executor-memory 4g --executor-cores 4 --driver-memory 4g --conf spark.yarn.executor.memoryOverhead=2048 /home/hduser/app/RealtimeTwitterAnalysis/StreamProcessorSpark/target/StreamProcessorSpark-jar-with-dependencies.jar`
+`spark-submit --class "hk.hku.spark.TweetSentimentAnalyzer" --master yarn --deploy-mode client --num-executors 8 --executor-memory 4g --executor-cores 4 --driver-memory 4g --conf spark.yarn.executor.memoryOverhead=2048 /home/hduser/app/AirQualitySensor/StreamProcessorSpark/target/StreamProcessorSpark-jar-with-dependencies.jar`
 
-6. 启动cloudweb: `nohup java -jar /home/hduser/app/RealtimeTwitterAnalysis/CloudWeb/target/CloudWeb-1.0-SNAPSHOT.jar`
+6. 启动cloudweb: `nohup java -jar /home/hduser/app/AirQualitySensor/CloudWeb/target/CloudWeb-1.0-SNAPSHOT.jar`
 
 7. 启动/关闭 Flink 集群: /opt/flink-1.7.2/bin/start-cluster.sh  stop-cluster.sh
 
-8. 启动 flink 任务: flink run xxx.jar, 之后在 Flink 管理页面查看任务执行情况
+8. 启动 flink 任务: `flink run -c hk.hku.flink.TweetFlinkAnalyzer StreamProcessorFlink-jar-with-dependencies.jar` , 之后在 Flink 管理页面查看任务执行情况。[Flink 基本命令](https://blog.csdn.net/sunnyyoona/article/details/78316406)
 
