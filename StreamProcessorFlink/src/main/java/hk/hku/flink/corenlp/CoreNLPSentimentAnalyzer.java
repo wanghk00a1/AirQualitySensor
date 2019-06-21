@@ -72,7 +72,7 @@ public class CoreNLPSentimentAnalyzer {
             sizeSum += size;
         }
 
-        return sentimentSum == 0 ? -1 : normalizeCoreNLPSentiment(Double.valueOf(sentimentSum) / Double.valueOf(sizeSum));
+        return normalizeCoreNLPSentiment(Double.valueOf(sentimentSum) / Double.valueOf(sizeSum));
     }
 
     private int normalizeCoreNLPSentiment(Double sentiment) {
