@@ -1,6 +1,6 @@
 package hk.hku.spark.utils
 
-import java.io.ByteArrayInputStream
+import java.io.{ByteArrayInputStream, IOException}
 import java.net.URI
 
 import org.apache.commons.lang3.StringUtils
@@ -12,7 +12,7 @@ import org.apache.zookeeper.common.IOUtils
   * HDFS 工具类
   */
 object HDFSUtils {
-  val hdfsUrl = "hdfs://gpu7:9000"
+  val hdfsUrl = "hdfs://master:9000"
   var realUrl = ""
 
   /**
@@ -49,7 +49,11 @@ object HDFSUtils {
       realUrl = hdfsUrl + dir
       val config = new Configuration()
       val fs = FileSystem.get(URI.create(realUrl), config)
-      fs.delete(new Path(realUrl), true)
+      try {
+        fs.delete(new Path(realUrl), true)
+      } catch {
+        case e: IOException => e.printStackTrace()
+      }
       fs.close()
       result = true
     }
