@@ -4,6 +4,7 @@ import java.text.SimpleDateFormat
 import java.util.Date
 
 import hk.hku.spark.corenlp.CoreNLPSentimentAnalyzer
+import hk.hku.spark.utils.HDFSUtils
 import org.apache.log4j.{Level, LogManager}
 import org.apache.spark.{SparkConf, SparkContext}
 import org.apache.spark.serializer.KryoSerializer
@@ -14,13 +15,17 @@ import twitter4j.{GeoLocation, TwitterFactory, TwitterObjectFactory}
    预处理Tweet 文本数据
    spark-submit --class "hk.hku.spark.process.TweetAqiPreprocess" \
    --master yarn --deploy-mode client --driver-memory 4g \
-   --executor-cores 1 --num-executors 30 \
+   --executor-cores 2 --num-executors 30 \
    --conf "spark.executor.memory=4g" \
    --conf "spark.default.parallelism=60" \
    --conf "spark.memory.fraction=0.8" \
    StreamProcessorSpark-jar-with-dependencies.jar \
    /tweets/data-bak0621/twitter_london_useless.log \
    /tweets/spark/twitter_london_useless_preprocess
+
+
+   /tweets/data-bak0621/twitter.log \
+   /tweets/spark/twitter_preprocess
   */
 object TweetAqiPreprocess {
 
@@ -43,6 +48,9 @@ object TweetAqiPreprocess {
 
     val inputText = args(0)
     val outputText = args(1)
+
+    HDFSUtils.deleteDir(outputText)
+
     preprocessFromHDFS(sc, inputText, outputText)
 
   }
