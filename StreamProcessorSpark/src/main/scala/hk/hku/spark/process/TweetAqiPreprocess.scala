@@ -28,15 +28,15 @@ object TweetAqiPreprocess {
       .setAppName(this.getClass.getSimpleName)
       // Use KryoSerializer for serializing objects as JavaSerializer is too slow.
       .set("spark.serializer", classOf[KryoSerializer].getCanonicalName)
-    //      // For reconstructing the Web UI after the application has finished.
-    //      .set("spark.eventLog.enabled", "true")
-    //      // Reduce the RDD memory usage of Spark and improving GC behavior.
-    //      .set("spark.streaming.unpersist", "true")
+      //      // For reconstructing the Web UI after the application has finished.
+      //      .set("spark.eventLog.enabled", "true")
+      // Reduce the RDD memory usage of Spark and improving GC behavior.
+      .set("spark.streaming.unpersist", "true")
 
     val sc = new SparkContext(conf)
 
     val inputText = "/tweets/data-bak0621/twitter.log"
-    val outputText = "/tweets/preprocess/twitter_preprocess"
+    val outputText = "/tweets/spark/twitter_preprocess"
     preprocessFromHDFS(sc, inputText, outputText)
 
   }
@@ -90,17 +90,20 @@ object TweetAqiPreprocess {
 
       // id,date,city,sentiment,text
       var text = status.getText.replaceAll("\n", "")
+//      val sentiment = CoreNLPSentimentAnalyzer.computeWeightedSentiment(text)
+      val sentiment = 0
+
       (status.getId,
         status.getCreatedAt.getTime,
         city,
-        CoreNLPSentimentAnalyzer.computeWeightedSentiment(text),
+        sentiment,
         text
       )
     })
 
-    // coalesce(1, shuffle = true)
+
     computeTweets
-      //      .repartition(1)
+//      .repartition(1)
       .saveAsTextFile(output)
 
     log.info("job finished")
