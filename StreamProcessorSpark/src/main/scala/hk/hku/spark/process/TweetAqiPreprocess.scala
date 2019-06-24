@@ -8,24 +8,24 @@ import hk.hku.spark.utils.HDFSUtils
 import org.apache.log4j.{Level, LogManager}
 import org.apache.spark.{SparkConf, SparkContext}
 import org.apache.spark.serializer.KryoSerializer
-import twitter4j.{GeoLocation, TwitterFactory, TwitterObjectFactory}
+import twitter4j.{GeoLocation, TwitterException, TwitterFactory, TwitterObjectFactory}
 
 
 /*
    预处理Tweet 文本数据
    spark-submit --class "hk.hku.spark.process.TweetAqiPreprocess" \
-   --master yarn --deploy-mode client --driver-memory 4g \
+   --master yarn --deploy-mode cluster --driver-memory 4g \
    --executor-cores 2 --num-executors 30 \
    --conf "spark.executor.memory=4g" \
    --conf "spark.default.parallelism=60" \
    --conf "spark.memory.fraction=0.8" \
    StreamProcessorSpark-jar-with-dependencies.jar \
-   /tweets/data-bak0621/twitter_london_useless.log \
-   /tweets/spark/twitter_london_useless_preprocess
+   /tweets16/data-bak0621/twitter_london_useless.log \
+   /tweets16/spark/twitter_london_useless_preprocess
 
 
-   /tweets/data-bak0621/twitter.log \
-   /tweets/spark/twitter_preprocess
+   /tweets128/data-bak0621/twitter.log \
+   /tweets128/spark/twitter_preprocess
   */
 object TweetAqiPreprocess {
 
@@ -57,11 +57,17 @@ object TweetAqiPreprocess {
     log.info("preprocessFromHDFS start")
 
     val tweet4City = sc.textFile(input)
-      .repartition(60)
+//      .repartition(60)
 
     val parsedTweets = tweet4City.map(line => {
       // 解析 twitter 元数据
-      TwitterObjectFactory.createStatus(line)
+      try {
+        TwitterObjectFactory.createStatus(line)
+      } catch {
+        case e: TwitterException =>
+          log.error("TwitterException", e)
+          null
+      }
     }).filter(status => status != null)
 
     val computeTweets = parsedTweets.map(status => {
