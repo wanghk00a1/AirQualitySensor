@@ -13,11 +13,14 @@ import twitter4j.{GeoLocation, TwitterFactory, TwitterObjectFactory}
 /*
    预处理Tweet 文本数据
    spark-submit --class "hk.hku.spark.process.TweetAqiPreprocess" \
-   --master yarn --driver-memory 1g \
-   --executor-cores 4 --num-executors 15 \
-   --conf "spark.executor.memory=2g"
+   --master yarn --deploy-mode client --driver-memory 4g \
+   --executor-cores 1 --num-executors 30 \
+   --conf "spark.executor.memory=4g" \
    --conf "spark.default.parallelism=60" \
-   StreamProcessorSpark-jar-with-dependencies.jar
+   --conf "spark.memory.fraction=0.8" \
+   StreamProcessorSpark-jar-with-dependencies.jar \
+   /tweets/data-bak0621/twitter_london_useless.log \
+   /tweets/spark/twitter_london_useless_preprocess
   */
 object TweetAqiPreprocess {
 
@@ -38,8 +41,8 @@ object TweetAqiPreprocess {
 
     val sc = new SparkContext(conf)
 
-    val inputText = "/tweets/data-bak0621/twitter.log"
-    val outputText = "/tweets/spark/twitter_preprocess"
+    val inputText = args(0)
+    val outputText = args(1)
     preprocessFromHDFS(sc, inputText, outputText)
 
   }
