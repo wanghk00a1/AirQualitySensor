@@ -49,10 +49,29 @@ object TweetAqiPreprocess {
     val parsedTweets = tweet4City.map(line => {
       // 解析 twitter 元数据
       TwitterObjectFactory.createStatus(line)
+    }).filter(status => {
+      var city = "NULL"
+      if (status.getGeoLocation != null) {
+        city = returnCity(status.getGeoLocation.getLongitude, status.getGeoLocation.getLatitude)
+      } else if (status.getPlace != null) {
+        var x, y = 0.0
+        for (coorList <- status.getPlace.getBoundingBoxCoordinates) {
+          for (coor <- coorList) {
+            // 经度
+            x += coor.getLongitude
+            // 纬度
+            y += coor.getLatitude
+          }
+        }
+        city = returnCity(x / 4, y / 4)
+      }
+      if (city == "NULL")
+        false
+      else
+        true
     })
 
     val computeTweets = parsedTweets.map(status => {
-      //    SF,NY,LA,chicago
       var city = "NULL"
       if (status.getGeoLocation != null) {
         city = returnCity(status.getGeoLocation.getLongitude, status.getGeoLocation.getLatitude)
@@ -70,7 +89,7 @@ object TweetAqiPreprocess {
       }
 
       // id,date,city,sentiment,text
-      var text = status.getText.replaceAll("\n","")
+      var text = status.getText.replaceAll("\n", "")
       (status.getId,
         status.getCreatedAt.getTime,
         city,
@@ -81,7 +100,7 @@ object TweetAqiPreprocess {
 
     // coalesce(1, shuffle = true)
     computeTweets
-//      .repartition(1)
+      //      .repartition(1)
       .saveAsTextFile(output)
 
     log.info("job finished")
