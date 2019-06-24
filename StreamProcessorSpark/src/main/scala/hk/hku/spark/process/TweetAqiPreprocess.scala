@@ -49,8 +49,6 @@ object TweetAqiPreprocess {
     val inputText = args(0)
     val outputText = args(1)
 
-    HDFSUtils.deleteDir(outputText)
-
     preprocessFromHDFS(sc, inputText, outputText)
 
   }

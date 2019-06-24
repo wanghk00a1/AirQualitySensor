@@ -14,8 +14,7 @@ object CoreNLPSentimentAnalyzer {
 
   lazy val pipeline = {
     val props = new Properties()
-//    props.setProperty("annotators", "tokenize, ssplit, pos, lemma, parse, sentiment")
-    props.setProperty("annotators", "tokenize, ssplit, pos, sentiment")
+    props.setProperty("annotators", "tokenize, ssplit, pos, lemma, parse, sentiment")
     new StanfordCoreNLP(props)
   }
 
