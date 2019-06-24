@@ -93,14 +93,10 @@ object TweetAqiPreprocess {
 
       // id,date,city,sentiment,text
       var text = status.getText.replaceAll("\n", "")
-            val sentiment = CoreNLPSentimentAnalyzer.computeWeightedSentiment(text)
-//      val sentiment = 0
+      val sentiment = CoreNLPSentimentAnalyzer.computeWeightedSentiment(text)
+      //      val sentiment = 0
 
-      status.getId + "," +
-        status.getCreatedAt.getTime + "," +
-        city + "," +
-        sentiment + "," +
-        text
+      status.getId + "," + status.getCreatedAt.getTime + "," + city + "," + sentiment + "," + text
 
     })
 
