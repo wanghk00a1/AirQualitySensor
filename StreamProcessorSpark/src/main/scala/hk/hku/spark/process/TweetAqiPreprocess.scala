@@ -14,6 +14,8 @@ import twitter4j.{GeoLocation, TwitterFactory, TwitterObjectFactory}
    预处理Tweet 文本数据
    spark-submit --class "hk.hku.spark.process.TweetAqiPreprocess" \
    --master yarn --driver-memory 5g \
+   --executor_cores 4 --num_executors 4
+   --spark_parallelism 64
    StreamProcessorSpark-jar-with-dependencies.jar
   */
 object TweetAqiPreprocess {
@@ -45,6 +47,7 @@ object TweetAqiPreprocess {
     log.info("preprocessFromHDFS start")
 
     val tweet4City = sc.textFile(input)
+      .repartition(128)
 
     val parsedTweets = tweet4City.map(line => {
       // 解析 twitter 元数据
@@ -90,20 +93,20 @@ object TweetAqiPreprocess {
 
       // id,date,city,sentiment,text
       var text = status.getText.replaceAll("\n", "")
-//      val sentiment = CoreNLPSentimentAnalyzer.computeWeightedSentiment(text)
-      val sentiment = 0
+            val sentiment = CoreNLPSentimentAnalyzer.computeWeightedSentiment(text)
+//      val sentiment = 0
 
-      (status.getId,
-        status.getCreatedAt.getTime,
-        city,
-        sentiment,
+      status.getId + "," +
+        status.getCreatedAt.getTime + "," +
+        city + "," +
+        sentiment + "," +
         text
-      )
+
     })
 
 
     computeTweets
-//      .repartition(1)
+      //      .repartition(1)
       .saveAsTextFile(output)
 
     log.info("job finished")
