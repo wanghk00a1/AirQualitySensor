@@ -69,18 +69,19 @@ object TweetAqiPreprocess {
         city = returnCity(x / 4, y / 4)
       }
 
-      // id,text,sentiment,date,place,city,
+      // id,date,city,sentiment,text
+      var text = status.getText.replaceAll("\n","")
       (status.getId,
         status.getCreatedAt.getTime,
         city,
-        CoreNLPSentimentAnalyzer.computeWeightedSentiment(status.getText),
-        status.getText
+        CoreNLPSentimentAnalyzer.computeWeightedSentiment(text),
+        text
       )
     })
 
     // coalesce(1, shuffle = true)
     computeTweets
-      .repartition(1)
+//      .repartition(1)
       .saveAsTextFile(output)
 
     log.info("job finished")

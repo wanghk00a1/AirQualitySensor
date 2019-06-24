@@ -1,13 +1,13 @@
 package hk.hku.flink.process;
 
 import hk.hku.flink.corenlp.CoreNLPSentimentAnalyzer;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import twitter4j.GeoLocation;
 import twitter4j.Status;
 import twitter4j.TwitterObjectFactory;
 
 import java.io.*;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 
 /**
  * @author: LexKaing
@@ -16,37 +16,47 @@ import java.io.*;
  **/
 public class PreProcessFile {
 
-    private static final Logger logger = LoggerFactory.getLogger(PreProcessFile.class);
-
     static double[] SF_AREA = {-123.1512, 37.0771, -121.3165, 38.5396};
     static double[] NY_AREA = {-74.255735, 40.496044, -73.700272, 40.915256};
     static double[] LA_AREA = {-118.6682, 33.7037, -118.1553, 34.3373};
     static double[] CHICAGO = {-87.940267, 41.644335, -87.524044, 42.023131};
     static double[] LONDON = {-0.5104, 51.2868, 0.334, 51.6919};
 
+
+    private static SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss");
+
+
+    /*
+    java -classpath StreamProcessorFlink-jar-with-dependencies.jar hk.hku.flink.process.PreProcessFile \
+    /home/hduser/data-bak0621/twitter.log /home/hduser/data-bak0621/preprocess-twitter.log 5
+     */
     public static void main(String[] args) {
-
-        logger.info("start");
-
-        String inputFile = args[0];
-        String outputFile = args[1];
-
-        logger.info(inputFile + "," + outputFile);
+//        String inputFile = args[0];
+//        String outputFile = args[1];
+//        int memory = Integer.valueOf(args[2]);
 
         PreProcessFile preProcessFile = new PreProcessFile();
-        preProcessFile.largeFileIO(inputFile, outputFile);
+//        preProcessFile.largeFileIO(inputFile, outputFile);
+        preProcessFile.largeFileIO("/Users/Kai/Downloads/twitter/twitter_london.log",
+                "/Users/Kai/Downloads/twitter/preprocess_twitter_london.log",
+                5);
 
     }
 
-    public void largeFileIO(String inputFile, String outputFile) {
+    public void largeFileIO(String inputFile, String outputFile, int memory) {
         try {
             BufferedInputStream bis = new BufferedInputStream(new FileInputStream(new File(inputFile)));
-            BufferedReader in = new BufferedReader(new InputStreamReader(bis, "utf-8"), 10 * 1024 * 1024);// 10M缓存
-            FileWriter fw = new FileWriter(outputFile);
+//
+            BufferedReader in = new BufferedReader(new InputStreamReader(bis, "utf-8"), memory * 1024 * 1024);
+//            FileWriter fw = new FileWriter(outputFile);
 
+            BufferedWriter writer = new BufferedWriter(new FileWriter(outputFile));
 
-            while (in.ready()) {
-                String line = in.readLine();
+            System.out.println(sdf.format(new Date()));
+
+            String line;
+            while ((line = in.readLine()) != null) {
+
                 Status status = TwitterObjectFactory.createStatus(line);
                 String text = status.getText().replaceAll("\n", "");
 
@@ -70,16 +80,23 @@ public class PreProcessFile {
                 }
 
                 // id,date,city,sentiment,text
-                fw.append(String.valueOf(status.getId())).append(",")
-                        .append(String.valueOf(status.getCreatedAt().getTime())).append(",")
-                        .append(city).append(",")
-                        .append(String.valueOf(sentiment)).append(",")
-                        .append(text)
-                        .append("\n");
+//                fw.append(String.valueOf(status.getId())).append(",")
+//                        .append(String.valueOf(status.getCreatedAt().getTime())).append(",")
+//                        .append(city).append(",")
+//                        .append(String.valueOf(sentiment)).append(",")
+//                        .append(text)
+//                        .append("\n");
+
+                writer.write(status.getId() + "," + status.getCreatedAt().getTime() + ","
+                        + city + "," + sentiment + "," + text + "\n");
             }
             in.close();
-            fw.flush();
-            fw.close();
+//            fw.flush();
+//            fw.close();
+
+            writer.close();
+            System.out.println(sdf.format(new Date()));
+
         } catch (Exception e) {
             e.printStackTrace();
         }
