@@ -13,9 +13,7 @@ import twitter4j.{GeoLocation, TwitterFactory, TwitterObjectFactory}
 /*
    预处理Tweet 文本数据
    spark-submit --class "hk.hku.spark.process.TweetAqiPreprocess" \
-   --master yarn \
-   --driver-memory 5g \
-   --executor-cores \
+   --master yarn --driver-memory 5g \
    StreamProcessorSpark-jar-with-dependencies.jar
   */
 object TweetAqiPreprocess {
@@ -38,7 +36,7 @@ object TweetAqiPreprocess {
     val sc = new SparkContext(conf)
 
     val inputText = "/tweets/data-bak0621/twitter.log"
-    val outputText = "/tweets/preprocess/twitter_preprocess.csv"
+    val outputText = "/tweets/preprocess/twitter_preprocess"
     preprocessFromHDFS(sc, inputText, outputText)
 
   }
@@ -73,11 +71,10 @@ object TweetAqiPreprocess {
 
       // id,text,sentiment,date,place,city,
       (status.getId,
-        status.getText,
-        CoreNLPSentimentAnalyzer.computeWeightedSentiment(status.getText),
         status.getCreatedAt.getTime,
-        status.getPlace.getFullName,
-        city
+        city,
+        CoreNLPSentimentAnalyzer.computeWeightedSentiment(status.getText),
+        status.getText
       )
     })
 
