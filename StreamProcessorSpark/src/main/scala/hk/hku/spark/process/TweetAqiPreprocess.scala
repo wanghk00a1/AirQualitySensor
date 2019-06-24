@@ -10,8 +10,13 @@ import org.apache.spark.serializer.KryoSerializer
 import twitter4j.{GeoLocation, TwitterFactory, TwitterObjectFactory}
 
 
-/**
-  * 预处理Tweet 文本数据
+/*
+   预处理Tweet 文本数据
+   spark-submit --class "hk.hku.spark.process.TweetAqiPreprocess" \
+   --master yarn \
+   --driver-memory 5g \
+   --executor-cores \
+   StreamProcessorSpark-jar-with-dependencies.jar
   */
 object TweetAqiPreprocess {
 
@@ -25,10 +30,10 @@ object TweetAqiPreprocess {
       .setAppName(this.getClass.getSimpleName)
       // Use KryoSerializer for serializing objects as JavaSerializer is too slow.
       .set("spark.serializer", classOf[KryoSerializer].getCanonicalName)
-      // For reconstructing the Web UI after the application has finished.
-      .set("spark.eventLog.enabled", "true")
-      // Reduce the RDD memory usage of Spark and improving GC behavior.
-      .set("spark.streaming.unpersist", "true")
+    //      // For reconstructing the Web UI after the application has finished.
+    //      .set("spark.eventLog.enabled", "true")
+    //      // Reduce the RDD memory usage of Spark and improving GC behavior.
+    //      .set("spark.streaming.unpersist", "true")
 
     val sc = new SparkContext(conf)
 
@@ -76,8 +81,12 @@ object TweetAqiPreprocess {
       )
     })
 
-    computeTweets.saveAsTextFile(output)
+    // coalesce(1, shuffle = true)
+    computeTweets
+      .repartition(1)
+      .saveAsTextFile(output)
 
+    log.info("job finished")
   }
 
 
