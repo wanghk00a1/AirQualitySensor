@@ -2,6 +2,7 @@ package hk.hku.flink.process;
 
 import hk.hku.flink.corenlp.CoreNLPSentimentAnalyzer;
 import hk.hku.flink.utils.Constants;
+import org.apache.flink.api.common.functions.MapFunction;
 import org.apache.flink.api.java.DataSet;
 import org.apache.flink.api.java.ExecutionEnvironment;
 import org.apache.flink.core.fs.FileSystem;
@@ -47,37 +48,47 @@ public class PreProcess {
 
 //            System.out.println(filteredFile.count());
 
-        DataSet<String> processData = filteredFile.map(status -> {
-            String text = status.getText().replaceAll("\n", "");
+        DataSet<String> processData = filteredFile
+                .map(new MapFunction<Status, String>() {
+                    private static final long serialVersionUID = 1L;
 
-            int sentiment = CoreNLPSentimentAnalyzer.getInstance().computeWeightedSentiment(text);
+                    @Override
+                    public String map(Status status) throws Exception {
+                        String text = status.getText().replaceAll("\n", "");
 
-            String city = "NULL";
-            if (status.getGeoLocation() != null) {
-                city = returnCity(status.getGeoLocation().getLongitude(),
-                        status.getGeoLocation().getLatitude());
+                        int sentiment = CoreNLPSentimentAnalyzer.getInstance().computeWeightedSentiment(text);
 
-            } else if (status.getPlace() != null) {
-                double longitude = 0.0, latitude = 0.0;
-                for (GeoLocation[] coorList : status.getPlace().getBoundingBoxCoordinates()) {
+                        String city = "NULL";
+                        if (status.getGeoLocation() != null) {
+                            city = returnCity(status.getGeoLocation().getLongitude(),
+                                    status.getGeoLocation().getLatitude());
 
-                    for (GeoLocation coor : coorList) {
-                        longitude += coor.getLongitude();
-                        latitude += coor.getLatitude();
+                        } else if (status.getPlace() != null) {
+                            double longitude = 0.0, latitude = 0.0;
+                            for (GeoLocation[] coorList : status.getPlace().getBoundingBoxCoordinates()) {
+
+                                for (GeoLocation coor : coorList) {
+                                    longitude += coor.getLongitude();
+                                    latitude += coor.getLatitude();
+                                }
+                            }
+                            city = returnCity(longitude / 4, latitude / 4);
+                        }
+
+                        return status.getId() + COMMA
+                                + status.getCreatedAt().getTime() + COMMA
+                                + city + COMMA
+                                + sentiment + COMMA
+                                + text;
                     }
-                }
-                city = returnCity(longitude / 4, latitude / 4);
-            }
-
-            return status.getId() + COMMA
-                    + status.getCreatedAt().getTime() + COMMA
-                    + city + COMMA
-                    + sentiment + COMMA
-                    + text;
-        }).name("process data");
 
 
-        processData.writeAsText(outputFIle, FileSystem.WriteMode.OVERWRITE).name("write to hdfs");
+                }).name("process data");
+
+
+        processData
+                .writeAsText(outputFIle, FileSystem.WriteMode.OVERWRITE)
+                .name("write to hdfs");
 
         try {
             env.execute("read from hdfs");

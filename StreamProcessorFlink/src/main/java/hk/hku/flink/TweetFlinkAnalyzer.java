@@ -4,6 +4,7 @@ import hk.hku.flink.corenlp.CoreNLPSentimentAnalyzer;
 import hk.hku.flink.corenlp.LanguageAnalyzer;
 import hk.hku.flink.domain.TweetAnalysisEntity;
 import hk.hku.flink.utils.PropertiesLoader;
+import org.apache.flink.api.common.functions.MapFunction;
 import org.apache.flink.streaming.api.TimeCharacteristic;
 import org.apache.flink.streaming.api.datastream.DataStream;
 import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
@@ -30,7 +31,7 @@ import static hk.hku.flink.utils.Constants.DELIMITER;
 /**
  * @author: LexKaing
  * @create: 2019-06-12 17:40
- * @description:
+ * @description: flink run -c hk.hku.flink.TweetFlinkAnalyzer StreamProcessorFlink-jar-with-dependencies.jar
  **/
 public class TweetFlinkAnalyzer {
 
@@ -73,38 +74,41 @@ public class TweetFlinkAnalyzer {
         // parse tweets
         DataStream<TweetAnalysisEntity> parsedTwitterStream = stream
                 .filter(line -> line.length() > 0)
-                .map(line -> {
-                    try {
-                        Status status = TwitterObjectFactory.createStatus(line);
-                        String text = status.getText().replaceAll("\n", "");
+                .map(new MapFunction<String, TweetAnalysisEntity>() {
+                    @Override
+                    public TweetAnalysisEntity map(String line) throws Exception {
+                        try {
+                            Status status = TwitterObjectFactory.createStatus(line);
+                            String text = status.getText().replaceAll("\n", "");
 
-                        if (text.length() > 0) {
-                            TweetAnalysisEntity result = new TweetAnalysisEntity();
+                            if (text.length() > 0) {
+                                TweetAnalysisEntity result = new TweetAnalysisEntity();
 
-                            result.setId(status.getId());
-                            result.setText(text);
-                            result.setUsername(status.getUser().getScreenName());
-                            //if (status.getGeoLocation() != null)
-                            result.setGeo(status.getPlace().getFullName());
-                            result.setLanguage(LanguageAnalyzer.getInstance().detectLanguage(text));
+                                result.setId(status.getId());
+                                result.setText(text);
+                                result.setUsername(status.getUser().getScreenName());
+                                //if (status.getGeoLocation() != null)
+                                result.setGeo(status.getPlace().getFullName());
+                                result.setLanguage(LanguageAnalyzer.getInstance().detectLanguage(text));
 
-                            // 加上 weather keywords related
-                            // Arrays.stream({"1","2"}).filter(word -> text.contains(word)).count();
-                            Boolean weatherRelated = false;
-                            for (String word : PropertiesLoader.weatherKeywords.split(COMMA)) {
-                                if (text.contains(word)) {
-                                    weatherRelated = true;
-                                    break;
+                                // 加上 weather keywords related
+                                // Arrays.stream({"1","2"}).filter(word -> text.contains(word)).count();
+                                Boolean weatherRelated = false;
+                                for (String word : PropertiesLoader.weatherKeywords.split(COMMA)) {
+                                    if (text.contains(word)) {
+                                        weatherRelated = true;
+                                        break;
+                                    }
                                 }
-                            }
-                            result.setWeather(weatherRelated);
+                                result.setWeather(weatherRelated);
 
-                            return result;
+                                return result;
+                            }
+                        } catch (TwitterException e) {
+                            logger.error("Twitter Parse Exception : ", e);
                         }
-                    } catch (TwitterException e) {
-                        logger.error("Twitter Parse Exception : ", e);
+                        return null;
                     }
-                    return null;
                 })
                 .name("Parsed Tweets Stream");
 
