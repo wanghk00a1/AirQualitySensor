@@ -56,7 +56,7 @@ public class TweetFlinkAnalyzer {
         // 启用容错 checkpoint every 5000 msecs
         env.enableCheckpointing(5000);
         // 设置并行度15 台机器
-        env.setParallelism(2);
+        env.setParallelism(14);
 
         // 初始化 Consumer 配置
         Properties propConsumer = new Properties();
@@ -113,7 +113,7 @@ public class TweetFlinkAnalyzer {
                                 }
                                 result.setGeo(city);
 
-                                result.setLanguage(LanguageAnalyzer.getInstance().detectLanguage(text));
+                                result.setLanguage(status.getLang());
 
                                 // 加上 weather keywords related
                                 // Arrays.stream({"1","2"}).filter(word -> text.contains(word)).count();
@@ -124,7 +124,11 @@ public class TweetFlinkAnalyzer {
                                         break;
                                     }
                                 }
+
                                 result.setWeather(weatherRelated);
+
+                                result.setRetweet(status.isRetweeted());
+                                result.setHasMedia(status.getMediaEntities().length > 0);
 
                                 return result;
                             }
@@ -134,7 +138,7 @@ public class TweetFlinkAnalyzer {
                         return null;
                     }
                 })
-                .filter(tweet -> tweet != null && tweet.getLanguage().equals("en") && tweet.getGeo().equals("NULL"))
+                .filter(tweet -> tweet != null && tweet.getLanguage().equals("en")) //&& !tweet.getGeo().equals("NULL")
                 .name("Parsed Tweets Stream");
 
 
@@ -151,22 +155,6 @@ public class TweetFlinkAnalyzer {
                     return tweet;
                 })
                 .name("Sentiment Stream");
-
-
-        // output tweets process info
-//        sentimentStream
-//                .map(tweet -> {
-//                    StringBuffer stringBuffer = new StringBuffer();
-//                    stringBuffer.append(tweet.getId()).append(DELIMITER)
-//                            .append(tweet.getUsername()).append(DELIMITER)
-//                            .append(tweet.getSentiment()).append(DELIMITER)
-//                            .append(tweet.getWeather()).append(DELIMITER)
-//                            .append(tweet.getText());
-//                    return stringBuffer.toString();
-//                })
-//                .addSink(new FlinkKafkaProducer<>(PropertiesLoader.topicProducer,
-//                        new SimpleStringSchema(), propProducer))
-//                .name("Tweets Sentiment Result Sink");
 
 
         // 根据时间窗口 统计
@@ -190,12 +178,19 @@ public class TweetFlinkAnalyzer {
                                 neutral++;
                         }
 
-                        out.collect(city + SPLIT + positive + SPLIT + negative + SPLIT + neutral);
+                        out.collect(city + SPLIT + positive + SPLIT + negative
+                                + SPLIT + neutral + SPLIT + sdf.format(new Date()));
                     }
                 })
                 .name("statistics window");
 
-        statistics.print();
+//        statistics.print();
+
+        statistics
+                .addSink(new FlinkKafkaProducer<>("flink-geo",
+                        new SimpleStringSchema(), propProducer))
+                .name("Tweets Sentiment Result Sink");
+
 
         // count by time
         DataStream<String> countByTime = sentimentStream
@@ -203,7 +198,8 @@ public class TweetFlinkAnalyzer {
                 .timeWindow(Time.minutes(10), Time.minutes(5))
                 .process(new ProcessWindowFunction<TweetAnalysisEntity, String, String, TimeWindow>() {
                     @Override
-                    public void process(String key, Context context, Iterable<TweetAnalysisEntity> elements, Collector<String> out) throws Exception {
+                    public void process(String key, Context context, Iterable<TweetAnalysisEntity> elements,
+                                        Collector<String> out) throws Exception {
 
                         int cnt = 0;
                         for (TweetAnalysisEntity tmp : elements) {
@@ -215,7 +211,23 @@ public class TweetFlinkAnalyzer {
                 })
                 .name("count by time");
 
-        countByTime.print();
+//        countByTime.print();
+
+//        sentimentStream
+//                .map(tweet -> {
+//                    StringBuffer stringBuffer = new StringBuffer();
+//                    stringBuffer.append(tweet.getId()).append(DELIMITER)
+//                            .append(tweet.getUsername()).append(DELIMITER)
+//                            .append(tweet.getSentiment()).append(DELIMITER)
+//                            .append(tweet.getWeather()).append(DELIMITER)
+//                            .append(tweet.getText());
+//                    return stringBuffer.toString();
+//                })
+
+        countByTime
+                .addSink(new FlinkKafkaProducer<>("flink-count",
+                        new SimpleStringSchema(), propProducer))
+                .name("Tweets Sentiment Result Sink");
 
         try {
             env.execute("COMP7705 Flink Job");
