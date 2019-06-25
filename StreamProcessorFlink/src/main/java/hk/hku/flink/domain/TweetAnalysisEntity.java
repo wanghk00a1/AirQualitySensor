@@ -75,10 +75,10 @@ public class TweetAnalysisEntity {
     @Override
     public String toString() {
         return this.id + DELIMITER
-                + this.text + DELIMITER
                 + this.geo + DELIMITER
                 + this.language + DELIMITER
                 + this.weather + DELIMITER
-                + this.sentiment;
+                + this.sentiment + DELIMITER
+                + this.text;
     }
 }

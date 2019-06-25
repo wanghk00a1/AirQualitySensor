@@ -34,17 +34,14 @@ public class CoreNLPSentimentAnalyzer {
     }
 
 
-    public static CoreNLPSentimentAnalyzer getInstance(){
-        synchronized (CoreNLPSentimentAnalyzer.class)
-        {
-            if (INSTANCE == null)
-            {
+    public static CoreNLPSentimentAnalyzer getInstance() {
+        synchronized (CoreNLPSentimentAnalyzer.class) {
+            if (INSTANCE == null) {
                 INSTANCE = new CoreNLPSentimentAnalyzer();
             }
             return INSTANCE;
         }
     }
-
 
     /**
      * 默认的计算 文本 情绪
