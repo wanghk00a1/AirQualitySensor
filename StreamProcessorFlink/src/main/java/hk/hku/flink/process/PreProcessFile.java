@@ -37,8 +37,8 @@ public class PreProcessFile {
 
         PreProcessFile preProcessFile = new PreProcessFile();
 //        preProcessFile.largeFileIO(inputFile, outputFile);
-        preProcessFile.largeFileIO("/Users/Kai/Downloads/twitter/twitter_london.log",
-                "/Users/Kai/Downloads/twitter/preprocess_twitter_london.log",
+        preProcessFile.largeFileIO("logs/twitter_london.data",
+                "logs/preprocess_twitter_london.log",
                 5);
 
     }
