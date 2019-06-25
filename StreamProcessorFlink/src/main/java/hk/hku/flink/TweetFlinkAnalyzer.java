@@ -12,6 +12,7 @@ import org.apache.flink.streaming.api.datastream.DataStream;
 import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
 import org.apache.flink.streaming.api.functions.windowing.ProcessAllWindowFunction;
 import org.apache.flink.streaming.api.functions.windowing.ProcessWindowFunction;
+import org.apache.flink.streaming.api.windowing.evictors.CountEvictor;
 import org.apache.flink.streaming.api.windowing.time.Time;
 import org.apache.flink.streaming.api.windowing.triggers.CountTrigger;
 import org.apache.flink.streaming.api.windowing.windows.GlobalWindow;
@@ -46,10 +47,15 @@ public class TweetFlinkAnalyzer {
     public static void main(String[] args) {
         logger.info("Tweets Flink Analyzer job start");
         TweetFlinkAnalyzer tweetFlinkAnalyzer = new TweetFlinkAnalyzer();
-        tweetFlinkAnalyzer.startJob();
+
+        int countTrigger = Integer.valueOf(args[0]);
+
+        logger.info("count trigger : " + countTrigger);
+
+        tweetFlinkAnalyzer.startJob(countTrigger);
     }
 
-    private void startJob() {
+    private void startJob(int countTrigger) {
         // 创建运行环境
         final StreamExecutionEnvironment env = StreamExecutionEnvironment.getExecutionEnvironment();
         env.setStreamTimeCharacteristic(TimeCharacteristic.EventTime);
@@ -138,7 +144,7 @@ public class TweetFlinkAnalyzer {
                         return null;
                     }
                 })
-                .filter(tweet -> tweet != null && tweet.getLanguage().equals("en")) //&& !tweet.getGeo().equals("NULL")
+                .filter(tweet -> tweet != null && tweet.getLanguage().equals("en") && !tweet.getGeo().equals("NULL"))
                 .name("Parsed Tweets Stream");
 
 
@@ -160,8 +166,10 @@ public class TweetFlinkAnalyzer {
         // 根据时间窗口 统计
         DataStream<String> statistics = sentimentStream
                 .keyBy(tweet -> tweet.getGeo())
-                .timeWindow(Time.minutes(10), Time.minutes(5))
-                .trigger(CountTrigger.of(50))
+                // 5min 的滚动窗口
+                .timeWindow(Time.minutes(5))
+                .trigger(CountTrigger.of(countTrigger))
+                .evictor(CountEvictor.of(0))
                 .process(new ProcessWindowFunction<TweetAnalysisEntity, String, String, TimeWindow>() {
                     @Override
                     public void process(String city, Context context, Iterable<TweetAnalysisEntity> elements
@@ -194,19 +202,22 @@ public class TweetFlinkAnalyzer {
 
         // count by time
         DataStream<String> countByTime = sentimentStream
-                .keyBy(value -> value.getGeo())
-                .timeWindow(Time.minutes(10), Time.minutes(5))
-                .process(new ProcessWindowFunction<TweetAnalysisEntity, String, String, TimeWindow>() {
+                .timeWindowAll(Time.seconds(120))
+                .process(new ProcessAllWindowFunction<TweetAnalysisEntity, String, TimeWindow>() {
                     @Override
-                    public void process(String key, Context context, Iterable<TweetAnalysisEntity> elements,
-                                        Collector<String> out) throws Exception {
+                    public void process(Context context, Iterable<TweetAnalysisEntity> elements,
+                                        Collector<String> out) {
 
-                        int cnt = 0;
+                        int cntLondon = 0, cntNY = 0;
                         for (TweetAnalysisEntity tmp : elements) {
-                            cnt++;
+                            if (tmp.getGeo().equals("LONDON"))
+                                cntLondon++;
+                            else
+                                cntNY++;
                         }
 
-                        out.collect("Count:" + key + SPLIT + cnt + SPLIT + sdf.format(new Date()));
+                        out.collect("Count: " + sdf.format(new Date()) + ",London,"
+                                + cntLondon + ",NY," + cntNY);
                     }
                 })
                 .name("count by time");
