@@ -4,17 +4,28 @@ import java.text.SimpleDateFormat
 import java.util.Date
 
 import hk.hku.spark.corenlp.CoreNLPSentimentAnalyzer
+import hk.hku.spark.utils.HDFSUtils
 import org.apache.log4j.{Level, LogManager}
 import org.apache.spark.{SparkConf, SparkContext}
 import org.apache.spark.serializer.KryoSerializer
-import twitter4j.{GeoLocation, TwitterFactory, TwitterObjectFactory}
+import twitter4j.{GeoLocation, TwitterException, TwitterFactory, TwitterObjectFactory}
 
 
 /*
    预处理Tweet 文本数据
    spark-submit --class "hk.hku.spark.process.TweetAqiPreprocess" \
-   --master yarn --driver-memory 5g \
-   StreamProcessorSpark-jar-with-dependencies.jar
+   --master yarn --deploy-mode cluster --driver-memory 4g \
+   --executor-cores 2 --num-executors 30 \
+   --conf "spark.executor.memory=4g" \
+   --conf "spark.default.parallelism=60" \
+   --conf "spark.memory.fraction=0.8" \
+   StreamProcessorSpark-jar-with-dependencies.jar \
+   /tweets16/data-bak0621/twitter_london_useless.log \
+   /tweets16/spark/twitter_london_useless_preprocess
+
+
+   /tweets128/data-bak0621/twitter.log \
+   /tweets128/spark/twitter_preprocess
   */
 object TweetAqiPreprocess {
 
@@ -28,15 +39,16 @@ object TweetAqiPreprocess {
       .setAppName(this.getClass.getSimpleName)
       // Use KryoSerializer for serializing objects as JavaSerializer is too slow.
       .set("spark.serializer", classOf[KryoSerializer].getCanonicalName)
-    //      // For reconstructing the Web UI after the application has finished.
-    //      .set("spark.eventLog.enabled", "true")
-    //      // Reduce the RDD memory usage of Spark and improving GC behavior.
-    //      .set("spark.streaming.unpersist", "true")
+      //      // For reconstructing the Web UI after the application has finished.
+      //      .set("spark.eventLog.enabled", "true")
+      // Reduce the RDD memory usage of Spark and improving GC behavior.
+      .set("spark.streaming.unpersist", "true")
 
     val sc = new SparkContext(conf)
 
-    val inputText = "/tweets/data-bak0621/twitter.log"
-    val outputText = "/tweets/preprocess/twitter_preprocess"
+    val inputText = args(0)
+    val outputText = args(1)
+
     preprocessFromHDFS(sc, inputText, outputText)
 
   }
@@ -45,14 +57,20 @@ object TweetAqiPreprocess {
     log.info("preprocessFromHDFS start")
 
     val tweet4City = sc.textFile(input)
+//      .repartition(60)
 
     val parsedTweets = tweet4City.map(line => {
       // 解析 twitter 元数据
-      TwitterObjectFactory.createStatus(line)
-    })
+      try {
+        TwitterObjectFactory.createStatus(line)
+      } catch {
+        case e: TwitterException =>
+          log.error("TwitterException", e)
+          null
+      }
+    }).filter(status => status != null)
 
     val computeTweets = parsedTweets.map(status => {
-      //    SF,NY,LA,chicago
       var city = "NULL"
       if (status.getGeoLocation != null) {
         city = returnCity(status.getGeoLocation.getLongitude, status.getGeoLocation.getLatitude)
@@ -70,18 +88,17 @@ object TweetAqiPreprocess {
       }
 
       // id,date,city,sentiment,text
-      var text = status.getText.replaceAll("\n","")
-      (status.getId,
-        status.getCreatedAt.getTime,
-        city,
-        CoreNLPSentimentAnalyzer.computeWeightedSentiment(text),
-        text
-      )
+      var text = status.getText.replaceAll("\n", "")
+      val sentiment = CoreNLPSentimentAnalyzer.computeWeightedSentiment(text)
+      //      val sentiment = 0
+
+      status.getId + "," + status.getCreatedAt.getTime + "," + city + "," + sentiment + "," + text
+
     })
 
-    // coalesce(1, shuffle = true)
+
     computeTweets
-//      .repartition(1)
+      //      .repartition(1)
       .saveAsTextFile(output)
 
     log.info("job finished")
