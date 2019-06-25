@@ -10,10 +10,29 @@ import java.util.*;
  * Created by wanghanke on 24/6/2019.
  */
 public class TweetAqiSentimentPreprocess {
+
     public static void main(String[] args) {
-        File AqiFile = new File("logs/AQI.csv");
-        File TweetFile = new File("logs/tweet.csv");
-        File TweetAqiFile = new File("logs/tweetAQI.csv");
+        String path = "data/tweet-0621";
+        File file = new File(path);
+        func(file);
+
+    }
+
+    private static void func(File file){
+        File[] fs = file.listFiles();
+        for(File f:fs){
+            if(f.isDirectory())
+                func(f);
+            if(f.isFile())
+                process(f.getAbsolutePath());
+        }
+    }
+
+    public static void process(String TweetFilePass) {
+        File AqiFile = new File("data/AQI.csv");
+        File TweetFile = new File(TweetFilePass);
+        System.out.println(TweetFilePass);
+        File TweetAqiFile = new File("data/tweetAQI.csv");
         try {
             BufferedReader AqiData = new BufferedReader(new FileReader(AqiFile));
             BufferedReader TweetData = new BufferedReader(new FileReader(TweetFile));
@@ -40,23 +59,28 @@ public class TweetAqiSentimentPreprocess {
             TweetData.readLine();
             line = null;
             while ((line = TweetData.readLine()) != null) {
-                String item[] = line.split(",");
+                try {
+                    String item[] = line.split(",");
 
-                Long timeStamp = Long.valueOf(item[1]);
-                String timeString = new SimpleDateFormat("yyyy-MM-dd HH").format(new Date(timeStamp));
+                    Long timeStamp = Long.valueOf(item[1]);
+                    String timeString = new SimpleDateFormat("yyyy-MM-dd HH").format(new Date(timeStamp));
 
-                String city = item[2];
+                    String city = item[2];
 
-                for(int i=0;i<AqiCity.size();i++){
-                    Integer aqi = null;
-                    if(timeString.equals(AqiTimeStemp.get(i)) && city.equals(AqiCity.get(i))){
-                        aqi = AqiValue.get(i);
-                        System.out.println(i);
-                        writer.newLine();
-                        writer.write(aqi+","+line);
-                        writer.flush();
-                        break;
+                    for (int i = 0; i < AqiCity.size(); i++) {
+                        Integer aqi = null;
+                        if (timeString.equals(AqiTimeStemp.get(i)) && city.equals(AqiCity.get(i))) {
+                            aqi = AqiValue.get(i);
+                            System.out.println(i);
+                            writer.newLine();
+                            writer.write(aqi + "," + line);
+                            writer.flush();
+                            break;
+                        }
                     }
+                } catch (Exception e){
+                    e.printStackTrace();
+                    continue;
                 }
             }
 

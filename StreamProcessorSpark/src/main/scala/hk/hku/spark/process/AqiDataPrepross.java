@@ -7,6 +7,8 @@ import twitter4j.JSONObject;
 import java.io.*;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Created by wanghanke on 24/6/2019.
@@ -23,8 +25,9 @@ import java.text.SimpleDateFormat;
  */
 public class AqiDataPrepross {
     public static void main(String[] args) {
-        File file = new File("../AQIFetcher-out.log");
-        File resultFile = new File("../AQI.csv");
+        File file = new File("data/AQIFetcher-out.log");
+        File resultFile = new File("data/AQI.csv");
+        File finalAqiFile = new File("data/finalAQI.csv");
 
         try {
             BufferedReader reader = new BufferedReader(new FileReader(file));
@@ -65,6 +68,29 @@ public class AqiDataPrepross {
                 line++;
             }
             writer.close();
+
+            BufferedReader reader1 = new BufferedReader(new FileReader(resultFile));
+            BufferedWriter writer1 = new BufferedWriter(new FileWriter(finalAqiFile, true));
+            List<String> list = new ArrayList<>();
+
+            tempString = null;
+
+            while ((tempString = reader1.readLine()) != null) {
+                boolean found = false;
+                for(int i=0;i<list.size();i++){
+                    if(tempString.equals(list.get(i))){
+                        found = true;
+                        break;
+                    }
+                }
+                if(!found) {
+                    list.add(tempString);
+                    writer1.newLine();
+                    writer1.write(tempString);
+                }
+            }
+            writer1.close();
+
         } catch (FileNotFoundException e) {
             e.printStackTrace();
         } catch (IOException e) {
