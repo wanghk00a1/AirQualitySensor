@@ -169,29 +169,6 @@ public class TweetFlinkAnalyzer {
 //                .name("Tweets Sentiment Result Sink");
 
 
-        // 根据条次数窗口 统计
-//        DataStream<String> countByNum = sentimentStream
-//                .keyBy(tweet -> tweet.getGeo())
-//                .countWindowAll(30)
-//                .process(new ProcessAllWindowFunction<TweetAnalysisEntity, String, GlobalWindow>() {
-//                    @Override
-//                    public void process(Context context, Iterable<TweetAnalysisEntity> elements,
-//                                        Collector<String> out) throws Exception {
-//
-//                        int positive = 0, negative = 0, neutral = 0;
-//                        for (TweetAnalysisEntity element : elements) {
-//                            if (element.getSentiment() > 0)
-//                                positive++;
-//                            else if (element.getSentiment() < 0)
-//                                negative++;
-//                            else
-//                                neutral++;
-//                        }
-//                    }
-//                })
-//                .name("count window");
-
-
         // 根据时间窗口 统计
         DataStream<String> statistics = sentimentStream
                 .keyBy(tweet -> tweet.getGeo())
