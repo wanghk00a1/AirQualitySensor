@@ -15,8 +15,9 @@ import java.util.List;
  */
 public class TimelyAQICount {
     public static void main(String[] args) {
-        File file = new File("data/tweetAQI.csv");
-        File resultFile = new File("data/timelyAqiCount.csv");
+        File file = new File("data/tweetAQI-0625.csv");
+        File resultFile = new File("data/timelyAqiCount-0625.csv");
+        File resultFile1 = new File("data/timelyAqiCount-0625-firstOrderDifferent.csv");
 
         List<String> time = new ArrayList<>();
         List<Integer> positive = new ArrayList<>();
@@ -30,17 +31,18 @@ public class TimelyAQICount {
         try {
             BufferedReader tweetAqiData = new BufferedReader(new FileReader(file));
             BufferedWriter writer = new BufferedWriter(new FileWriter(resultFile, true));
+            BufferedWriter writer1 = new BufferedWriter(new FileWriter(resultFile1, true));
 
             tweetAqiData.readLine();
             String line = null;
 
             int l=0;
 
-            while ((line = tweetAqiData.readLine()) != null && l<20000) {
+            while ((line = tweetAqiData.readLine()) != null) {
                 l++;
                 String item[] = line.split(",");
 
-                if(!String.valueOf(item[3]).equals("NY")){
+                if(!String.valueOf(item[3]).equals("LONDON")){
                     continue;
                 }
 
@@ -108,13 +110,26 @@ public class TimelyAQICount {
                 }
             }
 
-            for(int i=0;i<time.size();i++){
-                writer.newLine();
-                writer.write(time.get(i) + "," + positive.get(i) + "," + negative.get(i) + "," + totalCount.get(i) + "," +
-                        weatherPositive.get(i) + "," + weatherNegative.get(i) + "," + weatherCount.get(i) + "," + aqi.get(i));
-                writer.flush();
+//            for(int i=0;i<time.size();i++){
+//                writer.newLine();
+//                writer.write(Integer.valueOf(time.get(i).substring(11, 13)) + "," + positive.get(i) + "," + negative.get(i) + "," + totalCount.get(i) + "," +
+//                        weatherPositive.get(i) + "," + weatherNegative.get(i) + "," + weatherCount.get(i) + "," + aqi.get(i));
+//                writer.flush();
+//            }
+//            writer.close();
+
+            for(int i=1;i<time.size();i++){
+                writer1.newLine();
+                writer1.write( (positive.get(i)-positive.get(i-1)) + "," +
+                        (negative.get(i) - negative.get(i-1)) + "," +
+                        (totalCount.get(i) -totalCount.get(i-1)) + "," +
+                        (weatherPositive.get(i) - weatherPositive.get(i-1)) + "," +
+                        (weatherNegative.get(i) - weatherNegative.get(i-1)) + "," +
+                        (weatherCount.get(i) - weatherCount.get(i-1)) + "," +
+                        (aqi.get(i) - aqi.get(i-1)));
+                writer1.flush();
             }
-            writer.close();
+            writer1.close();
 
         } catch (FileNotFoundException e) {
             e.printStackTrace();
@@ -128,7 +143,7 @@ public class TimelyAQICount {
         Long num = Long.valueOf(0);
         for(String text: texts) {
             num += Arrays.stream(new String[]{"weather", "aqi", "health",
-                    "smoke", "air pollution", "breathe", "lungs",
+                    "smoke", "air", "pollution", "breathe", "lungs",
                     "smog", "haze", "cough"}).filter(word -> text.contains(word)).count();
 
         }

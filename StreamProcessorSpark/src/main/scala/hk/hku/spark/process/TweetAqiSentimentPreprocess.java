@@ -12,7 +12,7 @@ import java.util.*;
 public class TweetAqiSentimentPreprocess {
 
     public static void main(String[] args) {
-        String path = "data/tweet-0621";
+        String path = "data/tweet-0625";
         File file = new File(path);
         func(file);
 
@@ -29,10 +29,10 @@ public class TweetAqiSentimentPreprocess {
     }
 
     public static void process(String TweetFilePass) {
-        File AqiFile = new File("data/AQI.csv");
+        File AqiFile = new File("data/finalAQI.csv");
         File TweetFile = new File(TweetFilePass);
         System.out.println(TweetFilePass);
-        File TweetAqiFile = new File("data/tweetAQI.csv");
+        File TweetAqiFile = new File("data/tweetAQI-0625.csv");
         try {
             BufferedReader AqiData = new BufferedReader(new FileReader(AqiFile));
             BufferedReader TweetData = new BufferedReader(new FileReader(TweetFile));
@@ -41,7 +41,7 @@ public class TweetAqiSentimentPreprocess {
             AqiData.readLine();
             String line = null;
             List<String> AqiCity = new ArrayList<>();
-            List<String> AqiTimeStemp = new ArrayList<>();
+            List<String> AdiTimeStamp = new ArrayList<>();
             List<Integer> AqiValue = new ArrayList<>();
             while ((line = AqiData.readLine()) != null) {
                 String item[] = line.split(",");
@@ -50,7 +50,7 @@ public class TweetAqiSentimentPreprocess {
 
                 Long timeStamp = Long.valueOf(item[1]);
                 String timeString = new SimpleDateFormat("yyyy-MM-dd HH").format(new Date(timeStamp*1000));
-                AqiTimeStemp.add(timeString);
+                AdiTimeStamp.add(timeString);
 
                 AqiValue.add(Integer.valueOf(item[2]));
 
@@ -69,7 +69,7 @@ public class TweetAqiSentimentPreprocess {
 
                     for (int i = 0; i < AqiCity.size(); i++) {
                         Integer aqi = null;
-                        if (timeString.equals(AqiTimeStemp.get(i)) && city.equals(AqiCity.get(i))) {
+                        if (timeString.equals(AdiTimeStamp.get(i)) && city.equals(AqiCity.get(i))) {
                             aqi = AqiValue.get(i);
                             System.out.println(i);
                             writer.newLine();
