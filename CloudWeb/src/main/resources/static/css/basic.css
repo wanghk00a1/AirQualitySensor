@@ -1,0 +1,11 @@
+.mark {
+    position: relative;
+    top: -80px;
+    display: block;
+    height: 0;
+    overflow: hidden;
+}
+
+.mr10 {
+    margin-right: 10px
+}

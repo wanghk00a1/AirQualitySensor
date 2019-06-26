@@ -1,0 +1,438 @@
+:root {
+    --theme-color: #6cf
+}
+
+html,
+body {
+    margin: 0;
+    padding: 0;
+    font-family: 'PingFang SC', 'Helvetica'
+}
+
+.app {
+    display: flex;
+    flex-flow: column nowrap;
+    justify-content: space-between;
+    align-items: center;
+    /* background: #fff; */
+    background-image: url(../images/bgPatternImg.jpg);
+}
+
+.header {
+    margin: 80px 0 0;
+    height: 380px;
+    width: 100%;
+    position: relative;
+    overflow: hidden;
+    z-index: -1;
+}
+
+.header .inner {
+    height: inherit;
+    width: 100%;
+    /* position: fixed */
+}
+
+.header .bg {
+    width: 100%;
+    height: 100%;
+    position: absolute;
+    left: 0;
+    top: 0;
+    background: no-repeat center -30px;
+    background-image: url("../images/bg_4.jpg");
+    background-size: cover;
+    z-index: -1
+}
+
+.header .title {
+    text-align: center;
+    margin: 10rem 1rem 0;
+}
+
+.header .title h1 {
+    margin: 0 auto;
+    /* color: #fff; */
+    width: fit-content;
+    border-bottom: 2px solid var(--theme-color)
+}
+
+.header .title h2 {
+    margin: 0 auto;
+    /* color: #fff; */
+    width: fit-content;
+}
+
+.nav {
+    z-index: 100;
+    position: fixed;
+    top: 0;
+    height: 80px;
+    width: 100%;
+    margin: 0;
+    display: flex;
+    flex-flow: row wrap;
+    justify-content: center;
+    align-items: center;
+    background: #fff;
+    box-shadow: 0 1px 1px 0 rgba(0, 0, 0, 0.16);
+    z-index: 100;
+}
+
+.nav .icon {
+    width: 5rem;
+    height: 5rem;
+    line-height: 5rem;
+    display: inline-flex;
+}
+
+.nav .menu {
+    height: inherit;
+    margin: 0;
+    display: flex;
+    flex-flow: row wrap;
+    justify-content: center;
+    align-items: center;
+}
+
+.nav .menu li {
+    list-style: none;
+}
+
+.nav .menu li a {
+    text-decoration: none;
+    padding: 2rem;
+    transition: all .3s;
+}
+
+.nav .menu li a span {
+    color: #000
+}
+
+.nav .menu li a:hover {
+    border-radius: 4px;
+    padding: 4rem 2rem;
+    background-color: rgba(255, 255, 255, 0.6);
+    box-shadow: 0 2px 10px 4px rgba(0, 0, 0, 0.2);
+}
+
+.nav .menu li a:hover span {
+    transition: all .1s;
+    border-bottom: 2px solid var(--theme-color)
+}
+
+.content {
+    width: 1200px;
+    min-width: 1200px;
+}
+
+.content .subtitle {
+    margin-top: 0;
+}
+
+.content .subtitle::before {
+    padding-right: 8px;
+    content: '';
+    border-left: 4px solid var(--theme-color)
+}
+
+.content section {
+    margin: 0 auto;
+    padding: 2rem 5%;
+}
+
+section .data__layout {
+    display: flex;
+    flex-flow: row wrap;
+    justify-content: space-between;
+    align-items: center;
+}
+
+section .data__layout .screenshot {
+    max-width: 68%;
+    box-shadow: 0 2px 6px 4px rgba(0, 0, 0, 0.2)
+}
+
+section .data__layout .intro {
+    min-width: 30%;
+    flex: 1 1 28%;
+}
+
+section .data__layout .intro li {
+    list-style: none
+}
+
+section .data__layout .intro .subsubtitle {
+    font-weight: bold;
+}
+
+section .data__layout .intro .subsubtitle::before {
+    padding-right: 8px;
+    content: '';
+    border-left: 3px solid var(--theme-color)
+}
+
+section .data__layout .intro .subintro {
+    color: #666
+}
+
+section .progress__layout {
+    margin: 0 4px;
+    overflow-x: auto;
+    overflow-y: hidden;
+    display: grid;
+    grid-template-rows: repeat(7, 22px);
+    gap: 8px 8px;
+}
+
+section .progress__layout::-webkit-scrollbar {
+    height: 8px
+}
+
+section .progress__layout::-webkit-scrollbar-thumb {
+    border-radius: 10px;
+    box-shadow: inset 0 0 5px rgba(102, 204, 255, 0.16);
+    background: var(--theme-color)
+}
+
+section .progress__layout::-webkit-scrollbar-track {
+    border-radius: 10px;
+    background: #ededed
+}
+
+section .progress__layout .head {
+    font-size: 1.1rem;
+    text-align: center;
+    border-bottom: 1px solid var(--theme-color)
+}
+
+section .progress__layout .item {
+    color: #000;
+    transition: all .2s;
+    border-radius: 6px;
+    background-color: var(--theme-color);
+}
+
+section .progress__layout .item:hover {
+    background-color: #fff;
+    box-shadow: 0 2px 6px 2px rgba(0, 0, 0, 0.16)
+}
+
+section .progress__layout .item::before {
+    padding: 2px
+}
+
+section .progress__layout .item.proposal {
+    grid-row: 2;
+}
+
+section .progress__layout .item.proposal::before {
+    content: 'Proposal Discussion'
+}
+
+section .progress__layout .item.data_collection {
+    grid-row: 3;
+}
+
+section .progress__layout .item.data_collection::before {
+    content: 'Data Collection'
+}
+
+section .progress__layout .item.data_pre-processing {
+    grid-row: 4;
+}
+
+section .progress__layout .item.data_pre-processing::before {
+    content: 'Data Pre-processing'
+}
+
+section .progress__layout .item.database_organization {
+    grid-row: 5;
+}
+
+section .progress__layout .item.database_organization::before {
+    content: 'Database Organization'
+}
+
+section .progress__layout .item.flume {
+    grid-row: 6;
+}
+
+section .progress__layout .item.flume::before {
+    content: 'Flume Setup'
+}
+
+section .progress__layout .item.kafka {
+    grid-row: 6;
+}
+
+section .progress__layout .item.kafka::before {
+    content: 'Kafka Setup'
+}
+
+section .progress__layout .item.nlp {
+    grid-row: 7;
+}
+
+section .progress__layout .item.nlp::before {
+    content: 'NLP'
+}
+
+section .progress__layout .item.spark-streaming {
+    grid-row: 8;
+}
+
+section .progress__layout .item.spark-streaming::before {
+    content: 'Spark-Streaming'
+}
+
+.header .menu a.dev:hover {
+    position: relative;
+}
+
+.header .menu a.dev:hover span::after {
+    left: 50%;
+    bottom: 1px;
+    position: absolute;
+    content: '还没做!'
+}
+
+@media (max-width: 1024px) {
+    .nav .menu {
+        display: none
+    }
+
+    .app {
+        padding: 0 1rem
+    }
+
+    .content section {
+        padding: 2rem 0
+    }
+
+    .data__layout .screenshot {
+        max-width: 100% !important
+    }
+
+    .data__layout .intro {
+        flex: 1 1 100%
+    }
+}
+
+.footer {
+    padding: 2rem;
+    color: #555;
+    text-align: center
+}
+
+/* btn 样式 from bootstrap */
+
+.btn {
+    display: inline-block;
+    padding: 6px 12px;
+    margin-bottom: 0;
+    font-size: 14px;
+    font-weight: 400;
+    line-height: 1.42857143;
+    text-align: center;
+    white-space: nowrap;
+    vertical-align: middle;
+    -ms-touch-action: manipulation;
+    touch-action: manipulation;
+    cursor: pointer;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+    background-image: none;
+    border: 1px solid transparent;
+    border-radius: 4px
+}
+
+.btn.active.focus,
+.btn.active:focus,
+.btn.focus,
+.btn:active.focus,
+.btn:active:focus,
+.btn:focus {
+    outline: thin dotted;
+    outline: 5px auto -webkit-focus-ring-color;
+    outline-offset: -2px
+}
+
+.btn.focus,
+.btn:focus,
+.btn:hover {
+    color: #333;
+    text-decoration: none
+}
+
+.btn.active,
+.btn:active {
+    background-image: none;
+    outline: 0;
+    -webkit-box-shadow: inset 0 3px 5px rgba(0, 0, 0, .125);
+    box-shadow: inset 0 3px 5px rgba(0, 0, 0, .125)
+}
+
+.btn.disabled,
+.btn[disabled],
+fieldset[disabled] .btn {
+    pointer-events: none;
+    cursor: not-allowed;
+    filter: alpha(opacity=65);
+    -webkit-box-shadow: none;
+    box-shadow: none;
+    opacity: .65
+}
+
+.btn-default {
+    color: #333;
+    background-color: #fff;
+    border-color: #ccc;
+    margin-right: 1em;
+}
+
+.btn-default.active,
+.btn-default.focus,
+.btn-default:active,
+.btn-default:focus,
+.btn-default:hover,
+.open > .dropdown-toggle.btn-default {
+    color: #333;
+    background-color: #e6e6e6;
+    border-color: #adadad
+}
+
+.btn-default.active,
+.btn-default:active,
+.open > .dropdown-toggle.btn-default {
+    background-image: none
+}
+
+.btn-default.disabled,
+.btn-default.disabled.active,
+.btn-default.disabled.focus,
+.btn-default.disabled:active,
+.btn-default.disabled:focus,
+.btn-default.disabled:hover,
+.btn-default[disabled],
+.btn-default[disabled].active,
+.btn-default[disabled].focus,
+.btn-default[disabled]:active,
+.btn-default[disabled]:focus,
+.btn-default[disabled]:hover,
+fieldset[disabled] .btn-default,
+fieldset[disabled] .btn-default.active,
+fieldset[disabled] .btn-default.focus,
+fieldset[disabled] .btn-default:active,
+fieldset[disabled] .btn-default:focus,
+fieldset[disabled] .btn-default:hover {
+    background-color: #fff;
+    border-color: #ccc
+}
+
+.btn-default .badge {
+    color: #fff;
+    background-color: #333
+}
