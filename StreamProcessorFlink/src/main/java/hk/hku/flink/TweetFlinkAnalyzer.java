@@ -222,7 +222,7 @@ public class TweetFlinkAnalyzer {
         }
     }
 
-    private String countElement(Iterable<TweetAnalysisEntity> values) {
+    private static String countElement(Iterable<TweetAnalysisEntity> values) {
 
         int positive = 0, negative = 0, neutral = 0;
         for (TweetAnalysisEntity element : values) {
