@@ -185,16 +185,16 @@ public class TweetFlinkAnalyzer {
                     public void process(Context context, Iterable<TweetAnalysisEntity> elements
                             , Collector<String> out) {
                         int positive = 0, negative = 0, neutral = 0;
-                        for (TweetAnalysisEntity element : elements) {
-                            if (element.getSentiment() > 0)
-                                positive++;
-                            else if (element.getSentiment() < 0)
-                                negative++;
-                            else
-                                neutral++;
-                        }
-                        out.collect("LONDON" + SPLIT + positive + SPLIT + negative
-                                + SPLIT + neutral + SPLIT + sdf.format(new Date()));
+//                        for (TweetAnalysisEntity element : elements) {
+//                            if (element.getSentiment() > 0)
+//                                positive++;
+//                            else if (element.getSentiment() < 0)
+//                                negative++;
+//                            else
+//                                neutral++;
+//                        }
+                        String cnt = countElement(elements);
+                        out.collect("LONDON" + SPLIT + cnt + SPLIT + sdf.format(new Date()));
                     }
                 })
                 .addSink(new FlinkKafkaProducer<>("flink-geo",
@@ -207,17 +207,8 @@ public class TweetFlinkAnalyzer {
                     @Override
                     public void apply(TimeWindow window, Iterable<TweetAnalysisEntity> values,
                                       Collector<String> out) throws Exception {
-                        int positive = 0, negative = 0, neutral = 0;
-                        for (TweetAnalysisEntity element : values) {
-                            if (element.getSentiment() > 0)
-                                positive++;
-                            else if (element.getSentiment() < 0)
-                                negative++;
-                            else
-                                neutral++;
-                        }
-                        out.collect("NY" + SPLIT + positive + SPLIT + negative
-                                + SPLIT + neutral + SPLIT + sdf.format(new Date()));
+                        String cnt = countElement(values);
+                        out.collect("NY" + SPLIT + cnt + SPLIT + sdf.format(new Date()));
                     }
                 })
                 .addSink(new FlinkKafkaProducer<>("flink-geo",
@@ -229,6 +220,21 @@ public class TweetFlinkAnalyzer {
         } catch (Exception e) {
             e.printStackTrace();
         }
+    }
+
+    private String countElement(Iterable<TweetAnalysisEntity> values) {
+
+        int positive = 0, negative = 0, neutral = 0;
+        for (TweetAnalysisEntity element : values) {
+            if (element.getSentiment() > 0)
+                positive++;
+            else if (element.getSentiment() < 0)
+                negative++;
+            else
+                neutral++;
+        }
+
+        return positive + SPLIT + negative + SPLIT + neutral;
     }
 
 }
