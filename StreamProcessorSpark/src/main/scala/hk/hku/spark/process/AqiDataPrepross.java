@@ -2,6 +2,7 @@ package hk.hku.spark.process;
 
 import com.google.gson.Gson;
 import twitter4j.JSONArray;
+import twitter4j.JSONException;
 import twitter4j.JSONObject;
 
 import java.io.*;
@@ -37,8 +38,13 @@ public class AqiDataPrepross {
 
             int line = 1;
             while ((tempString = reader.readLine()) != null) {
-//                System.out.println("line " + line + ": " + tempString);
-                JSONObject jsonObject = new JSONObject(tempString);
+                System.out.println("line " + line + ": " + tempString);
+                JSONObject jsonObject = null;
+                try {
+                    jsonObject = new JSONObject(tempString);
+                } catch(JSONException e){
+                    continue;
+                }
                 String cityId = jsonObject.getString("id");
                 String cityName = null;
                 switch(cityId) {
