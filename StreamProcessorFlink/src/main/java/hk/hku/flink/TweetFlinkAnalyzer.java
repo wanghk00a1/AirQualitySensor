@@ -3,6 +3,7 @@ package hk.hku.flink;
 import com.google.gson.Gson;
 import hk.hku.flink.corenlp.CoreNLPSentimentAnalyzer;
 import hk.hku.flink.domain.TweetAnalysisEntity;
+import hk.hku.flink.domain.TweetStatisticEntity;
 import hk.hku.flink.trigger.CountWithTimeoutTrigger;
 import hk.hku.flink.utils.GeoCity;
 import hk.hku.flink.utils.PropertiesLoader;
@@ -59,19 +60,40 @@ public class TweetFlinkAnalyzer {
         tweetFlinkAnalyzer.startJob(timeout, countTrigger);
     }
 
-    private static String countElement(Iterable<TweetAnalysisEntity> values) {
-
-        int positive = 0, negative = 0, neutral = 0;
+    private static String countElement(String city,Iterable<TweetAnalysisEntity> values) {
+        int positive = 0, negative = 0, total = 0;
+        int w_positive = 0, w_negative = 0, w_total = 0;
         for (TweetAnalysisEntity element : values) {
-            if (element.getSentiment() > 0)
-                positive++;
-            else if (element.getSentiment() < 0)
-                negative++;
-            else
-                neutral++;
+            total++;
+            if (element.getHasWeather()) {
+                w_total++;
+                if (element.getSentiment() > 0) {
+                    positive++;
+                    w_positive++;
+                } else if (element.getSentiment() < 0) {
+                    w_negative++;
+                    negative++;
+                }
+            } else {
+                if (element.getSentiment() > 0) {
+                    positive++;
+                } else if (element.getSentiment() < 0) {
+                    negative++;
+                }
+            }
         }
 
-        return positive + SPLIT + negative + SPLIT + neutral;
+        TweetStatisticEntity tmp = new TweetStatisticEntity();
+        tmp.setCity(city);
+        tmp.setTimestamp((new Date()).getTime());
+        tmp.setPositive(positive);
+        tmp.setNegative(negative);
+        tmp.setTotal(total);
+        tmp.setW_positive(w_positive);
+        tmp.setW_negative(w_negative);
+        tmp.setW_total(w_total);
+
+        return gson.toJson(tmp);
     }
 
     private void startJob(int timeout, int countTrigger) {
@@ -121,6 +143,7 @@ public class TweetFlinkAnalyzer {
                             result.setId(status.getId());
                             result.setText(text);
                             result.setUsername(status.getUser().getScreenName());
+                            result.setCreatetime(status.getCreatedAt().getTime());
 
                             String city = "NULL";
                             if (status.getGeoLocation() != null) {
@@ -158,7 +181,7 @@ public class TweetFlinkAnalyzer {
                                     break;
                                 }
                             }
-                            result.setWeather(weatherRelated);
+                            result.setHasWeather(weatherRelated);
 
                             result.setRetweet(status.isRetweeted());
                             result.setHasMedia(status.getMediaEntities().length > 0);
@@ -187,12 +210,12 @@ public class TweetFlinkAnalyzer {
         // 存储各自城市的tweet 文本分析结果
         londonStream
                 .map(value -> gson.toJson(value))
-                .addSink(new FlinkKafkaProducer<String>("flink-london",new SimpleStringSchema(),propProducer))
+                .addSink(new FlinkKafkaProducer<String>("flink-london", new SimpleStringSchema(), propProducer))
                 .name("london tweets");
 
         nyStream
                 .map(value -> gson.toJson(value))
-                .addSink(new FlinkKafkaProducer<String>("flink-ny",new SimpleStringSchema(),propProducer))
+                .addSink(new FlinkKafkaProducer<String>("flink-ny", new SimpleStringSchema(), propProducer))
                 .name("new york tweets");
 
         /*
@@ -206,8 +229,8 @@ public class TweetFlinkAnalyzer {
                 .process(new ProcessAllWindowFunction<TweetAnalysisEntity, String, TimeWindow>() {
                     @Override
                     public void process(Context context, Iterable<TweetAnalysisEntity> elements, Collector<String> out) {
-                        String cnt = countElement(elements);
-                        out.collect("LONDON" + SPLIT + cnt + SPLIT + sdf.format(new Date()));
+                        String result = countElement("LONDON", elements);
+                        out.collect(result);
                     }
                 })
                 .addSink(new FlinkKafkaProducer<>("flink-count", new SimpleStringSchema(), propProducer))
@@ -219,8 +242,8 @@ public class TweetFlinkAnalyzer {
                 .apply(new AllWindowFunction<TweetAnalysisEntity, String, TimeWindow>() {
                     @Override
                     public void apply(TimeWindow window, Iterable<TweetAnalysisEntity> values, Collector<String> out) throws Exception {
-                        String cnt = countElement(values);
-                        out.collect("NY" + SPLIT + cnt + SPLIT + sdf.format(new Date()));
+                        String result = countElement("NY", values);
+                        out.collect(result);
                     }
                 })
                 .addSink(new FlinkKafkaProducer<>("flink-count", new SimpleStringSchema(), propProducer2))

@@ -5,7 +5,7 @@ import static hk.hku.flink.utils.Constants.DELIMITER;
 /**
  * @author: LexKaing
  * @create: 2019-06-20 16:00
- * @description: id¦text¦username¦geo¦language¦weather
+ * @description:
  **/
 public class TweetAnalysisEntity {
     private long id;
@@ -13,9 +13,19 @@ public class TweetAnalysisEntity {
     private String username;
     private String geo;
     private String language;
-    private Boolean weather;
+    private long createtime;
+    private Boolean hasWeather;
     private int sentiment;
     private Boolean hasMedia;
+    private Boolean isRetweet;
+
+    public long getCreatetime() {
+        return createtime;
+    }
+
+    public void setCreatetime(long createtime) {
+        this.createtime = createtime;
+    }
 
     public Boolean getHasMedia() {
         return hasMedia;
@@ -32,8 +42,6 @@ public class TweetAnalysisEntity {
     public void setRetweet(Boolean retweet) {
         isRetweet = retweet;
     }
-
-    private Boolean isRetweet;
 
     public int getSentiment() {
         return sentiment;
@@ -83,12 +91,12 @@ public class TweetAnalysisEntity {
         this.language = language;
     }
 
-    public Boolean getWeather() {
-        return weather;
+    public Boolean getHasWeather() {
+        return hasWeather;
     }
 
-    public void setWeather(Boolean weather) {
-        this.weather = weather;
+    public void setHasWeather(Boolean hasWeather) {
+        this.hasWeather = hasWeather;
     }
 
     @Override
@@ -96,7 +104,7 @@ public class TweetAnalysisEntity {
         return this.id + DELIMITER
                 + this.geo + DELIMITER
                 + this.language + DELIMITER
-                + this.weather + DELIMITER
+                + this.hasWeather + DELIMITER
                 + this.sentiment + DELIMITER
                 + this.text;
     }
