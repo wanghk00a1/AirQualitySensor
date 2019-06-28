@@ -1,5 +1,7 @@
 package hk.hku.cloud.config;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.messaging.simp.config.MessageBrokerRegistry;
 import org.springframework.scheduling.concurrent.DefaultManagedTaskScheduler;
@@ -19,6 +21,8 @@ import org.springframework.web.socket.config.annotation.WebSocketMessageBrokerCo
 @EnableWebSocketMessageBroker
 public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
 
+    private static final Logger logger = LoggerFactory.getLogger(WebSocketConfig.class);
+
     /**
      * 注册STOMP协议的节点，并指定映射的URL，供客户端与服务器端建立连接
      *
@@ -26,7 +30,7 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
      */
     @Override
     public void registerStompEndpoints(StompEndpointRegistry registry) {
-        System.out.println("registerStompEndpoints");
+        logger.info("registerStompEndpoints");
         // 注册STOMP协议节点，同时指定使用SockJS协议
         registry.addEndpoint("/endpointSang").withSockJS();
     }
@@ -39,7 +43,7 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
      */
     @Override
     public void configureMessageBroker(MessageBrokerRegistry registry) {
-        System.out.println("configureMessageBroker");
+        logger.info("configureMessageBroker");
 
 //        // 自定义调度器，用于控制心跳线程
 //        ThreadPoolTaskScheduler taskScheduler = new ThreadPoolTaskScheduler();

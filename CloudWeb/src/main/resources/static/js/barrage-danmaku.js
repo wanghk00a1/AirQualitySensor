@@ -24,10 +24,6 @@ $(document).ready(function () {
     // 保存 dl4j 情感分析结果
     let barrageDataDl4j = [];
 
-    // 折线图：趋势, 初始化
-    let lineChart = echarts.init(document.getElementById('LineChart'));
-    let lineChartOption = getLineChartOption()
-    lineChart.setOption(lineChartOption)
 
     // 刷新折线图
     let startPoint = new Date()
