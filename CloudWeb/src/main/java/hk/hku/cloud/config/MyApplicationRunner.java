@@ -35,29 +35,4 @@ public class MyApplicationRunner implements ApplicationRunner {
 
         System.out.println("MyCommandLineRunner kafka service started...");
     }
-
-    @Deprecated
-    private static void test() {
-        try {
-            Properties props = System.getProperties();
-            System.out.println("用户的当前工作目录：    " + props.getProperty("user.dir"));
-
-            FileReader fr = new FileReader("./CloudWeb/src/main/resources/test.txt");
-
-            BufferedReader bufr = new BufferedReader(fr);
-            String line;
-            String DELIMITER = "¦";
-            while ((line = bufr.readLine()) != null) {
-                String[] strArray = line.split(DELIMITER);
-                String mlSentiment = strArray[4].equals("1") ? "positive" : (strArray[4].equals("0") ? "neutral" : "negative");
-                String nlpSentiment = strArray[3].equals("1") ? "positive" : (strArray[3].equals("0") ? "neutral" : "negative");
-                System.out.println("id : " + strArray[0] + ",mllib : " + mlSentiment + " ,nlp : " + nlpSentiment);
-            }
-
-            bufr.close();
-
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
 }
