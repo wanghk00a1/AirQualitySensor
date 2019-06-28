@@ -1,5 +1,6 @@
 package hk.hku.flink;
 
+import com.google.gson.Gson;
 import hk.hku.flink.corenlp.CoreNLPSentimentAnalyzer;
 import hk.hku.flink.domain.TweetAnalysisEntity;
 import hk.hku.flink.trigger.CountWithTimeoutTrigger;
@@ -43,6 +44,8 @@ public class TweetFlinkAnalyzer {
     private static final Logger logger = LoggerFactory.getLogger(TweetFlinkAnalyzer.class);
 
     private static SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss");
+
+    private static Gson gson = new Gson();
 
     public static void main(String[] args) {
         logger.info("Tweets Flink Analyzer job start");
@@ -89,11 +92,11 @@ public class TweetFlinkAnalyzer {
         // 初始化 Producer 配置
         Properties propProducer = new Properties();
         propProducer.setProperty("bootstrap.servers", PropertiesLoader.bootstrapServersProducer);
-        propProducer.setProperty("group.id", PropertiesLoader.groupIdProducer);
+        propProducer.setProperty("group.id", "flink-producer1");
 
         Properties propProducer2 = new Properties();
         propProducer2.setProperty("bootstrap.servers", PropertiesLoader.bootstrapServersProducer);
-        propProducer2.setProperty("group.id", "flink-producer");
+        propProducer2.setProperty("group.id", "flink-producer2");
 
         logger.info("Data Stream init");
 
@@ -146,7 +149,6 @@ public class TweetFlinkAnalyzer {
                                 result.setSentiment(coreNlpSentiment);
                             }
 
-
                             // 加上 weather keywords related
                             // Arrays.stream({"1","2"}).filter(word -> text.contains(word)).count();
                             Boolean weatherRelated = false;
@@ -182,6 +184,16 @@ public class TweetFlinkAnalyzer {
                 .filter(value -> value.getGeo().toUpperCase().equals("NY"))
                 .name("NEW YORK Stream");
 
+        // 存储各自城市的tweet 文本分析结果
+        londonStream
+                .map(value -> gson.toJson(value))
+                .addSink(new FlinkKafkaProducer<String>("flink-london",new SimpleStringSchema(),propProducer))
+                .name("london tweets");
+
+        nyStream
+                .map(value -> gson.toJson(value))
+                .addSink(new FlinkKafkaProducer<String>("flink-ny",new SimpleStringSchema(),propProducer))
+                .name("new york tweets");
 
         /*
             使用 keyBy(tweet -> tweet.getGeo()) 会意外的很慢，原因未知.
@@ -198,8 +210,8 @@ public class TweetFlinkAnalyzer {
                         out.collect("LONDON" + SPLIT + cnt + SPLIT + sdf.format(new Date()));
                     }
                 })
-                .addSink(new FlinkKafkaProducer<>("flink-geo", new SimpleStringSchema(), propProducer))
-                .name("Tweets LONDON");
+                .addSink(new FlinkKafkaProducer<>("flink-count", new SimpleStringSchema(), propProducer))
+                .name("LONDON statistics");
 
         nyStream
                 .timeWindowAll(Time.seconds(timeout))
@@ -211,8 +223,8 @@ public class TweetFlinkAnalyzer {
                         out.collect("NY" + SPLIT + cnt + SPLIT + sdf.format(new Date()));
                     }
                 })
-                .addSink(new FlinkKafkaProducer<>("flink-geo", new SimpleStringSchema(), propProducer2))
-                .name("Tweets NY");
+                .addSink(new FlinkKafkaProducer<>("flink-count", new SimpleStringSchema(), propProducer2))
+                .name("NY statistics");
 
         try {
             env.execute("COMP7705 Flink Job");
