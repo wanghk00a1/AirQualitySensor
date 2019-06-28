@@ -30,7 +30,6 @@ body {
 .header .inner {
     height: inherit;
     width: 100%;
-    /* position: fixed */
 }
 
 .header .bg {
@@ -47,7 +46,9 @@ body {
 
 .header .title {
     text-align: center;
-    margin: 10rem 1rem 0;
+    padding: 10rem 1rem 10rem;
+    background: rgba(255, 255, 255, 0.5);
+    border-radius: 5px;
 }
 
 .header .title h1 {

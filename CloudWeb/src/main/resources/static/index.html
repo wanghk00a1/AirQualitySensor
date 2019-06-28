@@ -28,12 +28,14 @@
     <link href="./css/statistics.css" rel="stylesheet" />
     <link href="./css/barrage.css" rel="stylesheet" />
     <link href="./css/basic.css" rel="stylesheet" />
+    <link href="./css/aqi.css" rel="stylesheet" />
 
     <script src="./dist/danmaku.js"></script>
     <!-- <script src="./dist/index.min.js"></script> -->
 
     <script src="./js/statistics.js"></script>
     <script src="./js/barrage-danmaku.js"></script>
+    <script src="./js/aqi.js"></script>
 
 </head>
 
@@ -54,8 +56,8 @@
     <div class="header">
         <div class="inner">
             <div class="title">
-                <h1>Realtime Twitter Stream Analysis System</h1>
-                <h2>Group No : 7</h2>
+                <h1>Social Media as a sensor of Air Quality and Public Response</h1>
+                <h2>Kai Zhang | Hanke Wang | Jiaxing Zeng</h2>
             </div>
             <div class="bg"></div>
         </div>
@@ -64,131 +66,150 @@
         <div class="content">
             <section id="description">
                 <h2 class="subtitle">Description</h2>
-                <p style="padding: 0rem 2%;">This project gets real-time Twitter data stream. We will use several algorithms to analyze Sementic for each content. Meanwhile, we count meta data from the stream. We figure out language distribution in the stream and Twitter users' follower number distribution.</p>
+                <p style="padding: 0rem 2%;">This project will provide real-time monitoring and analysing of the public’s attention and satisfaction on air quality. We will develop filters to obtain air quality related messages, based on keyword matching, from the most popular Chinese microblog platforms Sina Weibo. We put the messages into a model, using Spark Streaming to implement real-time analysing and derive results on how dissatisfied the public is about the air quality in their city. The results will be demonstrated in chart format for friendly view. In addition, the results may promote government information disclosure and provide evidence and recommendations for government decision-making.</p>
             </section>
 
-            <!-- 数据统计区域 -->
-            <a name="Statistics" class="mark"></a>
-            <section>
-                <h2 class="subtitle">Realtime Statistics</h2>
-                <div class="charts">
-                    <div id="BarChart" class="bar-chart"></div>
-                    <div id="PieChart" class="pie-chart"></div>
-                </div>
-                <div id="charts-controller" class="charts-controller">
-                    <button class="btn btn-default mr10" onclick="switchBarTimer()">start/pause bar</button>
-                    <button class="btn btn-default" onclick="switchPieTimer()">start/pause pie</button>
-                </div>
-            </section>
+<!--            &lt;!&ndash; 数据统计区域 &ndash;&gt;-->
+<!--            <a name="Statistics" class="mark"></a>-->
+<!--            <section>-->
+<!--                <h2 class="subtitle">Realtime Statistics</h2>-->
+<!--                <div class="charts">-->
+<!--                    <div id="BarChart" class="bar-chart"></div>-->
+<!--                    <div id="PieChart" class="pie-chart"></div>-->
+<!--                </div>-->
+<!--                <div id="charts-controller" class="charts-controller">-->
+<!--                    <button class="btn btn-default mr10" onclick="switchBarTimer()">start/pause bar</button>-->
+<!--                    <button class="btn btn-default" onclick="switchPieTimer()">start/pause pie</button>-->
+<!--                </div>-->
+<!--            </section>-->
 
-            <!-- 弹幕区域 -->
-            <a name="Barrage" class="mark"></a>
-            <section>
-                <h2 class="subtitle">Realtime Twitter Barrage</h2>
-                <div>Current analysis method : 
-                    <p id="method" style="display:inline-block;">stanford core nlp</p>
-                </div>
-                <div id="barrage-canvas" class="barrage-dom"></div>
+<!--            &lt;!&ndash; 弹幕区域 &ndash;&gt;-->
+<!--            <a name="Barrage" class="mark"></a>-->
+<!--            <section>-->
+<!--                <h2 class="subtitle">Realtime Twitter Barrage</h2>-->
+<!--                <div>Current analysis method : -->
+<!--                    <p id="method" style="display:inline-block;">stanford core nlp</p>-->
+<!--                </div>-->
+<!--                <div id="barrage-canvas" class="barrage-dom"></div>-->
 
-                <!--基础操作-->
-                <div class='basic-operation'>
-                    <button class="btn btn-default" onclick="basicOperation('show')">Show</button>
-                    <button class="btn btn-default" onclick="basicOperation('hide')">Hide</button>
-                    <button class="btn btn-default" onclick="basicOperation('clear')">Clear</button>
-                    <button class="btn btn-default" onclick="basicOperation('reset')">Reset</button>
-                    <button class="btn btn-default" onclick="switchAdvancedOperation()">More</button>
-                </div>
-                <!--more operation-->
-                <div class="barrage-controller">
-                    <div class="barrage-controller-inline">
-                        <button class="btn btn-default" onclick="switchAnalysisMethod('nlp')">Display nlp result</button>
-                        <button class="btn btn-default" onclick="switchAnalysisMethod('nb')">Display naive bayes result</button>
-                        <button class="btn btn-default" onclick="switchAnalysisMethod('dl')">Display deep learning result</button>
-                    </div>
-                    <div class="barrage-controller-inline">
-                        <input id="interval-input" placeholder='输出速率:x+random(100)毫秒' class="interval-input" />
-                        <button id='interval-btn' class="btn btn-default" onclick="updateBasicBarrageTimer()">change interval</button>
-                    </div>
-                    <div class="barrage-controller-inline">
-                        <input type='text' placeholder='input...' class='barrage-input'>
-                        <button class="btn btn-default" onclick="lanuchBarrage()">Lanuch</button>
-                    </div>
-                    <div class="barrage-controller-inline">
-                        <input id="detail-input" placeholder='滚动速率:x毫秒' class="interval-input" />
-                        <button id='detail-speed-btn' class="btn btn-default" onclick="updateDetailBarrageSpeed()">change detail speed</button>
-                    </div>
-                    <div class="barrage-controller-inline">
-                        <button class="btn btn-default" onclick="switchBarrageBackground()">Switch Background</button>
-                        <button class="btn btn-default" onclick="startSocket()">Start Socket </button>
-                        <button class="btn btn-default" onclick="stopSocket()">Stop Socket </button>
-                    </div>
-                </div>
-            </section>
+<!--                &lt;!&ndash;基础操作&ndash;&gt;-->
+<!--                <div class='basic-operation'>-->
+<!--                    <button class="btn btn-default" onclick="basicOperation('show')">Show</button>-->
+<!--                    <button class="btn btn-default" onclick="basicOperation('hide')">Hide</button>-->
+<!--                    <button class="btn btn-default" onclick="basicOperation('clear')">Clear</button>-->
+<!--                    <button class="btn btn-default" onclick="basicOperation('reset')">Reset</button>-->
+<!--                    <button class="btn btn-default" onclick="switchAdvancedOperation()">More</button>-->
+<!--                </div>-->
+<!--                &lt;!&ndash;more operation&ndash;&gt;-->
+<!--                <div class="barrage-controller">-->
+<!--                    <div class="barrage-controller-inline">-->
+<!--                        <button class="btn btn-default" onclick="switchAnalysisMethod('nlp')">Display nlp result</button>-->
+<!--                        <button class="btn btn-default" onclick="switchAnalysisMethod('nb')">Display naive bayes result</button>-->
+<!--                        <button class="btn btn-default" onclick="switchAnalysisMethod('dl')">Display deep learning result</button>-->
+<!--                    </div>-->
+<!--                    <div class="barrage-controller-inline">-->
+<!--                        <input id="interval-input" placeholder='输出速率:x+random(100)毫秒' class="interval-input" />-->
+<!--                        <button id='interval-btn' class="btn btn-default" onclick="updateBasicBarrageTimer()">change interval</button>-->
+<!--                    </div>-->
+<!--                    <div class="barrage-controller-inline">-->
+<!--                        <input type='text' placeholder='input...' class='barrage-input'>-->
+<!--                        <button class="btn btn-default" onclick="lanuchBarrage()">Lanuch</button>-->
+<!--                    </div>-->
+<!--                    <div class="barrage-controller-inline">-->
+<!--                        <input id="detail-input" placeholder='滚动速率:x毫秒' class="interval-input" />-->
+<!--                        <button id='detail-speed-btn' class="btn btn-default" onclick="updateDetailBarrageSpeed()">change detail speed</button>-->
+<!--                    </div>-->
+<!--                    <div class="barrage-controller-inline">-->
+<!--                        <button class="btn btn-default" onclick="switchBarrageBackground()">Switch Background</button>-->
+<!--                        <button class="btn btn-default" onclick="startSocket()">Start Socket </button>-->
+<!--                        <button class="btn btn-default" onclick="stopSocket()">Stop Socket </button>-->
+<!--                    </div>-->
+<!--                </div>-->
+<!--            </section>-->
 
-            <!-- 弹幕区域 -->
-            <a name="Detailed" class="mark"></a>
+<!--            &lt;!&ndash; 弹幕区域 &ndash;&gt;-->
+<!--            <a name="Detailed" class="mark"></a>-->
+<!--            <section>-->
+<!--                <h2 class="subtitle">Detailed barrage display:</h2>-->
+<!--                <div style="display: inline-flex;">-->
+<!--                    <div id="scrollUpBox">-->
+<!--                        <ul id="content"></ul>-->
+<!--                    </div>-->
+<!--                    <div class="detail-text">-->
+<!--                        <div class="text-dom">-->
+<!--                            <span class="twitter-title">Twitter Text : </span>-->
+<!--                            <div class="twitter-text">-->
+<!--                                <p id="twitter-text-p"></p>-->
+<!--                            </div>-->
+<!--                        </div>-->
+<!--                        <table>-->
+<!--                            <tbody>-->
+<!--                                <tr>-->
+<!--                                    <td><span>Author : </span></td>-->
+<!--                                    <td><span id="detail-author"></span></td>-->
+<!--                                </tr>-->
+<!--                                <tr id="tr-detail-nb">-->
+<!--                                    <td><span>Naive Bayes : </span></td>-->
+<!--                                    <td><span id="detail-nb"></span></td>-->
+<!--                                </tr>-->
+<!--                                <tr id="tr-detail-nlp">-->
+<!--                                    <td><span>Stanford Core NLP : </span></td>-->
+<!--                                    <td><span id="detail-nlp"></span></td>-->
+<!--                                </tr>-->
+<!--                                <tr id="tr-detail-dl">-->
+<!--                                    <td><span>Deep Learning : </span></td>-->
+<!--                                    <td><span id="detail-dl"></span></td>-->
+<!--                                </tr>-->
+<!--                                <tr>-->
+<!--                                    <td><span>Date : </span></td>-->
+<!--                                    <td><span id="detail-date"></span></td>-->
+<!--                                </tr>-->
+<!--                                <tr>-->
+<!--                                    <td><span>latitude : </span></td>-->
+<!--                                    <td><span id="detail-latitude"></span></td>-->
+<!--                                </tr>-->
+<!--                                <tr>-->
+<!--                                    <td><span>longitude : </span></td>-->
+<!--                                    <td><span id="detail-longitude"></span></td>-->
+<!--                                </tr>-->
+<!--                            </tbody>-->
+<!--                        </table>-->
+<!--                    </div>-->
+<!--                </div>-->
+<!--                &lt;!&ndash;基础操作&ndash;&gt;-->
+<!--                <div class='basic-operation'>-->
+<!--                    <button class="btn btn-default" onclick="basicDetailOperation('start')">Start</button>-->
+<!--                    <button class="btn btn-default" onclick="basicDetailOperation('pause')">Pause</button>-->
+<!--                    <button class="btn btn-default" onclick="basicDetailOperation('clear')">Clear</button>-->
+<!--                    <button class="btn btn-default" onclick="basicDetailOperation('reset')">Reset</button>-->
+<!--                </div>-->
+<!--            </section>-->
+
+<!--            &lt;!&ndash; Growth 趋势&ndash;&gt;-->
+<!--            <a name="Trend" class="mark"></a>-->
+<!--            <section>-->
+<!--                <h2 class="subtitle">Sentiment trend:</h2>-->
+<!--                <div id="LineChart" class="sentiment-trend">-->
+
+<!--                </div>-->
+<!--            </section>-->
+
+            <a name="overview" class="mark"></a>
             <section>
-                <h2 class="subtitle">Detailed barrage display:</h2>
-                <div style="display: inline-flex;">
-                    <div id="scrollUpBox">
-                        <ul id="content"></ul>
-                    </div>
-                    <div class="detail-text">
-                        <div class="text-dom">
-                            <span class="twitter-title">Twitter Text : </span>
-                            <div class="twitter-text">
-                                <p id="twitter-text-p"></p>
+                <h2 class="subtitle">Overview</h2>
+                <div class="overview__layout">
+                    <div id="aqi-predict" class="chart"></div>
+                    <div id="aqi-real" class="chart"></div>
+                    <div id="accuracy-chart" class="chart ball__layout">
+                        <div class="value__layout">
+                            <label for="accuracy-value" class="value">Accuracy</label>
+                            <span id="accuracy-value" class="value" style="font-size: 26pt;">100%</span>
+                        </div>
+                        <div class="ball">
+                            <div class="water">
                             </div>
                         </div>
-                        <table>
-                            <tbody>
-                                <tr>
-                                    <td><span>Author : </span></td>
-                                    <td><span id="detail-author"></span></td>
-                                </tr>
-                                <tr id="tr-detail-nb">
-                                    <td><span>Naive Bayes : </span></td>
-                                    <td><span id="detail-nb"></span></td>
-                                </tr>
-                                <tr id="tr-detail-nlp">
-                                    <td><span>Stanford Core NLP : </span></td>
-                                    <td><span id="detail-nlp"></span></td>
-                                </tr>
-                                <tr id="tr-detail-dl">
-                                    <td><span>Deep Learning : </span></td>
-                                    <td><span id="detail-dl"></span></td>
-                                </tr>
-                                <tr>
-                                    <td><span>Date : </span></td>
-                                    <td><span id="detail-date"></span></td>
-                                </tr>
-                                <tr>
-                                    <td><span>latitude : </span></td>
-                                    <td><span id="detail-latitude"></span></td>
-                                </tr>
-                                <tr>
-                                    <td><span>longitude : </span></td>
-                                    <td><span id="detail-longitude"></span></td>
-                                </tr>
-                            </tbody>
-                        </table>
                     </div>
-                </div>
-                <!--基础操作-->
-                <div class='basic-operation'>
-                    <button class="btn btn-default" onclick="basicDetailOperation('start')">Start</button>
-                    <button class="btn btn-default" onclick="basicDetailOperation('pause')">Pause</button>
-                    <button class="btn btn-default" onclick="basicDetailOperation('clear')">Clear</button>
-                    <button class="btn btn-default" onclick="basicDetailOperation('reset')">Reset</button>
-                </div>
-            </section>
-
-            <!-- Growth 趋势-->
-            <a name="Trend" class="mark"></a>
-            <section>
-                <h2 class="subtitle">Sentiment trend:</h2>
-                <div id="LineChart" class="sentiment-trend">
-
                 </div>
             </section>
 
