@@ -48,7 +48,7 @@ public class RandomTree {
         }
     }
 
-    private static double predictAQI(TweetStatisticEntity entity) throws Exception {
+    public double predictAQI(TweetStatisticEntity entity) {
         Instance instance = new DenseInstance(attributes.size());
 
         instance.setValue(0, entity.getPositive());
@@ -64,7 +64,12 @@ public class RandomTree {
 
         logger.info(instances.instance(0).toString());
 
-        double aqi_value = classifier8.classifyInstance(instances.instance(0));
+        double aqi_value = 0;
+        try {
+            aqi_value = classifier8.classifyInstance(instances.instance(0));
+        } catch (Exception e) {
+            logger.error("predict exception", e);
+        }
 
         return aqi_value;
     }

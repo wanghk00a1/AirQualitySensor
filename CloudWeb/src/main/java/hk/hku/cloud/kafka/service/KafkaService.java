@@ -3,6 +3,7 @@ package hk.hku.cloud.kafka.service;
 import com.google.gson.Gson;
 import hk.hku.cloud.kafka.dao.KafkaDaoImpl;
 import hk.hku.cloud.kafka.domain.TweetStatisticEntity;
+import hk.hku.cloud.ml.RandomTree;
 import hk.hku.cloud.utils.KafkaProperties;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.apache.kafka.clients.consumer.ConsumerRecords;
@@ -109,6 +110,7 @@ public class KafkaService {
                 String value = consumerRecord.value().toString();
                 if (value.length() > 0) {
                     TweetStatisticEntity tmp = gson.fromJson(value, TweetStatisticEntity.class);
+                    tmp.setRandom_tree(RandomTree.getInstance().predictAQI(tmp));
                     kafkaDaoImpl.insertAqi(tmp);
                 }
             }
