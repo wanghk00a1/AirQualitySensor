@@ -1,18 +1,14 @@
 package hk.hku.flink;
 
 import hk.hku.flink.corenlp.CoreNLPSentimentAnalyzer;
-import hk.hku.flink.corenlp.LanguageAnalyzer;
 import hk.hku.flink.domain.TweetAnalysisEntity;
 import hk.hku.flink.trigger.CountWithTimeoutTrigger;
 import hk.hku.flink.utils.GeoCity;
 import hk.hku.flink.utils.PropertiesLoader;
-import org.apache.commons.lang3.StringUtils;
 import org.apache.flink.api.common.functions.MapFunction;
-import org.apache.flink.api.java.tuple.Tuple2;
 import org.apache.flink.streaming.api.TimeCharacteristic;
 import org.apache.flink.streaming.api.datastream.DataStream;
 import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
-import org.apache.flink.streaming.api.functions.ProcessFunction;
 import org.apache.flink.streaming.api.functions.windowing.AllWindowFunction;
 import org.apache.flink.streaming.api.functions.windowing.ProcessAllWindowFunction;
 import org.apache.flink.streaming.api.functions.windowing.ProcessWindowFunction;
@@ -188,8 +184,7 @@ public class TweetFlinkAnalyzer {
 
 
         /*
-            使用 keyBy(tweet -> tweet.getGeo())
-            会意外的很慢，原因未知
+            使用 keyBy(tweet -> tweet.getGeo()) 会意外的很慢，原因未知.
             process 和apply 用法类似，但更底层的算法,可以自己写定时触发计算的定时器
          */
         londonStream
@@ -207,11 +202,14 @@ public class TweetFlinkAnalyzer {
                 .name("Tweets LONDON");
 
         nyStream
-                .timeWindowAll(Time.seconds(countTrigger))
+                .timeWindowAll(Time.seconds(timeout))
                 .trigger(new CountWithTimeoutTrigger<>(countTrigger, TimeCharacteristic.ProcessingTime))
-                .apply((AllWindowFunction<TweetAnalysisEntity, String, TimeWindow>) (window, values, out) -> {
-                    String cnt = countElement(values);
-                    out.collect("NY" + SPLIT + cnt + SPLIT + sdf.format(new Date()));
+                .apply(new AllWindowFunction<TweetAnalysisEntity, String, TimeWindow>() {
+                    @Override
+                    public void apply(TimeWindow window, Iterable<TweetAnalysisEntity> values, Collector<String> out) throws Exception {
+                        String cnt = countElement(values);
+                        out.collect("NY" + SPLIT + cnt + SPLIT + sdf.format(new Date()));
+                    }
                 })
                 .addSink(new FlinkKafkaProducer<>("flink-geo", new SimpleStringSchema(), propProducer2))
                 .name("Tweets NY");
