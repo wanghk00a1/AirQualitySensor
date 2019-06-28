@@ -1,17 +1,203 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <meta charset=utf-8>
-    <meta http-equiv=X-UA-Compatible content="IE=edge">
-    <meta content="initial-scale=1,maximum-scale=1,user-scalable=no;" name=viewport>
-    <link rel=icon href=/favicon.ico>
-    <link rel=stylesheet href=/css/reset.css>
-    <title>Group07</title>
-</head>
-<body>
-<div id=app>
-    Welcome!
-</div>
+    <meta charset="UTF-8">
+    <meta http-equiv="Pragma" content="no-cache" />
+    <meta http-equiv="Cache-Control" content="no-cache,must-revalidate" />
+    <meta http-equiv="content-type" content="text/html; charset=UTF8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="HKU COMP7507 Term Project">
+    <meta name="author" content="LexKaing">
+    <link rel="icon" href="./favicon.ico" type="image/x-icon" />
+    <link rel="shortcut icon" href="./favicon.ico" type="image/x-icon" />
+    <title>COMP7305 Cluster and cloud computing</title>
 
+    <!--加载地图-->
+    <!-- <script src="http://api.map.baidu.com/api?v=3.0&ak=iRyl18zAppPIzw4YNYX87yGS6sB6raKp"></script> -->
+    <!--加载cdn资源-->
+    <script src="https://cdn.bootcss.com/jquery/3.3.1/jquery.js"></script>
+    <script src="https://cdn.bootcss.com/stomp.js/2.3.3/stomp.min.js"></script>
+    <script src="https://cdn.bootcss.com/sockjs-client/1.3.0/sockjs.min.js"></script>
+    <script src="https://cdn.bootcss.com/echarts/4.2.1-rc1/echarts.min.js"></script>
+    <!-- <script src="https://cdnjs.cloudflare.com/ajax/libs/echarts/4.2.1/echarts.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/echarts/4.2.1/extension/dataTool.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/echarts/4.2.1/extension/bmap.js"></script> -->
+
+    <!-- 加载本地文件 -->
+    <link href="./css/index.css" rel="stylesheet" />
+    <link href="./css/statistics.css" rel="stylesheet" />
+    <link href="./css/barrage.css" rel="stylesheet" />
+    <link href="./css/basic.css" rel="stylesheet" />
+
+    <script src="./dist/danmaku.js"></script>
+    <!-- <script src="./dist/index.min.js"></script> -->
+
+    <script src="./js/statistics.js"></script>
+    <script src="./js/barrage-danmaku.js"></script>
+
+</head>
+
+<body>
+    <div class="nav">
+        <div class="icon">
+            <img src="./images/icon_twitter3.svg" style="width: 100px;vertical-align: middle;">
+        </div>
+        <ul class="menu">
+            <li><a href=""><span>Home</span></a></li>
+            <li><a href="#Statistics"><span>Statistics</span></a></li>
+            <li><a href="#Barrage"><span>Barrage</span></a></li>
+            <li><a href="#Trend"><span>Trend</span></a></li>
+            <li><a href="https://github.com/BZbyr/7305CloudProject" target="_blank"><span>Git Repo</span></a></li>
+        </ul>
+    </div>
+
+    <div class="header">
+        <div class="inner">
+            <div class="title">
+                <h1>Realtime Twitter Stream Analysis System</h1>
+                <h2>Group No : 7</h2>
+            </div>
+            <div class="bg"></div>
+        </div>
+    </div>
+    <div class="app">
+        <div class="content">
+            <section id="description">
+                <h2 class="subtitle">Description</h2>
+                <p style="padding: 0rem 2%;">This project gets real-time Twitter data stream. We will use several algorithms to analyze Sementic for each content. Meanwhile, we count meta data from the stream. We figure out language distribution in the stream and Twitter users' follower number distribution.</p>
+            </section>
+
+            <!-- 数据统计区域 -->
+            <a name="Statistics" class="mark"></a>
+            <section>
+                <h2 class="subtitle">Realtime Statistics</h2>
+                <div class="charts">
+                    <div id="BarChart" class="bar-chart"></div>
+                    <div id="PieChart" class="pie-chart"></div>
+                </div>
+                <div id="charts-controller" class="charts-controller">
+                    <button class="btn btn-default mr10" onclick="switchBarTimer()">start/pause bar</button>
+                    <button class="btn btn-default" onclick="switchPieTimer()">start/pause pie</button>
+                </div>
+            </section>
+
+            <!-- 弹幕区域 -->
+            <a name="Barrage" class="mark"></a>
+            <section>
+                <h2 class="subtitle">Realtime Twitter Barrage</h2>
+                <div>Current analysis method : 
+                    <p id="method" style="display:inline-block;">stanford core nlp</p>
+                </div>
+                <div id="barrage-canvas" class="barrage-dom"></div>
+
+                <!--基础操作-->
+                <div class='basic-operation'>
+                    <button class="btn btn-default" onclick="basicOperation('show')">Show</button>
+                    <button class="btn btn-default" onclick="basicOperation('hide')">Hide</button>
+                    <button class="btn btn-default" onclick="basicOperation('clear')">Clear</button>
+                    <button class="btn btn-default" onclick="basicOperation('reset')">Reset</button>
+                    <button class="btn btn-default" onclick="switchAdvancedOperation()">More</button>
+                </div>
+                <!--more operation-->
+                <div class="barrage-controller">
+                    <div class="barrage-controller-inline">
+                        <button class="btn btn-default" onclick="switchAnalysisMethod('nlp')">Display nlp result</button>
+                        <button class="btn btn-default" onclick="switchAnalysisMethod('nb')">Display naive bayes result</button>
+                        <button class="btn btn-default" onclick="switchAnalysisMethod('dl')">Display deep learning result</button>
+                    </div>
+                    <div class="barrage-controller-inline">
+                        <input id="interval-input" placeholder='输出速率:x+random(100)毫秒' class="interval-input" />
+                        <button id='interval-btn' class="btn btn-default" onclick="updateBasicBarrageTimer()">change interval</button>
+                    </div>
+                    <div class="barrage-controller-inline">
+                        <input type='text' placeholder='input...' class='barrage-input'>
+                        <button class="btn btn-default" onclick="lanuchBarrage()">Lanuch</button>
+                    </div>
+                    <div class="barrage-controller-inline">
+                        <input id="detail-input" placeholder='滚动速率:x毫秒' class="interval-input" />
+                        <button id='detail-speed-btn' class="btn btn-default" onclick="updateDetailBarrageSpeed()">change detail speed</button>
+                    </div>
+                    <div class="barrage-controller-inline">
+                        <button class="btn btn-default" onclick="switchBarrageBackground()">Switch Background</button>
+                        <button class="btn btn-default" onclick="startSocket()">Start Socket </button>
+                        <button class="btn btn-default" onclick="stopSocket()">Stop Socket </button>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 弹幕区域 -->
+            <a name="Detailed" class="mark"></a>
+            <section>
+                <h2 class="subtitle">Detailed barrage display:</h2>
+                <div style="display: inline-flex;">
+                    <div id="scrollUpBox">
+                        <ul id="content"></ul>
+                    </div>
+                    <div class="detail-text">
+                        <div class="text-dom">
+                            <span class="twitter-title">Twitter Text : </span>
+                            <div class="twitter-text">
+                                <p id="twitter-text-p"></p>
+                            </div>
+                        </div>
+                        <table>
+                            <tbody>
+                                <tr>
+                                    <td><span>Author : </span></td>
+                                    <td><span id="detail-author"></span></td>
+                                </tr>
+                                <tr id="tr-detail-nb">
+                                    <td><span>Naive Bayes : </span></td>
+                                    <td><span id="detail-nb"></span></td>
+                                </tr>
+                                <tr id="tr-detail-nlp">
+                                    <td><span>Stanford Core NLP : </span></td>
+                                    <td><span id="detail-nlp"></span></td>
+                                </tr>
+                                <tr id="tr-detail-dl">
+                                    <td><span>Deep Learning : </span></td>
+                                    <td><span id="detail-dl"></span></td>
+                                </tr>
+                                <tr>
+                                    <td><span>Date : </span></td>
+                                    <td><span id="detail-date"></span></td>
+                                </tr>
+                                <tr>
+                                    <td><span>latitude : </span></td>
+                                    <td><span id="detail-latitude"></span></td>
+                                </tr>
+                                <tr>
+                                    <td><span>longitude : </span></td>
+                                    <td><span id="detail-longitude"></span></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                <!--基础操作-->
+                <div class='basic-operation'>
+                    <button class="btn btn-default" onclick="basicDetailOperation('start')">Start</button>
+                    <button class="btn btn-default" onclick="basicDetailOperation('pause')">Pause</button>
+                    <button class="btn btn-default" onclick="basicDetailOperation('clear')">Clear</button>
+                    <button class="btn btn-default" onclick="basicDetailOperation('reset')">Reset</button>
+                </div>
+            </section>
+
+            <!-- Growth 趋势-->
+            <a name="Trend" class="mark"></a>
+            <section>
+                <h2 class="subtitle">Sentiment trend:</h2>
+                <div id="LineChart" class="sentiment-trend">
+
+                </div>
+            </section>
+
+        </div>
+
+        <div class="footer">
+            Copyright © 2019 Master of Computer Science, Faculty of Engineering, The University of Hong Kong. All rights reserved.
+        </div>
+    </div>
 </body>
+
 </html>

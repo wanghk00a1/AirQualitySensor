@@ -15,6 +15,25 @@ public class TweetAnalysisEntity {
     private String language;
     private Boolean weather;
     private int sentiment;
+    private Boolean hasMedia;
+
+    public Boolean getHasMedia() {
+        return hasMedia;
+    }
+
+    public void setHasMedia(Boolean hasMedia) {
+        this.hasMedia = hasMedia;
+    }
+
+    public Boolean getRetweet() {
+        return isRetweet;
+    }
+
+    public void setRetweet(Boolean retweet) {
+        isRetweet = retweet;
+    }
+
+    private Boolean isRetweet;
 
     public int getSentiment() {
         return sentiment;
