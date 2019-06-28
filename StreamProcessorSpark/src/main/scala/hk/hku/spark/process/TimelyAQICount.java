@@ -15,8 +15,8 @@ import java.util.List;
  */
 public class TimelyAQICount {
     public static void main(String[] args) {
-        File file = new File("data/tweetAQI-0625.csv");
-        File resultFile = new File("data/timelyAqiCount-0625.csv");
+        File file = new File("data/tweetAQI-0625-media.csv");
+        File resultFile = new File("data/timelyAqiCount-0625-media.csv");
         File resultFile1 = new File("data/timelyAqiCount-0625-firstOrderDifferent.csv");
 
         List<String> time = new ArrayList<>();
@@ -36,13 +36,13 @@ public class TimelyAQICount {
             tweetAqiData.readLine();
             String line = null;
 
-            int l=0;
 
             while ((line = tweetAqiData.readLine()) != null) {
-                l++;
                 String item[] = line.split(",");
 
-                if(!String.valueOf(item[3]).equals("LONDON")){
+                if(!String.valueOf(item[3]).equals("LONDON") ||
+                        !String.valueOf(item[5]).equals("en") ||
+                        !String.valueOf(item[6]).equals("false")){
                     continue;
                 }
 
@@ -110,26 +110,26 @@ public class TimelyAQICount {
                 }
             }
 
-//            for(int i=0;i<time.size();i++){
-//                writer.newLine();
-//                writer.write(Integer.valueOf(time.get(i).substring(11, 13)) + "," + positive.get(i) + "," + negative.get(i) + "," + totalCount.get(i) + "," +
-//                        weatherPositive.get(i) + "," + weatherNegative.get(i) + "," + weatherCount.get(i) + "," + aqi.get(i));
-//                writer.flush();
-//            }
-//            writer.close();
-
-            for(int i=1;i<time.size();i++){
-                writer1.newLine();
-                writer1.write( (positive.get(i)-positive.get(i-1)) + "," +
-                        (negative.get(i) - negative.get(i-1)) + "," +
-                        (totalCount.get(i) -totalCount.get(i-1)) + "," +
-                        (weatherPositive.get(i) - weatherPositive.get(i-1)) + "," +
-                        (weatherNegative.get(i) - weatherNegative.get(i-1)) + "," +
-                        (weatherCount.get(i) - weatherCount.get(i-1)) + "," +
-                        (aqi.get(i) - aqi.get(i-1)));
-                writer1.flush();
+            for(int i=0;i<time.size();i++){
+                writer.newLine();
+                writer.write(Integer.valueOf(time.get(i).substring(11, 13)) + "," + positive.get(i) + "," + negative.get(i) + "," + totalCount.get(i) + "," +
+                        weatherPositive.get(i) + "," + weatherNegative.get(i) + "," + weatherCount.get(i) + "," + aqi.get(i));
+                writer.flush();
             }
-            writer1.close();
+            writer.close();
+
+//            for(int i=1;i<time.size();i++){
+//                writer1.newLine();
+//                writer1.write( (positive.get(i)-positive.get(i-1)) + "," +
+//                        (negative.get(i) - negative.get(i-1)) + "," +
+//                        (totalCount.get(i) -totalCount.get(i-1)) + "," +
+//                        (weatherPositive.get(i) - weatherPositive.get(i-1)) + "," +
+//                        (weatherNegative.get(i) - weatherNegative.get(i-1)) + "," +
+//                        (weatherCount.get(i) - weatherCount.get(i-1)) + "," +
+//                        (aqi.get(i) - aqi.get(i-1)));
+//                writer1.flush();
+//            }
+//            writer1.close();
 
         } catch (FileNotFoundException e) {
             e.printStackTrace();
