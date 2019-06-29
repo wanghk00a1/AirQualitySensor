@@ -47,8 +47,8 @@ public class KafkaDaoImpl {
         Map<String, Object> map = new HashMap();
         map.put("city", city);
         map.put("timestamp", timestamp);
-        Long pastTimestamp = Long.valueOf(timestamp) - 60 * 60 * 1000;
-        map.put("pastTimestamp", pastTimestamp);
+        Long pastTimestamp = Long.valueOf(timestamp) - 60 * 60 * 1000L;
+        map.put("pastTimestamp", String.valueOf(pastTimestamp));
 
         return namedParameterJdbcTemplate.query(sql, map, new TweetStatisticEntity());
     }

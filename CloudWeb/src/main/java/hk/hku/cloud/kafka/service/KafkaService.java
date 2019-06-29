@@ -148,6 +148,7 @@ public class KafkaService {
             for (ConsumerRecord consumerRecord : consumerRecords) {
                 String value = consumerRecord.value().toString();
                 if (value.length() > 0) {
+                    logger.info("consume statistics: " + value);
                     TweetStatisticEntity entity = gson.fromJson(value, TweetStatisticEntity.class);
 
                     int positive = entity.getPositive();
@@ -159,6 +160,7 @@ public class KafkaService {
 
                     // 计算过去一小时内的统计量
                     List<TweetStatisticEntity> list = kafkaDaoImpl.queryPastOneHourData(entity.getCity(), entity.getTimestamp());
+                    logger.info("queryPastOneHourData size : " + list.size());
                     for (TweetStatisticEntity tmp : list) {
                         positive += tmp.getPositive();
                         negative += tmp.getNegative();
@@ -172,7 +174,7 @@ public class KafkaService {
                             .predictAQI(positive, negative, total, w_positive, w_negative, w_total));
                     kafkaDaoImpl.insertAqi(entity);
 
-                    logger.info("predict aqi " + entity.getCity() + ","
+                    logger.info("insert predict aqi " + entity.getCity() + ","
                             + entity.getTimestamp() + ","
                             + entity.getRandom_tree());
                 }
