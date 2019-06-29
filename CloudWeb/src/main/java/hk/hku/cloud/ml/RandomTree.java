@@ -3,6 +3,8 @@ package hk.hku.cloud.ml;
 import hk.hku.cloud.kafka.domain.TweetStatisticEntity;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.core.io.ClassPathResource;
+import org.springframework.core.io.Resource;
 import weka.classifiers.Classifier;
 import weka.core.Attribute;
 import weka.core.DenseInstance;
@@ -19,14 +21,15 @@ import java.util.ArrayList;
 public class RandomTree {
 
     private static final Logger logger = LoggerFactory.getLogger(RandomTree.class);
-    private static final String model = "CloudWeb/src/main/resources/model/RandomForest.model";
+    private static final String model = "model/RandomForest.model";
     private static RandomTree INSTANCE;
     private static Classifier classifier8;
     private static ArrayList<Attribute> attributes = new ArrayList<>();
 
     public RandomTree() {
         try {
-            classifier8 = (Classifier) weka.core.SerializationHelper.read(model);
+            Resource resource = new ClassPathResource(model);
+            classifier8 = (Classifier) weka.core.SerializationHelper.read(resource.getInputStream());
         } catch (Exception e) {
             logger.error("Classifier Exception", e);
         }

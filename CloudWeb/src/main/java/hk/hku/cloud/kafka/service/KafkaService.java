@@ -173,7 +173,7 @@ public class KafkaService {
                     kafkaDaoImpl.insertAqi(entity);
 
                     logger.info("predict aqi " + entity.getCity() + ","
-                            + sdf.format(entity.getTimestamp()) + ","
+                            + entity.getTimestamp() + ","
                             + entity.getRandom_tree());
                 }
             }
