@@ -245,7 +245,7 @@ public class TweetFlinkAnalyzer {
                         out.collect(result);
                     }
                 })
-                .addSink(new FlinkKafkaProducer<>("flink-count", new SimpleStringSchema(), propProducer))
+                .addSink(new FlinkKafkaProducer<>("flink-london-count", new SimpleStringSchema(), propProducer))
                 .name("LONDON statistics");
 
         nyStream
@@ -258,7 +258,7 @@ public class TweetFlinkAnalyzer {
                         out.collect(result);
                     }
                 })
-                .addSink(new FlinkKafkaProducer<>("flink-count", new SimpleStringSchema(), propProducer2))
+                .addSink(new FlinkKafkaProducer<>("flink-ny-count", new SimpleStringSchema(), propProducer2))
                 .name("NY statistics");
 
         try {
