@@ -15,10 +15,10 @@
     <!--加载地图-->
     <!-- <script src="http://api.map.baidu.com/api?v=3.0&ak=iRyl18zAppPIzw4YNYX87yGS6sB6raKp"></script> -->
     <!--加载cdn资源-->
-    <script src="https://cdn.bootcss.com/jquery/3.3.1/jquery.js"></script>
-    <script src="https://cdn.bootcss.com/stomp.js/2.3.3/stomp.min.js"></script>
-    <script src="https://cdn.bootcss.com/sockjs-client/1.3.0/sockjs.min.js"></script>
-    <script src="https://cdn.bootcss.com/echarts/4.2.1-rc1/echarts.min.js"></script>
+    <script src="/vendor/jquery.js"></script>
+    <script src="/vendor/stomp.min.js"></script>
+    <script src="/vendor/sockjs.min.js"></script>
+    <script src="/vendor/echarts.min.js"></script>
     <!-- <script src="https://cdnjs.cloudflare.com/ajax/libs/echarts/4.2.1/echarts.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/echarts/4.2.1/extension/dataTool.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/echarts/4.2.1/extension/bmap.js"></script> -->
@@ -146,15 +146,33 @@
                 <h2 class="subtitle">Overview</h2>
                 <div class="overview__layout">
                     <div class="chart__wrapper">
-                        <div id="aqi-predict" class="chart"></div>
+                        <div id="_aqi-predict" class="chart" style="display: none"></div>
+                        <div class="chart ball__layout numerical__aqi">
+                            <div id="aqi-predict" class="ball">
+                                <div class="value__layout">
+                                    <span class="en"></span>
+                                    <span class="zh"></span>
+                                    <span class="value"></span>
+                                </div>
+                            </div>
+                        </div>
                         <span class="label">AQI Predicting Value</span>
                     </div>
                     <div class="chart__wrapper">
-                        <div id="aqi-real" class="chart"></div>
+                        <div id="_aqi-real" class="chart" style="display: none;"></div>
+                        <div class="chart ball__layout numerical__aqi">
+                            <div id="aqi-real" class="ball">
+                                <div class="value__layout">
+                                    <span class="en"></span>
+                                    <span class="zh"></span>
+                                    <span class="value"></span>
+                                </div>
+                            </div>
+                        </div>
                         <span class="label">AQI Real Value</span>
                     </div>
                     <div class="chart__wrapper">
-                        <div class="chart ball__layout">
+                        <div class="chart ball__layout" style="padding: 32px 0;">
                             <div class="value__layout">
                                 <label for="accuracy-value" class="value">Accuracy</label>
                                 <span id="accuracy-value" class="value" style="font-size: 26pt;">100%</span>
@@ -173,7 +191,7 @@
             <a name="Trend" class="mark"></a>
             <section>
                 <h2 class="subtitle">Line Chart:</h2>
-                <div id="LineChart" class="sentiment-trend">
+                <div id="tweets-line-chart" class="sentiment-trend">
                 </div>
             </section>
 

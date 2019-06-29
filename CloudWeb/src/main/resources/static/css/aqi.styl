@@ -19,6 +19,22 @@
     &.non-echart
       width: 340px
       height: 300px
+  .numerical__aqi
+    border-radius 50%
+    padding 32px 0
+    display flex
+    flex-flow column nowrap
+    justify-content space-between
+    align-items center
+    .group
+      display flex
+      flex-flow column
+      justify-content center
+      align-items center
+    .en, .zh
+      font-size 24pt
+    .value
+      font-size 16pt
 
 
   .ball__layout
@@ -31,8 +47,8 @@
     .ball
       position: relative;
       overflow: hidden;
-      width: 240px;
-      height: 240px;
+      width: 280px;
+      height: 280px;
       border: 6px solid #fff;
       border-radius: 50%;
       box-shadow: 0 0 0 6px #fff, 0 20px 35px rgba(0, 0, 0, .5);
@@ -50,9 +66,9 @@
       position: absolute;
       left: 0;
       top: 0;
-      margin: 25%;
-      width: 50%;
-      height: 50%;
+      margin: 10%;
+      width: 80%;
+      height: 80%;
       display: flex;
       justify-content: center;
       align-items: center;
