@@ -142,13 +142,12 @@ public class KafkaService {
         ConsumerRecords<String, String> consumerRecords;
 
         logger.info("Consumer Statistic start.");
-        List<TweetStatisticEntity> waitingList = new ArrayList<>();
+//        List<TweetStatisticEntity> waitingList = new ArrayList<>();
 
         while (true) {
             consumerRecords = consumer.poll(Duration.ofSeconds(60));
             logger.info("consumer Records : " + consumerRecords.count());
 
-            waitingList.clear();
             for (ConsumerRecord consumerRecord : consumerRecords) {
                 String value = consumerRecord.value().toString();
                 if (value.length() > 0) {
@@ -180,18 +179,24 @@ public class KafkaService {
 
                     entity.setRandom_tree(RandomTree.getInstance()
                             .predictAQI(positive, negative, total, w_positive, w_negative, w_total));
-                    waitingList.add(entity);
+
+//                    waitingList.add(entity);
+
+                    int cnt = kafkaDaoImpl.insertPredictAqi(entity);
+                    logger.info("insert " + cnt + " predict aqi " + entity.getCity() + ","
+                            + entity.getTimestamp() + ","
+                            + entity.getRandom_tree());
                 }
             }
-            int[] cnt = kafkaDaoImpl.insertPredictAqiList(waitingList);
-            for (int i = 0; i < waitingList.size(); i++) {
-                logger.info("insertPredictAqi cnt : " + cnt[i]);
-                logger.info("insert predict aqi " + waitingList.get(i).getCity() + ","
-                        + waitingList.get(i).getTimestamp() + ","
-                        + waitingList.get(i).getRandom_tree());
-            }
-            waitingList.clear();
-            logger.info("waiting list clear");
+//            int[] cnt = kafkaDaoImpl.insertPredictAqiList(waitingList);
+//            for (int i = 0; i < waitingList.size(); i++) {
+//                logger.info("insertPredictAqi cnt : " + cnt[i]);
+//                logger.info("insert predict aqi " + waitingList.get(i).getCity() + ","
+//                        + waitingList.get(i).getTimestamp() + ","
+//                        + waitingList.get(i).getRandom_tree());
+//            }
+//            waitingList.clear();
+//            logger.info("waiting list clear");
         }
     }
 
