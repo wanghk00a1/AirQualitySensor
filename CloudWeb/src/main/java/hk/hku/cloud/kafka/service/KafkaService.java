@@ -150,7 +150,6 @@ public class KafkaService {
                 if (value.length() > 0) {
                     TweetStatisticEntity entity = gson.fromJson(value, TweetStatisticEntity.class);
 
-
                     int positive = entity.getPositive();
                     int negative = entity.getNegative();
                     int total = entity.getTotal();
@@ -172,6 +171,10 @@ public class KafkaService {
                     entity.setRandom_tree(RandomTree.getInstance()
                             .predictAQI(positive, negative, total, w_positive, w_negative, w_total));
                     kafkaDaoImpl.insertAqi(entity);
+
+                    logger.info("predict aqi " + entity.getCity() + ","
+                            + sdf.format(entity.getTimestamp()) + ","
+                            + entity.getRandom_tree());
                 }
             }
         }
