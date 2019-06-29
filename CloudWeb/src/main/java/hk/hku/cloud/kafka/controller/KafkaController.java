@@ -7,6 +7,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.messaging.handler.annotation.MessageMapping;
+import org.springframework.messaging.handler.annotation.SendTo;
 import org.springframework.scheduling.annotation.EnableAsync;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
@@ -31,18 +32,16 @@ public class KafkaController {
      * MessageMapping和 RequestMapping功能类似
      * 如果服务器接受到了消息，就会对订阅了@SendTo括号中的地址传送消息。
      */
-//    @MessageMapping("/initSentiment")
-//    @SendTo("/topic/initSentiment")
-//    public String initSentiment(String message) {
-//        logger.info("receive msg : " + message);
-//        // 开启线程处理标志
-//        kafkaService.setConsumeKafka(true);
-//        // 启动kafka 线程
-//        kafkaService.consumeTweets();
-//        // 启动心跳
-//        kafkaService.keepSocketAlive();
-//        return message;
-//    }
+    @MessageMapping("/initSentiment")
+    @SendTo("/topic/initSentiment")
+    public String initSentiment(String message) {
+        logger.info("receive msg : " + message);
+        // 开启线程处理标志
+        kafkaService.setConsumeKafka(true);
+        // 启动心跳
+        kafkaService.keepSocketAlive();
+        return message;
+    }
 
     /**
      * 开关kafka tweet 的订阅
