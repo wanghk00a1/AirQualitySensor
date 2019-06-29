@@ -1,11 +1,10 @@
-package hk.hku.flink.domain;
+package hk.hku.cloud.kafka.domain;
 
-import static hk.hku.flink.utils.Constants.DELIMITER;
 
 /**
  * @author: LexKaing
  * @create: 2019-06-20 16:00
- * @description:
+ * @description: 解析后的 tweet 数据，只有coreNlp
  **/
 public class TweetAnalysisEntity {
     private long id;
@@ -101,11 +100,11 @@ public class TweetAnalysisEntity {
 
     @Override
     public String toString() {
-        return this.id + DELIMITER
-                + this.geo + DELIMITER
-                + this.language + DELIMITER
-                + this.hasWeather + DELIMITER
-                + this.sentiment + DELIMITER
+        return this.id + ","
+                + this.geo + ","
+                + this.language + ","
+                + this.hasWeather + ","
+                + this.sentiment + ","
                 + this.text;
     }
 }

@@ -1,15 +1,17 @@
 package hk.hku.flink;
 
+import com.google.gson.Gson;
 import hk.hku.flink.corenlp.CoreNLPSentimentAnalyzer;
-import hk.hku.flink.corenlp.LanguageAnalyzer;
 import hk.hku.flink.domain.TweetAnalysisEntity;
+import hk.hku.flink.domain.TweetStatisticEntity;
+import hk.hku.flink.trigger.CountWithTimeoutTrigger;
 import hk.hku.flink.utils.GeoCity;
 import hk.hku.flink.utils.PropertiesLoader;
 import org.apache.flink.api.common.functions.MapFunction;
-import org.apache.flink.api.java.tuple.Tuple2;
 import org.apache.flink.streaming.api.TimeCharacteristic;
 import org.apache.flink.streaming.api.datastream.DataStream;
 import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
+import org.apache.flink.streaming.api.functions.windowing.AllWindowFunction;
 import org.apache.flink.streaming.api.functions.windowing.ProcessAllWindowFunction;
 import org.apache.flink.streaming.api.functions.windowing.ProcessWindowFunction;
 import org.apache.flink.streaming.api.windowing.evictors.CountEvictor;
@@ -44,23 +46,62 @@ public class TweetFlinkAnalyzer {
 
     private static SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss");
 
+    private static Gson gson = new Gson();
+
     public static void main(String[] args) {
         logger.info("Tweets Flink Analyzer job start");
         TweetFlinkAnalyzer tweetFlinkAnalyzer = new TweetFlinkAnalyzer();
 
-        int countTrigger = Integer.valueOf(args[0]);
+        int timeout = Integer.valueOf(args[0]);
+        int countTrigger = Integer.valueOf(args[1]);
 
         logger.info("count trigger : " + countTrigger);
 
-        tweetFlinkAnalyzer.startJob(countTrigger);
+        tweetFlinkAnalyzer.startJob(timeout, countTrigger);
     }
 
-    private void startJob(int countTrigger) {
+    private static String countElement(String city,Iterable<TweetAnalysisEntity> values) {
+        int positive = 0, negative = 0, total = 0;
+        int w_positive = 0, w_negative = 0, w_total = 0;
+        for (TweetAnalysisEntity element : values) {
+            total++;
+            if (element.getHasWeather()) {
+                w_total++;
+                if (element.getSentiment() > 0) {
+                    positive++;
+                    w_positive++;
+                } else if (element.getSentiment() < 0) {
+                    w_negative++;
+                    negative++;
+                }
+            } else {
+                if (element.getSentiment() > 0) {
+                    positive++;
+                } else if (element.getSentiment() < 0) {
+                    negative++;
+                }
+            }
+        }
+
+        TweetStatisticEntity tmp = new TweetStatisticEntity();
+        tmp.setCity(city);
+        tmp.setTimestamp((new Date()).getTime());
+        tmp.setPositive(positive);
+        tmp.setNegative(negative);
+        tmp.setTotal(total);
+        tmp.setW_positive(w_positive);
+        tmp.setW_negative(w_negative);
+        tmp.setW_total(w_total);
+
+        return gson.toJson(tmp);
+    }
+
+    private void startJob(int timeout, int countTrigger) {
         // 创建运行环境
         final StreamExecutionEnvironment env = StreamExecutionEnvironment.getExecutionEnvironment();
-        env.setStreamTimeCharacteristic(TimeCharacteristic.EventTime);
+        env.setStreamTimeCharacteristic(TimeCharacteristic.ProcessingTime);
         // 启用容错 checkpoint every 5000 msecs
-        env.enableCheckpointing(5000);
+//        env.enableCheckpointing(5000);
         // 设置并行度15 台机器
         env.setParallelism(14);
 
@@ -73,7 +114,11 @@ public class TweetFlinkAnalyzer {
         // 初始化 Producer 配置
         Properties propProducer = new Properties();
         propProducer.setProperty("bootstrap.servers", PropertiesLoader.bootstrapServersProducer);
-        propProducer.setProperty("group.id", PropertiesLoader.groupIdProducer);
+        propProducer.setProperty("group.id", "flink-producer1");
+
+        Properties propProducer2 = new Properties();
+        propProducer2.setProperty("bootstrap.servers", PropertiesLoader.bootstrapServersProducer);
+        propProducer2.setProperty("group.id", "flink-producer2");
 
         logger.info("Data Stream init");
 
@@ -85,160 +130,124 @@ public class TweetFlinkAnalyzer {
 
         // parse tweets
         DataStream<TweetAnalysisEntity> parsedTwitterStream = stream
-                .map(new MapFunction<String, TweetAnalysisEntity>() {
-                    @Override
-                    public TweetAnalysisEntity map(String line) throws Exception {
-                        if (line.length() <= 0)
-                            return null;
-                        try {
-                            Status status = TwitterObjectFactory.createStatus(line);
-                            String text = status.getText().replaceAll("\n", "");
-
-                            if (text.length() > 0) {
-                                TweetAnalysisEntity result = new TweetAnalysisEntity();
-
-                                result.setId(status.getId());
-                                result.setText(text);
-                                result.setUsername(status.getUser().getScreenName());
-
-                                String city = "NULL";
-                                if (status.getGeoLocation() != null) {
-                                    city = GeoCity.geoToCity(status.getGeoLocation().getLongitude(),
-                                            status.getGeoLocation().getLatitude());
-
-                                } else if (status.getPlace() != null) {
-                                    double longitude = 0.0, latitude = 0.0;
-                                    for (GeoLocation[] coorList : status.getPlace().getBoundingBoxCoordinates()) {
-
-                                        for (GeoLocation coor : coorList) {
-                                            longitude += coor.getLongitude();
-                                            latitude += coor.getLatitude();
-                                        }
-                                    }
-                                    city = GeoCity.geoToCity(longitude / 4, latitude / 4);
-                                }
-                                result.setGeo(city);
-
-                                result.setLanguage(status.getLang());
-
-                                // 加上 weather keywords related
-                                // Arrays.stream({"1","2"}).filter(word -> text.contains(word)).count();
-                                Boolean weatherRelated = false;
-                                for (String word : PropertiesLoader.weatherKeywords.split(COMMA)) {
-                                    if (text.contains(word)) {
-                                        weatherRelated = true;
-                                        break;
-                                    }
-                                }
-
-                                result.setWeather(weatherRelated);
-
-                                result.setRetweet(status.isRetweeted());
-                                result.setHasMedia(status.getMediaEntities().length > 0);
-
-                                return result;
-                            }
-                        } catch (TwitterException e) {
-                            logger.error("Twitter Parse Exception : ", e);
-                        }
+                .map((MapFunction<String, TweetAnalysisEntity>) line -> {
+                    if (line.length() <= 0)
                         return null;
+                    try {
+                        Status status = TwitterObjectFactory.createStatus(line);
+                        String text = status.getText().replaceAll("\n", "");
+
+                        if (text.length() > 0) {
+                            TweetAnalysisEntity result = new TweetAnalysisEntity();
+
+                            result.setId(status.getId());
+                            result.setText(text);
+                            result.setUsername(status.getUser().getScreenName());
+                            result.setCreatetime(status.getCreatedAt().getTime());
+
+                            String city = "NULL";
+                            if (status.getGeoLocation() != null) {
+                                city = GeoCity.geoToCity(status.getGeoLocation().getLongitude(),
+                                        status.getGeoLocation().getLatitude());
+
+                            } else if (status.getPlace() != null) {
+                                double longitude = 0.0, latitude = 0.0;
+                                for (GeoLocation[] coorList : status.getPlace().getBoundingBoxCoordinates()) {
+
+                                    for (GeoLocation coor : coorList) {
+                                        longitude += coor.getLongitude();
+                                        latitude += coor.getLatitude();
+                                    }
+                                }
+                                city = GeoCity.geoToCity(longitude / 4, latitude / 4);
+                            }
+                            result.setGeo(city);
+
+                            result.setLanguage(status.getLang());
+
+                            if (status.getLang().equals("en")) {
+                                int coreNlpSentiment = CoreNLPSentimentAnalyzer.getInstance()
+                                        .computeWeightedSentiment(text);
+
+                                result.setSentiment(coreNlpSentiment);
+                            }
+
+                            // 加上 weather keywords related
+                            // Arrays.stream({"1","2"}).filter(word -> text.contains(word)).count();
+                            Boolean weatherRelated = false;
+                            for (String word : PropertiesLoader.weatherKeywords.split(COMMA)) {
+                                if (text.contains(word)) {
+                                    weatherRelated = true;
+                                    break;
+                                }
+                            }
+                            result.setHasWeather(weatherRelated);
+
+                            result.setRetweet(status.isRetweeted());
+                            result.setHasMedia(status.getMediaEntities().length > 0);
+
+                            return result;
+                        }
+                    } catch (TwitterException e) {
+                        logger.error("Twitter Parse Exception : ", e);
                     }
+                    return null;
                 })
-                .filter(tweet -> tweet != null && tweet.getLanguage().equals("en") && !tweet.getGeo().equals("NULL"))
+                .filter(tweet -> tweet != null && tweet.getLanguage().equals("en"))
                 .name("Parsed Tweets Stream");
 
 
-        // core nlp analysis sentiment
-        DataStream<TweetAnalysisEntity> sentimentStream = parsedTwitterStream
-                .map(tweet -> {
-                    //使用nlp 计算 sentiment
-                    int corenlpSentiment = CoreNLPSentimentAnalyzer.getInstance()
-                            .computeWeightedSentiment(tweet.getText());
+        // londonStream
+        DataStream<TweetAnalysisEntity> londonStream = parsedTwitterStream
+                .filter(value -> value.getGeo().toUpperCase().equals("LONDON"))
+                .name("LONDON Stream");
 
-                    tweet.setSentiment(corenlpSentiment);
+        // new yorkStream
+        DataStream<TweetAnalysisEntity> nyStream = parsedTwitterStream
+                .filter(value -> value.getGeo().toUpperCase().equals("NY"))
+                .name("NEW YORK Stream");
 
-                    logger.info("Sentiment Stream : " + tweet.toString());
-                    return tweet;
-                })
-                .name("Sentiment Stream");
+        // 存储各自城市的tweet 文本分析结果
+        londonStream
+                .map(value -> gson.toJson(value))
+                .addSink(new FlinkKafkaProducer<String>("flink-london", new SimpleStringSchema(), propProducer))
+                .name("london tweets");
 
+        nyStream
+                .map(value -> gson.toJson(value))
+                .addSink(new FlinkKafkaProducer<String>("flink-ny", new SimpleStringSchema(), propProducer))
+                .name("new york tweets");
 
-        // 根据时间窗口 统计
-        DataStream<String> statistics = sentimentStream
-                .keyBy(tweet -> tweet.getGeo())
-                // 5min 的滚动窗口
-                .timeWindow(Time.minutes(5))
-                .trigger(CountTrigger.of(countTrigger))
-                .evictor(CountEvictor.of(0))
-                .process(new ProcessWindowFunction<TweetAnalysisEntity, String, String, TimeWindow>() {
-                    @Override
-                    public void process(String city, Context context, Iterable<TweetAnalysisEntity> elements
-                            , Collector<String> out) throws Exception {
-
-                        int positive = 0, negative = 0, neutral = 0;
-
-                        for (TweetAnalysisEntity element : elements) {
-                            if (element.getSentiment() > 0)
-                                positive++;
-                            else if (element.getSentiment() < 0)
-                                negative++;
-                            else
-                                neutral++;
-                        }
-
-                        out.collect(city + SPLIT + positive + SPLIT + negative
-                                + SPLIT + neutral + SPLIT + sdf.format(new Date()));
-                    }
-                })
-                .name("statistics window");
-
-//        statistics.print();
-
-        statistics
-                .addSink(new FlinkKafkaProducer<>("flink-geo",
-                        new SimpleStringSchema(), propProducer))
-                .name("Tweets Sentiment Result Sink");
-
-
-        // count by time
-        DataStream<String> countByTime = sentimentStream
-                .timeWindowAll(Time.seconds(120))
+        /*
+            使用 keyBy(tweet -> tweet.getGeo()) 会意外的很慢，原因未知.
+            process 和apply 用法类似，但更底层的算法,可以自己写定时触发计算的定时器
+         */
+        londonStream
+                .timeWindowAll(Time.seconds(timeout))
+                .trigger(new CountWithTimeoutTrigger<>(countTrigger, TimeCharacteristic.ProcessingTime))
+//                .evictor(CountEvictor.of(0))
                 .process(new ProcessAllWindowFunction<TweetAnalysisEntity, String, TimeWindow>() {
                     @Override
-                    public void process(Context context, Iterable<TweetAnalysisEntity> elements,
-                                        Collector<String> out) {
-
-                        int cntLondon = 0, cntNY = 0;
-                        for (TweetAnalysisEntity tmp : elements) {
-                            if (tmp.getGeo().equals("LONDON"))
-                                cntLondon++;
-                            else
-                                cntNY++;
-                        }
-
-                        out.collect("Count: " + sdf.format(new Date()) + ",London,"
-                                + cntLondon + ",NY," + cntNY);
+                    public void process(Context context, Iterable<TweetAnalysisEntity> elements, Collector<String> out) {
+                        String result = countElement("LONDON", elements);
+                        out.collect(result);
                     }
                 })
-                .name("count by time");
+                .addSink(new FlinkKafkaProducer<>("flink-count", new SimpleStringSchema(), propProducer))
+                .name("LONDON statistics");
 
-//        countByTime.print();
-
-//        sentimentStream
-//                .map(tweet -> {
-//                    StringBuffer stringBuffer = new StringBuffer();
-//                    stringBuffer.append(tweet.getId()).append(DELIMITER)
-//                            .append(tweet.getUsername()).append(DELIMITER)
-//                            .append(tweet.getSentiment()).append(DELIMITER)
-//                            .append(tweet.getWeather()).append(DELIMITER)
-//                            .append(tweet.getText());
-//                    return stringBuffer.toString();
-//                })
-
-        countByTime
-                .addSink(new FlinkKafkaProducer<>("flink-count",
-                        new SimpleStringSchema(), propProducer))
-                .name("Tweets Sentiment Result Sink");
+        nyStream
+                .timeWindowAll(Time.seconds(timeout))
+                .trigger(new CountWithTimeoutTrigger<>(countTrigger, TimeCharacteristic.ProcessingTime))
+                .apply(new AllWindowFunction<TweetAnalysisEntity, String, TimeWindow>() {
+                    @Override
+                    public void apply(TimeWindow window, Iterable<TweetAnalysisEntity> values, Collector<String> out) throws Exception {
+                        String result = countElement("NY", values);
+                        out.collect(result);
+                    }
+                })
+                .addSink(new FlinkKafkaProducer<>("flink-count", new SimpleStringSchema(), propProducer2))
+                .name("NY statistics");
 
         try {
             env.execute("COMP7705 Flink Job");
