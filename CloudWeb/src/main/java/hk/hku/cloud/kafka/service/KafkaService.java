@@ -127,8 +127,9 @@ public class KafkaService {
     }
 
     /**
-     * 持续消费 London & NY 的统计数据
-     * 解析并存储到 mysql
+     * 消费并解析Kafka 的 London & NY 的统计数据
+     * 计算往前1小时内的统计数据之和
+     * 存储到 mysql
      */
     @Async
     public void consumeStatistic() {
@@ -140,16 +141,37 @@ public class KafkaService {
 
         ConsumerRecords<String, String> consumerRecords;
 
-        logger.info("Consumer Statistic Lang start.");
+        logger.info("Consumer Statistic start.");
         while (true) {
             consumerRecords = consumer.poll(Duration.ofSeconds(60));
 
             for (ConsumerRecord consumerRecord : consumerRecords) {
                 String value = consumerRecord.value().toString();
                 if (value.length() > 0) {
-                    TweetStatisticEntity tmp = gson.fromJson(value, TweetStatisticEntity.class);
-                    tmp.setRandom_tree(RandomTree.getInstance().predictAQI(tmp));
-                    kafkaDaoImpl.insertAqi(tmp);
+                    TweetStatisticEntity entity = gson.fromJson(value, TweetStatisticEntity.class);
+
+
+                    int positive = entity.getPositive();
+                    int negative = entity.getNegative();
+                    int total = entity.getTotal();
+                    int w_positive = entity.getW_positive();
+                    int w_negative = entity.getW_negative();
+                    int w_total = entity.getW_total();
+
+                    // 计算过去一小时内的统计量
+                    List<TweetStatisticEntity> list = kafkaDaoImpl.queryPastOneHourData(entity.getCity(), entity.getTimestamp());
+                    for (TweetStatisticEntity tmp : list) {
+                        positive += tmp.getPositive();
+                        negative += tmp.getNegative();
+                        total += tmp.getTotal();
+                        w_positive += tmp.getW_positive();
+                        w_negative += tmp.getW_negative();
+                        w_total += tmp.getW_total();
+                    }
+
+                    entity.setRandom_tree(RandomTree.getInstance()
+                            .predictAQI(positive, negative, total, w_positive, w_negative, w_total));
+                    kafkaDaoImpl.insertAqi(entity);
                 }
             }
         }

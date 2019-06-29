@@ -41,6 +41,18 @@ public class KafkaDaoImpl {
         return namedParameterJdbcTemplate.update(sql, map);
     }
 
+    public List<TweetStatisticEntity> queryPastOneHourData(String city, String timestamp) {
+        String sql = "select * from t_tweet_aqi_data t " +
+                "where t.city=city and t.timestamp<=:timestamp and t.timestamp>:pastTimestamp;";
+        Map<String, Object> map = new HashMap();
+        map.put("city", city);
+        map.put("timestamp", timestamp);
+        Long pastTimestamp = Long.valueOf(timestamp) - 60 * 60 * 1000;
+        map.put("pastTimestamp", pastTimestamp);
+
+        return namedParameterJdbcTemplate.query(sql, map, new TweetStatisticEntity());
+    }
+
     public List<TweetStatisticEntity> queryPredictAqi(String city, int limit) {
         String sql = "select * from t_tweet_aqi_data t where t.city=:city order by t.timestamp desc limit :limit;";
         Map<String, Object> map = new HashMap();
@@ -69,7 +81,7 @@ public class KafkaDaoImpl {
         return result;
     }
 
-    public List<AqiEntity> queryActualAqi(String city,int limit){
+    public List<AqiEntity> queryActualAqi(String city, int limit) {
         String sql = "select * from t_aqi_data t where t.city=:city order by t.timestamp desc limit :limit;";
         Map<String, Object> map = new HashMap();
         map.put("city", city);

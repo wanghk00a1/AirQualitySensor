@@ -48,15 +48,15 @@ public class RandomTree {
         }
     }
 
-    public double predictAQI(TweetStatisticEntity entity) {
+    public double predictAQI(int positive,int negative,int total,int w_positive,int w_negative,int w_total) {
         Instance instance = new DenseInstance(attributes.size());
 
-        instance.setValue(0, entity.getPositive());
-        instance.setValue(1, entity.getPositive());
-        instance.setValue(2, entity.getTotal());
-        instance.setValue(3, entity.getW_positive());
-        instance.setValue(4, entity.getW_negative());
-        instance.setValue(5, entity.getW_total());
+        instance.setValue(0,positive);
+        instance.setValue(1, negative);
+        instance.setValue(2, total);
+        instance.setValue(3, w_positive);
+        instance.setValue(4, w_negative);
+        instance.setValue(5, w_total);
 
         Instances instances = new Instances("repo_popular", attributes, 0);
         instances.setClassIndex(instances.numAttributes() - 1);
