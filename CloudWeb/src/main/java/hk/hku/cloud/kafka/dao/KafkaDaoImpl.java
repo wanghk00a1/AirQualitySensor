@@ -44,6 +44,32 @@ public class KafkaDaoImpl {
         return namedParameterJdbcTemplate.update(sql, map);
     }
 
+    public int[] insertPredictAqiList(List<TweetStatisticEntity> entityList) {
+        String sql = "insert into t_tweet_aqi_data(city,timestamp,positive,negative,total,w_positive,w_negative,w_total,random_tree) "
+                + "values(:city,:timestamp,:positive,:negative,:total,:w_positive,:w_negative,:w_total,:random_tree);";
+
+        Map<String, Object>[] batchValues = new Map[entityList.size()];
+        int i = 0;
+        for (TweetStatisticEntity entity : entityList) {
+            Map<String, Object> map = new HashMap();
+            map.put("city", entity.getCity());
+            map.put("timestamp", entity.getTimestamp());
+            map.put("positive", entity.getPositive());
+            map.put("negative", entity.getNegative());
+            map.put("total", entity.getTotal());
+            map.put("w_positive", entity.getW_positive());
+            map.put("w_negative", entity.getW_negative());
+            map.put("w_total", entity.getW_total());
+            map.put("random_tree", entity.getRandom_tree());
+
+            batchValues[i] = map;
+            i++;
+        }
+
+        int[] result = namedParameterJdbcTemplate.batchUpdate(sql, batchValues);
+        return result;
+    }
+
     public List<TweetStatisticEntity> queryPastOneHourData(String city, String timestamp, String pastTimestamp) {
         String sql = "select * from t_tweet_aqi_data t " +
                 "where t.city=city and t.timestamp<:timestamp and t.timestamp>=:pastTimestamp;";

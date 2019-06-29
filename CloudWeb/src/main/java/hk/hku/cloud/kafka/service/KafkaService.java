@@ -142,11 +142,13 @@ public class KafkaService {
         ConsumerRecords<String, String> consumerRecords;
 
         logger.info("Consumer Statistic start.");
+        List<TweetStatisticEntity> waitingList = new ArrayList<>();
+
         while (true) {
             consumerRecords = consumer.poll(Duration.ofSeconds(60));
-
             logger.info("consumer Records : " + consumerRecords.count());
 
+            waitingList.clear();
             for (ConsumerRecord consumerRecord : consumerRecords) {
                 String value = consumerRecord.value().toString();
                 if (value.length() > 0) {
@@ -176,18 +178,20 @@ public class KafkaService {
                         w_total += tmp.getW_total();
                     }
 
-
                     entity.setRandom_tree(RandomTree.getInstance()
                             .predictAQI(positive, negative, total, w_positive, w_negative, w_total));
-
-                    int cnt = kafkaDaoImpl.insertPredictAqi(entity);
-                    logger.info("insertPredictAqi cnt : " + cnt);
-
-                    logger.info("insert predict aqi " + entity.getCity() + ","
-                            + entity.getTimestamp() + ","
-                            + entity.getRandom_tree());
+                    waitingList.add(entity);
                 }
             }
+            int[] cnt = kafkaDaoImpl.insertPredictAqiList(waitingList);
+            for (int i = 0; i < waitingList.size(); i++) {
+                logger.info("insertPredictAqi cnt : " + cnt[i]);
+                logger.info("insert predict aqi " + waitingList.get(i).getCity() + ","
+                        + waitingList.get(i).getTimestamp() + ","
+                        + waitingList.get(i).getRandom_tree());
+            }
+            waitingList.clear();
+            logger.info("waiting list clear");
         }
     }
 
