@@ -49,6 +49,8 @@ public class KafkaService {
 
     private static SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 
+    private static SimpleDateFormat sdf2 = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.sss'Z'");
+
     private static DecimalFormat df = new DecimalFormat("0.00");
 
     @Autowired
@@ -58,6 +60,9 @@ public class KafkaService {
     private KafkaDaoImpl kafkaDaoImpl;
 
     private static List<AqiEntity> parseAqiStr(String res) throws ParseException {
+
+        sdf2.setTimeZone(TimeZone.getTimeZone("UTC"));
+
         List<AqiEntity> aqiEntities = new ArrayList<>();
         JSONObject jsonObject = new JSONObject(res);
         String city = null;
@@ -71,17 +76,13 @@ public class KafkaService {
         JSONArray hourlyAqi = measurements.getJSONArray("hourly");
 
         for (int i = 0; i < hourlyAqi.length(); i++) {
+            Date timestamp = sdf2.parse(hourlyAqi.getJSONObject(i).getString("ts"));
+
             AqiEntity tmp = new AqiEntity();
-
-            String timestamp = hourlyAqi.getJSONObject(i)
-                    .getString("ts")
-                    .replaceAll("T", " ")
-                    .replaceAll(".000Z", "");
-            int AQI = hourlyAqi.getJSONObject(i).getInt("aqi");
-
             tmp.setCity(city);
-            tmp.setTimestamp(timestamp);
-            tmp.setAqi(AQI);
+            tmp.setTimestamp(sdf.format(timestamp));
+            tmp.setAqi(hourlyAqi.getJSONObject(i).getInt("aqi"));
+
             aqiEntities.add(tmp);
         }
         return aqiEntities;
