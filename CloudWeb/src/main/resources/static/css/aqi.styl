@@ -1,0 +1,61 @@
+.overview__layout
+  display: flex;
+  flex-flow: row nowrap;
+  justify-content: space-between;
+  align-items: center;
+  min-height: 400px;
+  .chart__wrapper
+    display: flex;
+    flex-flow: column;
+    justify-content center
+    align-items center
+    span.label
+      font-size: 14pt
+      border-bottom 2px solid var(--theme-color)
+
+  .chart
+    width 340px
+    height 310px
+    &.non-echart
+      width: 340px
+      height: 300px
+
+
+  .ball__layout
+    position: relative;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    &:hover .ball .water
+      height: 122%;
+    .ball
+      position: relative;
+      overflow: hidden;
+      width: 240px;
+      height: 240px;
+      border: 6px solid #fff;
+      border-radius: 50%;
+      box-shadow: 0 0 0 6px #fff, 0 20px 35px rgba(0, 0, 0, .5);
+      .water
+        filter: blur(2px) saturate(3)
+        background-image: url(/images/waves.png);
+        background-position: top right;
+        transition: all 1s ease-out;
+        bottom: 0;
+        height: 0;
+        width: 100%;
+        position: absolute;
+        z-index: 1;
+    .value__layout
+      position: absolute;
+      left: 0;
+      top: 0;
+      margin: 25%;
+      width: 50%;
+      height: 50%;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      flex-flow: column;
+      .value
+        z-index: 9;

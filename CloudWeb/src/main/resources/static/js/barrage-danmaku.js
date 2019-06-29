@@ -205,7 +205,7 @@ $(document).ready(function () {
     window.stopSocket = stopSocket
 
     // 发送弹幕
-    function lanuchBarrageOnce(message) {
+    function lanuchBarrageOnce(message, styles = {}) {
         let comment = {
             text: message,
             // 默认为 rtl（从右到左），支持 ltr、rtl、top、bottom。
@@ -217,10 +217,15 @@ $(document).ready(function () {
                 // border: '1px solid #337ab7',
                 // textShadow: '-1px -1px #000, -1px 1px #000, 1px -1px #000, 1px 1px #000',
                 cursor: 'pointer',
+                ...styles,
             },
         };
         danmaku.emit(comment);
     }
+    window.$lanuchBarrageMulti = (messages = [], styles = {}) => {
+        if (!Array.isArray(messages)) return;
+        messages.forEach(message => lanuchBarrageOnce(message, styles));
+    };
 
 
     let intervalID;

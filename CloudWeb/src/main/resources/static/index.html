@@ -10,7 +10,7 @@
     <meta name="author" content="LexKaing">
     <link rel="icon" href="./favicon.ico" type="image/x-icon" />
     <link rel="shortcut icon" href="./favicon.ico" type="image/x-icon" />
-    <title>COMP7305 Cluster and cloud computing</title>
+    <title>Social Media as sensor of Air Quality and Public Response</title>
 
     <!--加载地图-->
     <!-- <script src="http://api.map.baidu.com/api?v=3.0&ak=iRyl18zAppPIzw4YNYX87yGS6sB6raKp"></script> -->
@@ -46,9 +46,9 @@
         </div>
         <ul class="menu">
             <li><a href=""><span>Home</span></a></li>
-            <li><a href="#Statistics"><span>Statistics</span></a></li>
-            <li><a href="#Barrage"><span>Barrage</span></a></li>
-            <li><a href="https://github.com/BZbyr/7305CloudProject" target="_blank"><span>Git Repo</span></a></li>
+            <li><a href="#statistics"><span>Statistics</span></a></li>
+            <li><a href="#barrage"><span>Barrage</span></a></li>
+            <li><a href="https://github.com/wanghk00a1/AirQualitySensor" target="_blank"><span>Git Repo</span></a></li>
         </ul>
     </div>
 
@@ -82,49 +82,6 @@
 <!--                </div>-->
 <!--            </section>-->
 
-<!--            &lt;!&ndash; 弹幕区域 &ndash;&gt;-->
-<!--            <a name="Barrage" class="mark"></a>-->
-<!--            <section>-->
-<!--                <h2 class="subtitle">Realtime Twitter Barrage</h2>-->
-<!--                <div>Current analysis method : -->
-<!--                    <p id="method" style="display:inline-block;">stanford core nlp</p>-->
-<!--                </div>-->
-<!--                <div id="barrage-canvas" class="barrage-dom"></div>-->
-
-<!--                &lt;!&ndash;基础操作&ndash;&gt;-->
-<!--                <div class='basic-operation'>-->
-<!--                    <button class="btn btn-default" onclick="basicOperation('show')">Show</button>-->
-<!--                    <button class="btn btn-default" onclick="basicOperation('hide')">Hide</button>-->
-<!--                    <button class="btn btn-default" onclick="basicOperation('clear')">Clear</button>-->
-<!--                    <button class="btn btn-default" onclick="basicOperation('reset')">Reset</button>-->
-<!--                    <button class="btn btn-default" onclick="switchAdvancedOperation()">More</button>-->
-<!--                </div>-->
-<!--                &lt;!&ndash;more operation&ndash;&gt;-->
-<!--                <div class="barrage-controller">-->
-<!--                    <div class="barrage-controller-inline">-->
-<!--                        <button class="btn btn-default" onclick="switchAnalysisMethod('nlp')">Display nlp result</button>-->
-<!--                        <button class="btn btn-default" onclick="switchAnalysisMethod('nb')">Display naive bayes result</button>-->
-<!--                        <button class="btn btn-default" onclick="switchAnalysisMethod('dl')">Display deep learning result</button>-->
-<!--                    </div>-->
-<!--                    <div class="barrage-controller-inline">-->
-<!--                        <input id="interval-input" placeholder='输出速率:x+random(100)毫秒' class="interval-input" />-->
-<!--                        <button id='interval-btn' class="btn btn-default" onclick="updateBasicBarrageTimer()">change interval</button>-->
-<!--                    </div>-->
-<!--                    <div class="barrage-controller-inline">-->
-<!--                        <input type='text' placeholder='input...' class='barrage-input'>-->
-<!--                        <button class="btn btn-default" onclick="lanuchBarrage()">Lanuch</button>-->
-<!--                    </div>-->
-<!--                    <div class="barrage-controller-inline">-->
-<!--                        <input id="detail-input" placeholder='滚动速率:x毫秒' class="interval-input" />-->
-<!--                        <button id='detail-speed-btn' class="btn btn-default" onclick="updateDetailBarrageSpeed()">change detail speed</button>-->
-<!--                    </div>-->
-<!--                    <div class="barrage-controller-inline">-->
-<!--                        <button class="btn btn-default" onclick="switchBarrageBackground()">Switch Background</button>-->
-<!--                        <button class="btn btn-default" onclick="startSocket()">Start Socket </button>-->
-<!--                        <button class="btn btn-default" onclick="stopSocket()">Stop Socket </button>-->
-<!--                    </div>-->
-<!--                </div>-->
-<!--            </section>-->
 
 <!--            &lt;!&ndash; 弹幕区域 &ndash;&gt;-->
 <!--            <a name="Detailed" class="mark"></a>-->
@@ -184,30 +141,82 @@
 <!--                </div>-->
 <!--            </section>-->
 
-<!--            &lt;!&ndash; Growth 趋势&ndash;&gt;-->
-<!--            <a name="Trend" class="mark"></a>-->
-<!--            <section>-->
-<!--                <h2 class="subtitle">Sentiment trend:</h2>-->
-<!--                <div id="LineChart" class="sentiment-trend">-->
-
-<!--                </div>-->
-<!--            </section>-->
-
-            <a name="overview" class="mark"></a>
+            <a name="statistics" class="mark"></a>
             <section>
                 <h2 class="subtitle">Overview</h2>
                 <div class="overview__layout">
-                    <div id="aqi-predict" class="chart"></div>
-                    <div id="aqi-real" class="chart"></div>
-                    <div id="accuracy-chart" class="chart ball__layout">
-                        <div class="value__layout">
-                            <label for="accuracy-value" class="value">Accuracy</label>
-                            <span id="accuracy-value" class="value" style="font-size: 26pt;">100%</span>
-                        </div>
-                        <div class="ball">
-                            <div class="water">
+                    <div class="chart__wrapper">
+                        <div id="aqi-predict" class="chart"></div>
+                        <span class="label">AQI Predicting Value</span>
+                    </div>
+                    <div class="chart__wrapper">
+                        <div id="aqi-real" class="chart"></div>
+                        <span class="label">AQI Real Value</span>
+                    </div>
+                    <div class="chart__wrapper">
+                        <div class="chart ball__layout">
+                            <div class="value__layout">
+                                <label for="accuracy-value" class="value">Accuracy</label>
+                                <span id="accuracy-value" class="value" style="font-size: 26pt;">100%</span>
+                            </div>
+                            <div class="ball">
+                                <div id="accuracy-chart" class="water">
+                                </div>
                             </div>
                         </div>
+                        <span class="label">Last 12 hours Predicting Accuracy</span>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Growth 趋势-->
+            <a name="Trend" class="mark"></a>
+            <section>
+                <h2 class="subtitle">Line Chart:</h2>
+                <div id="LineChart" class="sentiment-trend">
+                </div>
+            </section>
+
+            <!-- 弹幕区域 -->
+            <a name="barrage" class="mark"></a>
+            <section>
+                <h2 class="subtitle">Realtime Twitter Barrage</h2>
+                <div>Current analysis method :
+                    <p id="method" style="display:inline-block;">stanford core nlp</p>
+                </div>
+                <div id="barrage-canvas" class="barrage-dom"></div>
+
+                <!--基础操作-->
+                <div class='basic-operation'>
+                    <button class="btn btn-default" onclick="basicOperation('show')">Show</button>
+                    <button class="btn btn-default" onclick="basicOperation('hide')">Hide</button>
+                    <button class="btn btn-default" onclick="basicOperation('clear')">Clear</button>
+                    <button class="btn btn-default" onclick="basicOperation('reset')">Reset</button>
+                    <button class="btn btn-default" onclick="switchAdvancedOperation()">More</button>
+                </div>
+                <!--more operation-->
+                <div class="barrage-controller">
+                    <div class="barrage-controller-inline">
+                        <button class="btn btn-default" onclick="switchAnalysisMethod('nlp')">Display nlp result</button>
+                        <button class="btn btn-default" onclick="switchAnalysisMethod('nb')">Display naive bayes result</button>
+                        <button class="btn btn-default" onclick="switchAnalysisMethod('dl')">Display deep learning result</button>
+                    </div>
+                    <div class="barrage-controller-inline">
+                        <input id="interval-input" placeholder='输出速率:x+random(100)毫秒' class="interval-input" />
+                        <button id='interval-btn' class="btn btn-default" onclick="updateBasicBarrageTimer()">change interval</button>
+                    </div>
+                    <div class="barrage-controller-inline">
+                        <input type='text' placeholder='input...' class='barrage-input'>
+                        <button class="btn btn-default" onclick="lanuchBarrage()">Lanuch</button>
+                    </div>
+                    <div class="barrage-controller-inline">
+                        <input id="detail-input" placeholder='滚动速率:x毫秒' class="interval-input" />
+                        <button id='detail-speed-btn' class="btn btn-default" onclick="updateDetailBarrageSpeed()">change detail speed</button>
+                    </div>
+                    <div class="barrage-controller-inline">
+                        <button class="btn btn-default" onclick="switchBarrageBackground()">Switch Background</button>
+                        <button class="btn btn-default" onclick="startSocket()">Start Socket </button>
+                        <button class="btn btn-default" onclick="stopSocket()">Stop Socket </button>
                     </div>
                 </div>
             </section>

@@ -59,7 +59,7 @@ body {
 }
 
 .header .title h2 {
-    margin: 0 auto;
+    margin: 12px auto;
     /* color: #fff; */
     width: fit-content;
 }
