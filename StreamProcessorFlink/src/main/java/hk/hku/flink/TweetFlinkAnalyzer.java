@@ -38,7 +38,8 @@ import static hk.hku.flink.utils.Constants.SPLIT;
 /**
  * @author: LexKaing
  * @create: 2019-06-12 17:40
- * @description: flink run -c hk.hku.flink.TweetFlinkAnalyzer StreamProcessorFlink-jar-with-dependencies.jar
+ * @description: 默认每5分钟 / 每500条吐一次结果
+ * flink run -c hk.hku.flink.TweetFlinkAnalyzer StreamProcessorFlink-jar-with-dependencies.jar $timeout $countTrigger
  **/
 public class TweetFlinkAnalyzer {
 
@@ -52,15 +53,20 @@ public class TweetFlinkAnalyzer {
         logger.info("Tweets Flink Analyzer job start");
         TweetFlinkAnalyzer tweetFlinkAnalyzer = new TweetFlinkAnalyzer();
 
-        int timeout = Integer.valueOf(args[0]);
-        int countTrigger = Integer.valueOf(args[1]);
-
+        int timeout = 300;
+        int countTrigger = 500;
+        try {
+            timeout = Integer.valueOf(args[0]);
+            countTrigger = Integer.valueOf(args[1]);
+        } catch (Exception e) {
+            logger.info("main", e);
+        }
         logger.info("count trigger : " + countTrigger);
 
         tweetFlinkAnalyzer.startJob(timeout, countTrigger);
     }
 
-    private static String countElement(String city,Iterable<TweetAnalysisEntity> values) {
+    private static String countElement(String city, Iterable<TweetAnalysisEntity> values) {
         int positive = 0, negative = 0, total = 0;
         int w_positive = 0, w_negative = 0, w_total = 0;
         for (TweetAnalysisEntity element : values) {
@@ -96,6 +102,12 @@ public class TweetFlinkAnalyzer {
         return gson.toJson(tmp);
     }
 
+    /**
+     * 自定义的窗口，timeout 单位秒
+     *
+     * @param timeout
+     * @param countTrigger
+     */
     private void startJob(int timeout, int countTrigger) {
         // 创建运行环境
         final StreamExecutionEnvironment env = StreamExecutionEnvironment.getExecutionEnvironment();
