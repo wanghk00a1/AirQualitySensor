@@ -39,7 +39,6 @@ import java.util.concurrent.TimeUnit;
  * @description:
  **/
 @Service
-@Transactional
 public class KafkaService {
     private static final Logger logger = LoggerFactory.getLogger(KafkaService.class);
 
