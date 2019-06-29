@@ -78,7 +78,7 @@ public class KafkaService {
             int AQI = hourlyAqi.getJSONObject(i).getInt("aqi");
 
             tmp.setCity(city);
-            tmp.setTimestamp(String.valueOf(sdf.parse(timestamp).getTime()));
+            tmp.setTimestamp(timestamp);
             tmp.setAqi(AQI);
             aqiEntities.add(tmp);
         }
@@ -160,9 +160,13 @@ public class KafkaService {
                     int w_negative = entity.getW_negative();
                     int w_total = entity.getW_total();
 
+                    String time = sdf.format(new Date(Long.valueOf(entity.getTimestamp())));
+                    String timePastOneHour = sdf.format(new Date(Long.valueOf(entity.getTimestamp()) - 60 * 60 * 1000L));
+                    entity.setTimestamp(time);
+
                     // 计算过去一小时内的统计量
-                    List<TweetStatisticEntity> list = kafkaDaoImpl.queryPastOneHourData(entity.getCity(), entity.getTimestamp());
-                    logger.info("queryPastOneHourData size : " + list.size());
+                    List<TweetStatisticEntity> list = kafkaDaoImpl.queryPastOneHourData(entity.getCity(), time, timePastOneHour);
+                    logger.info("queryPastOneHourData, from " + time + " to " + timePastOneHour + ", size : " + list.size());
                     for (TweetStatisticEntity tmp : list) {
                         positive += tmp.getPositive();
                         negative += tmp.getNegative();
@@ -172,9 +176,13 @@ public class KafkaService {
                         w_total += tmp.getW_total();
                     }
 
+
                     entity.setRandom_tree(RandomTree.getInstance()
                             .predictAQI(positive, negative, total, w_positive, w_negative, w_total));
-                    kafkaDaoImpl.insertAqi(entity);
+
+                    if (kafkaDaoImpl.insertPredictAqi(entity) <= 0) {
+                        logger.warn("insertPredictAqi fail");
+                    }
 
                     logger.info("insert predict aqi " + entity.getCity() + ","
                             + entity.getTimestamp() + ","

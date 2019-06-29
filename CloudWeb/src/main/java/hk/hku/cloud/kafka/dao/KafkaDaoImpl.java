@@ -25,9 +25,9 @@ public class KafkaDaoImpl {
         System.out.println(System.currentTimeMillis());
     }
 
-    public int insertAqi(TweetStatisticEntity entity) {
-        String sql = "insert into t_tweet_aqi_data(city,timestamp,positive,negative,total,w_positive,w_negative,w_total) "
-                + "values(:city,:timestamp,:positive,:negative,:total,:w_positive,:w_negative,:w_total);";
+    public int insertPredictAqi(TweetStatisticEntity entity) {
+        String sql = "insert into t_tweet_aqi_data(city,timestamp,positive,negative,total,w_positive,w_negative,w_total,random_tree) "
+                + "values(:city,:timestamp,:positive,:negative,:total,:w_positive,:w_negative,:w_total,:random_tree);";
         Map<String, Object> map = new HashMap();
         map.put("city", entity.getCity());
         map.put("timestamp", entity.getTimestamp());
@@ -37,18 +37,18 @@ public class KafkaDaoImpl {
         map.put("w_positive", entity.getW_positive());
         map.put("w_negative", entity.getW_negative());
         map.put("w_total", entity.getW_total());
+        map.put("random_tree", entity.getRandom_tree());
 
         return namedParameterJdbcTemplate.update(sql, map);
     }
 
-    public List<TweetStatisticEntity> queryPastOneHourData(String city, String timestamp) {
+    public List<TweetStatisticEntity> queryPastOneHourData(String city, String timestamp, String pastTimestamp) {
         String sql = "select * from t_tweet_aqi_data t " +
                 "where t.city=city and t.timestamp<=:timestamp and t.timestamp>:pastTimestamp;";
         Map<String, Object> map = new HashMap();
         map.put("city", city);
         map.put("timestamp", timestamp);
-        Long pastTimestamp = Long.valueOf(timestamp) - 60 * 60 * 1000L;
-        map.put("pastTimestamp", String.valueOf(pastTimestamp));
+        map.put("pastTimestamp", pastTimestamp);
 
         return namedParameterJdbcTemplate.query(sql, map, new TweetStatisticEntity());
     }

@@ -15,7 +15,7 @@ public class KafkaProperties {
     public static Properties getConsumerProperties(String groupid) {
         Properties props = new Properties();
         props.put("bootstrap.servers", kafka_server);
-        props.put("group.id", groupid);
+//        props.put("group.id", groupid);
         props.put("auto.offset.reset", "latest");  //[latest(default), earliest, none]
         props.put("enable.auto.commit", "true");// 自动commit
         props.put("auto.commit.interval.ms", "1000");// 自动commit的间隔
