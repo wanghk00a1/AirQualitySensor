@@ -28,7 +28,7 @@ public class KafkaDaoImpl {
     }
 
     public int insertPredictAqi(TweetStatisticEntity entity) {
-        String sql = "insert into t_tweet_aqi_data(city,timestamp,positive,negative,total,w_positive,w_negative,w_total,random_tree) "
+        String sql = "insert ignore into t_tweet_aqi_data(city,timestamp,positive,negative,total,w_positive,w_negative,w_total,random_tree) "
                 + "values(:city,:timestamp,:positive,:negative,:total,:w_positive,:w_negative,:w_total,:random_tree);";
         Map<String, Object> map = new HashMap();
         map.put("city", entity.getCity());
@@ -45,7 +45,7 @@ public class KafkaDaoImpl {
     }
 
     public int[] insertPredictAqiList(List<TweetStatisticEntity> entityList) {
-        String sql = "insert into t_tweet_aqi_data(city,timestamp,positive,negative,total,w_positive,w_negative,w_total,random_tree) "
+        String sql = "insert ignore into t_tweet_aqi_data(city,timestamp,positive,negative,total,w_positive,w_negative,w_total,random_tree) "
                 + "values(:city,:timestamp,:positive,:negative,:total,:w_positive,:w_negative,:w_total,:random_tree);";
 
         Map<String, Object>[] batchValues = new Map[entityList.size()];
@@ -91,9 +91,9 @@ public class KafkaDaoImpl {
     }
 
     public int[] insertActualAQI(List<AqiEntity> aqiEntities) {
-        String sql = "insert into t_aqi_data(city,timestamp,aqi) "
-                + "values(:city,:timestamp,:aqi) "
-                + "on duplicate key update aqi=:aqi;";
+        String sql = "insert ignore into t_aqi_data(city,timestamp,aqi) "
+                + "values(:city,:timestamp,:aqi) ";
+//                + "on duplicate key update aqi=:aqi;";
         Map<String, Object>[] batchValues = new Map[aqiEntities.size()];
         int i = 0;
         for (AqiEntity tmp : aqiEntities) {
