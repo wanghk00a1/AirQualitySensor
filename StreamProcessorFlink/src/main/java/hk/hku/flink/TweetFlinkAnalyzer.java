@@ -45,7 +45,7 @@ public class TweetFlinkAnalyzer {
 
     private static final Logger logger = LoggerFactory.getLogger(TweetFlinkAnalyzer.class);
 
-    private static SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss");
+    private static SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 
     private static Gson gson = new Gson();
 

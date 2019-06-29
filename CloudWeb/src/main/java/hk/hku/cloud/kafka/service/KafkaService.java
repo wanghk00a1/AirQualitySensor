@@ -24,13 +24,13 @@ import org.springframework.scheduling.annotation.Async;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import twitter4j.JSONArray;
-import twitter4j.JSONObject;
+import twitter4j.*;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.time.Duration;
 import java.util.*;
+import java.util.TimeZone;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -47,7 +47,7 @@ public class KafkaService {
 
     private static volatile boolean consumeKafka = true;
 
-    private static SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss");
+    private static SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 
     @Autowired
     private SimpMessagingTemplate template;
