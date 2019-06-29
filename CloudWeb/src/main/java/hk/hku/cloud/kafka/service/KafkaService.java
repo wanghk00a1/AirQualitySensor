@@ -145,6 +145,8 @@ public class KafkaService {
         while (true) {
             consumerRecords = consumer.poll(Duration.ofSeconds(60));
 
+            logger.info("consumer Records : " + consumerRecords.count());
+
             for (ConsumerRecord consumerRecord : consumerRecords) {
                 String value = consumerRecord.value().toString();
                 if (value.length() > 0) {
