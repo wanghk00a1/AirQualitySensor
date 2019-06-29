@@ -26,6 +26,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import twitter4j.*;
 
+import java.text.DecimalFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.time.Duration;
@@ -47,6 +48,8 @@ public class KafkaService {
     private static volatile boolean consumeKafka = true;
 
     private static SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+
+    private static DecimalFormat df = new DecimalFormat("0.00");
 
     @Autowired
     private SimpMessagingTemplate template;
@@ -145,7 +148,8 @@ public class KafkaService {
 
         while (true) {
             consumerRecords = consumer.poll(Duration.ofSeconds(60));
-            logger.info("consumer Records : " + consumerRecords.count());
+            if (consumerRecords.count() > 0)
+                logger.info("consumer Records : " + consumerRecords.count());
 
             for (ConsumerRecord consumerRecord : consumerRecords) {
                 String value = consumerRecord.value().toString();
@@ -182,9 +186,10 @@ public class KafkaService {
 //                    waitingList.add(entity);
 
                     int cnt = kafkaDaoImpl.insertPredictAqi(entity);
-                    logger.info("insert " + cnt + " predict aqi " + entity.getCity() + ","
-                            + entity.getTimestamp() + ","
-                            + entity.getRandom_tree());
+                    if (cnt > 0)
+                        logger.info("insert predict aqi " + entity.getCity() + ","
+                                + entity.getTimestamp() + ","
+                                + df.format(entity.getRandom_tree()));
                 }
             }
 //            int[] cnt = kafkaDaoImpl.insertPredictAqiList(waitingList);
@@ -226,7 +231,7 @@ public class KafkaService {
      * 获取政府AQI数据并存储到mysql
      * 每30分钟执行一次
      */
-    @Scheduled(fixedRate = 30 * 60 * 1000, initialDelay = 30 * 1000)
+    @Scheduled(fixedRate = 30 * 60 * 1000, initialDelay = 10 * 1000)
     public void crawlGovernmentAqiData() {
         logger.info("crawl government aqi data : " + sdf.format(new Date()));
         String london = "https://website-api.airvisual.com/v1/cities/7McFS9nFSf5TQmwva" +
@@ -241,15 +246,19 @@ public class KafkaService {
             HttpResponse response = httpClient.execute(httpGet);
             String res = EntityUtils.toString(response.getEntity());
 
-            kafkaDaoImpl.insertActualAQI(parseAqiStr(res));
+            int[] cntLondon = kafkaDaoImpl.insertActualAQI(parseAqiStr(res));
 
             HttpGet httpGet2 = new HttpGet(ny);
             HttpResponse response2 = httpClient.execute(httpGet2);
             String res2 = EntityUtils.toString(response2.getEntity());
 
-            kafkaDaoImpl.insertActualAQI(parseAqiStr(res2));
+            int[] cntY = kafkaDaoImpl.insertActualAQI(parseAqiStr(res2));
+
+            logger.info("crawl Government Aqi Data, London : " + Arrays.stream(cntLondon).sum()
+                    + ", NY: " + Arrays.stream(cntY).sum());
+
         } catch (Exception e) {
-            logger.error("crawlGovernmentAqiData", e);
+            logger.error("crawl Government Aqi Data Exception", e);
         }
     }
 
