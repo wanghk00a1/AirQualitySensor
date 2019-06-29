@@ -1,10 +1,17 @@
 package hk.hku.cloud.kafka.service;
 
 import com.google.gson.Gson;
+import com.google.gson.JsonObject;
 import hk.hku.cloud.kafka.dao.KafkaDaoImpl;
+import hk.hku.cloud.kafka.domain.AqiEntity;
 import hk.hku.cloud.kafka.domain.TweetStatisticEntity;
 import hk.hku.cloud.ml.RandomTree;
 import hk.hku.cloud.utils.KafkaProperties;
+import org.apache.http.HttpResponse;
+import org.apache.http.client.HttpClient;
+import org.apache.http.client.methods.HttpGet;
+import org.apache.http.impl.client.HttpClients;
+import org.apache.http.util.EntityUtils;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.apache.kafka.clients.consumer.ConsumerRecords;
 import org.apache.kafka.clients.consumer.KafkaConsumer;
@@ -14,15 +21,16 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.scheduling.annotation.Async;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import twitter4j.JSONArray;
+import twitter4j.JSONObject;
 
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.time.Duration;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.List;
-import java.util.Properties;
+import java.util.*;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -46,6 +54,36 @@ public class KafkaService {
 
     @Autowired
     private KafkaDaoImpl kafkaDaoImpl;
+
+    private static List<AqiEntity> parseAqiStr(String res) throws ParseException {
+        List<AqiEntity> aqiEntities = new ArrayList<>();
+        JSONObject jsonObject = new JSONObject(res);
+        String city = null;
+
+        if (jsonObject.getString("id").equals("7McFS9nFSf5TQmwva")) {
+            city = "LONDON";
+        } else if (jsonObject.getString("id").equals("gXTDkEBCX9BBKe5wc"))
+            city = "NY";
+
+        JSONObject measurements = jsonObject.getJSONObject("measurements");
+        JSONArray hourlyAqi = measurements.getJSONArray("hourly");
+
+        for (int i = 0; i < hourlyAqi.length(); i++) {
+            AqiEntity tmp = new AqiEntity();
+
+            String timestamp = hourlyAqi.getJSONObject(i)
+                    .getString("ts")
+                    .replaceAll("T", " ")
+                    .replaceAll(".000Z", "");
+            int AQI = hourlyAqi.getJSONObject(i).getInt("aqi");
+
+            tmp.setCity(city);
+            tmp.setTimestamp(String.valueOf(sdf.parse(timestamp).getTime()));
+            tmp.setAqi(AQI);
+            aqiEntities.add(tmp);
+        }
+        return aqiEntities;
+    }
 
     public void setConsumeKafka(boolean consumeKafka) {
         this.consumeKafka = consumeKafka;
@@ -117,7 +155,6 @@ public class KafkaService {
         }
     }
 
-
     /**
      * 定时往socket 地址发送一条消息，保证web socket 存活
      */
@@ -134,10 +171,45 @@ public class KafkaService {
         }
     }
 
-
-    public List<TweetStatisticEntity> getAqiDataByCity(String city, int limit) {
-        return kafkaDaoImpl.queryAqi(city, limit);
+    /**
+     * 根据城市 LONDON / NY 获取对应的AQI数据,JSON 字符串
+     */
+    public List<TweetStatisticEntity> getPredictAqiDataByCity(String city, int limit) {
+        return kafkaDaoImpl.queryPredictAqi(city, limit);
     }
 
+    /**
+     * 获取政府AQI数据并存储到mysql
+     * 每30分钟执行一次
+     */
+    @Scheduled(fixedRate = 30 * 60 * 1000, initialDelay = 30 * 1000)
+    public void crawlGovernmentAqiData() {
+        logger.info("crawl government aqi data : " + sdf.format(new Date()));
+        String london = "https://website-api.airvisual.com/v1/cities/7McFS9nFSf5TQmwva" +
+                "/measurements?units.temperature=celsius&units.distance=kilometer&AQI=US&language=en";
 
+        String ny = "https://website-api.airvisual.com/v1/cities/gXTDkEBCX9BBKe5wc" +
+                "/measurements?units.temperature=celsius&units.distance=kilometer&AQI=US&language=en";
+
+        try {
+            HttpClient httpClient = HttpClients.createDefault();
+            HttpGet httpGet = new HttpGet(london);
+            HttpResponse response = httpClient.execute(httpGet);
+            String res = EntityUtils.toString(response.getEntity());
+
+            kafkaDaoImpl.insertActualAQI(parseAqiStr(res));
+
+            HttpGet httpGet2 = new HttpGet(ny);
+            HttpResponse response2 = httpClient.execute(httpGet2);
+            String res2 = EntityUtils.toString(response2.getEntity());
+
+            kafkaDaoImpl.insertActualAQI(parseAqiStr(res2));
+        } catch (Exception e) {
+            logger.error("crawlGovernmentAqiData", e);
+        }
+    }
+
+    public List<AqiEntity> getActualAqiDataByCity(String city, int limit) {
+        return kafkaDaoImpl.queryActualAqi(city, limit);
+    }
 }

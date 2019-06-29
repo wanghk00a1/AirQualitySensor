@@ -1,6 +1,7 @@
 package hk.hku.cloud.kafka.controller;
 
 import com.google.gson.Gson;
+import hk.hku.cloud.kafka.domain.AqiEntity;
 import hk.hku.cloud.kafka.domain.TweetStatisticEntity;
 import hk.hku.cloud.kafka.service.KafkaService;
 import org.slf4j.Logger;
@@ -56,12 +57,22 @@ public class KafkaController {
     }
 
     /**
-     * 读取 mysql aqi 数据
+     * 读取 mysql predict aqi 数据
      */
-    @RequestMapping(value = "/api/getAqiByCity", method = RequestMethod.GET, produces = {"application/json"})
+    @RequestMapping(value = "/api/getPredictAqiByCity", method = RequestMethod.GET, produces = {"application/json"})
     @ResponseBody
-    public String getCurrentAQI(@RequestParam("city") String city, @RequestParam("limit") int limit) {
-        List<TweetStatisticEntity> result = kafkaService.getAqiDataByCity(city, limit);
+    public String getPredictAqiByCity(@RequestParam("city") String city, @RequestParam("limit") int limit) {
+        List<TweetStatisticEntity> result = kafkaService.getPredictAqiDataByCity(city, limit);
+        return new Gson().toJson(result);
+    }
+
+    /**
+     * 读取 mysql actual aqi 数据
+     */
+    @RequestMapping(value = "/api/getActualAqiByCity", method = RequestMethod.GET, produces = {"application/json"})
+    @ResponseBody
+    public String getActualAqiByCity(@RequestParam("city") String city, @RequestParam("limit") int limit) {
+        List<AqiEntity> result = kafkaService.getActualAqiDataByCity(city, limit);
         return new Gson().toJson(result);
     }
 
