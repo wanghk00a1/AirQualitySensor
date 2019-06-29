@@ -2,6 +2,8 @@ package hk.hku.cloud.kafka.dao;
 
 import hk.hku.cloud.kafka.domain.AqiEntity;
 import hk.hku.cloud.kafka.domain.TweetStatisticEntity;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.stereotype.Repository;
@@ -44,7 +46,7 @@ public class KafkaDaoImpl {
 
     public List<TweetStatisticEntity> queryPastOneHourData(String city, String timestamp, String pastTimestamp) {
         String sql = "select * from t_tweet_aqi_data t " +
-                "where t.city=city and t.timestamp<=:timestamp and t.timestamp>:pastTimestamp;";
+                "where t.city=city and t.timestamp<:timestamp and t.timestamp>=:pastTimestamp;";
         Map<String, Object> map = new HashMap();
         map.put("city", city);
         map.put("timestamp", timestamp);

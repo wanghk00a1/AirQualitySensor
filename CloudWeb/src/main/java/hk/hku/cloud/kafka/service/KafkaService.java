@@ -180,9 +180,8 @@ public class KafkaService {
                     entity.setRandom_tree(RandomTree.getInstance()
                             .predictAQI(positive, negative, total, w_positive, w_negative, w_total));
 
-                    if (kafkaDaoImpl.insertPredictAqi(entity) <= 0) {
-                        logger.warn("insertPredictAqi fail");
-                    }
+                    int cnt = kafkaDaoImpl.insertPredictAqi(entity);
+                    logger.info("insertPredictAqi cnt : " + cnt);
 
                     logger.info("insert predict aqi " + entity.getCity() + ","
                             + entity.getTimestamp() + ","
