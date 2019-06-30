@@ -19,7 +19,7 @@ body {
 }
 
 .header {
-    margin: 80px 0 0;
+    margin: 0;
     height: 380px;
     width: 100%;
     position: relative;
@@ -30,7 +30,6 @@ body {
 .header .inner {
     height: inherit;
     width: 100%;
-    /* position: fixed */
 }
 
 .header .bg {
@@ -46,8 +45,11 @@ body {
 }
 
 .header .title {
+    margin: 10px;
     text-align: center;
-    margin: 10rem 1rem 0;
+    padding: 8rem 1rem 8rem;
+    background: rgba(255, 255, 255, 0.5);
+    border-radius: 5px;
 }
 
 .header .title h1 {
@@ -58,14 +60,14 @@ body {
 }
 
 .header .title h2 {
-    margin: 0 auto;
+    margin: 12px auto;
     /* color: #fff; */
     width: fit-content;
 }
 
 .nav {
     z-index: 100;
-    position: fixed;
+/*    position: fixed;*/
     top: 0;
     height: 80px;
     width: 100%;

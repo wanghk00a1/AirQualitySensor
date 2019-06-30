@@ -10,15 +10,15 @@
     <meta name="author" content="LexKaing">
     <link rel="icon" href="./favicon.ico" type="image/x-icon" />
     <link rel="shortcut icon" href="./favicon.ico" type="image/x-icon" />
-    <title>COMP7305 Cluster and cloud computing</title>
+    <title>Social Media as sensor of Air Quality and Public Response</title>
 
     <!--加载地图-->
     <!-- <script src="http://api.map.baidu.com/api?v=3.0&ak=iRyl18zAppPIzw4YNYX87yGS6sB6raKp"></script> -->
     <!--加载cdn资源-->
-    <script src="https://cdn.bootcss.com/jquery/3.3.1/jquery.js"></script>
-    <script src="https://cdn.bootcss.com/stomp.js/2.3.3/stomp.min.js"></script>
-    <script src="https://cdn.bootcss.com/sockjs-client/1.3.0/sockjs.min.js"></script>
-    <script src="https://cdn.bootcss.com/echarts/4.2.1-rc1/echarts.min.js"></script>
+    <script src="/vendor/jquery.js"></script>
+    <script src="/vendor/stomp.min.js"></script>
+    <script src="/vendor/sockjs.min.js"></script>
+    <script src="/vendor/echarts.min.js"></script>
     <!-- <script src="https://cdnjs.cloudflare.com/ajax/libs/echarts/4.2.1/echarts.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/echarts/4.2.1/extension/dataTool.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/echarts/4.2.1/extension/bmap.js"></script> -->
@@ -28,12 +28,14 @@
     <link href="./css/statistics.css" rel="stylesheet" />
     <link href="./css/barrage.css" rel="stylesheet" />
     <link href="./css/basic.css" rel="stylesheet" />
+    <link href="./css/aqi.css" rel="stylesheet" />
 
     <script src="./dist/danmaku.js"></script>
     <!-- <script src="./dist/index.min.js"></script> -->
 
     <!--<script src="./js/statistics.js"></script>-->
     <script src="./js/barrage-danmaku.js"></script>
+    <script src="./js/aqi.js"></script>
 
 </head>
 
@@ -44,47 +46,105 @@
         </div>
         <ul class="menu">
             <li><a href=""><span>Home</span></a></li>
-            <li><a href="#Statistics"><span>Statistics</span></a></li>
-            <li><a href="#Barrage"><span>Barrage</span></a></li>
-            <li><a href="https://github.com/BZbyr/7305CloudProject" target="_blank"><span>Git Repo</span></a></li>
+            <li><a href="#statistics"><span>Statistics</span></a></li>
+            <li><a href="#barrage"><span>Barrage</span></a></li>
+            <li><a href="https://github.com/wanghk00a1/AirQualitySensor" target="_blank"><span>Git Repo</span></a></li>
         </ul>
     </div>
 
     <div class="header">
-        <div class="inner">
-            <div class="title">
-                <h1>Realtime Twitter Stream Analysis System</h1>
-                <h2>Group No : 7</h2>
-            </div>
-            <div class="bg"></div>
+        <div class="title">
+            <h1>Social Media as a sensor of Air Quality and Public Response</h1>
+            <h2>Kai Zhang | Hanke Wang | Jiaxing Zeng</h2>
         </div>
+        <div class="bg"></div>
     </div>
     <div class="app">
         <div class="content">
             <section id="description">
                 <h2 class="subtitle">Description</h2>
-                <p style="padding: 0rem 2%;">This project gets real-time Twitter data stream. We will use several algorithms to analyze Sementic for each content. Meanwhile, we count meta data from the stream. We figure out language distribution in the stream and Twitter users' follower number distribution.</p>
+                <p style="padding: 0rem 2%;">This project will provide real-time monitoring and analysing of the public’s attention and satisfaction on air quality. We will develop filters to obtain air quality related messages, based on keyword matching, from the most popular Chinese microblog platforms Sina Weibo. We put the messages into a model, using Spark Streaming to implement real-time analysing and derive results on how dissatisfied the public is about the air quality in their city. The results will be demonstrated in chart format for friendly view. In addition, the results may promote government information disclosure and provide evidence and recommendations for government decision-making.</p>
             </section>
 
-            <!-- 数据统计区域 -->
-            <a name="Statistics" class="mark"></a>
+<!--            &lt;!&ndash; 数据统计区域 &ndash;&gt;-->
+<!--            <a name="Statistics" class="mark"></a>-->
+<!--            <section>-->
+<!--                <h2 class="subtitle">Realtime Statistics</h2>-->
+<!--                <div class="charts">-->
+<!--                    <div id="BarChart" class="bar-chart"></div>-->
+<!--                    <div id="PieChart" class="pie-chart"></div>-->
+<!--                </div>-->
+<!--                <div id="charts-controller" class="charts-controller">-->
+<!--                    <button class="btn btn-default mr10" onclick="switchBarTimer()">start/pause bar</button>-->
+<!--                    <button class="btn btn-default" onclick="switchPieTimer()">start/pause pie</button>-->
+<!--                </div>-->
+<!--            </section>-->
+
+            <a name="statistics" class="mark"></a>
             <section>
-                <h2 class="subtitle">Realtime Statistics</h2>
-                <div class="charts">
-                    <div id="BarChart" class="bar-chart"></div>
-                    <div id="PieChart" class="pie-chart"></div>
+                <h2 class="subtitle">Overview</h2>
+                <div class="overview__layout">
+                    <div class="chart__wrapper">
+                        <div id="_aqi-predict" class="chart" style="display: none"></div>
+                        <div class="chart ball__layout numerical__aqi">
+                            <div id="aqi-predict" class="ball">
+                                <div class="value__layout">
+                                    <span class="en"></span>
+                                    <span class="zh"></span>
+                                    <span class="value"></span>
+                                </div>
+                            </div>
+                        </div>
+                        <span class="label">AQI Predicting Value</span>
+                    </div>
+                    <div class="chart__wrapper">
+                        <div id="_aqi-actual" class="chart" style="display: none;"></div>
+                        <div class="chart ball__layout numerical__aqi">
+                            <div id="aqi-actual" class="ball">
+                                <div class="value__layout">
+                                    <span class="en"></span>
+                                    <span class="zh"></span>
+                                    <span class="value"></span>
+                                </div>
+                            </div>
+                        </div>
+                        <span class="label">AQI Actual Value</span>
+                    </div>
+                    <div class="chart__wrapper">
+                        <div class="chart ball__layout" style="padding: 32px 0;">
+                            <div class="value__layout">
+                                <label for="accuracy-value" class="value">Accuracy</label>
+                                <span id="accuracy-value" class="value" style="font-size: 26pt;">100%</span>
+                            </div>
+                            <div class="ball">
+                                <div id="accuracy-chart" class="water">
+                                </div>
+                            </div>
+                        </div>
+                        <span class="label">Last 12 hours Predicting Accuracy</span>
+                    </div>
                 </div>
-                <div id="charts-controller" class="charts-controller">
-                    <button class="btn btn-default mr10" onclick="switchBarTimer()">start/pause bar</button>
-                    <button class="btn btn-default" onclick="switchPieTimer()">start/pause pie</button>
+            </section>
+
+            <a name="AQI Trend" class="mark"></a>
+            <section>
+                <h2 class="subtitle">AQI Line Chart</h2>
+                <div id="aqi-line-chart" class="sentiment-trend">
+                </div>
+            </section>
+
+            <a name="Tweets Trend" class="mark"></a>
+            <section>
+                <h2 class="subtitle">Tweets Line Chart</h2>
+                <div id="tweets-line-chart" class="sentiment-trend">
                 </div>
             </section>
 
             <!-- 弹幕区域 -->
-            <a name="Barrage" class="mark"></a>
+            <a name="barrage" class="mark"></a>
             <section>
                 <h2 class="subtitle">Realtime Twitter Barrage</h2>
-                <div>Current analysis method : 
+                <div>Current analysis method :
                     <p id="method" style="display:inline-block;">stanford core nlp</p>
                 </div>
                 <div id="barrage-canvas" class="barrage-dom"></div>
@@ -123,7 +183,7 @@
                     </div>
                 </div>
             </section>
-
+            
             <!-- 弹幕区域 -->
             <a name="Detailed" class="mark"></a>
             <section>
@@ -161,7 +221,7 @@
                         </table>
                     </div>
                 </div>
-                <!--基础操作-->
+                <!-- 基础操作 -->
                 <div class='basic-operation'>
                     <button class="btn btn-default" onclick="basicDetailOperation('start')">Start</button>
                     <button class="btn btn-default" onclick="basicDetailOperation('pause')">Pause</button>

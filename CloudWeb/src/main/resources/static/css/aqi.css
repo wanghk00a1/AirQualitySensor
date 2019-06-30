@@ -1,0 +1,90 @@
+.overview__layout {
+  display: flex;
+  flex-flow: row nowrap;
+  justify-content: space-between;
+  align-items: center;
+  min-height: 400px;
+}
+.overview__layout .chart__wrapper {
+  display: flex;
+  flex-flow: column;
+  justify-content: center;
+  align-items: center;
+}
+.overview__layout .chart__wrapper span.label {
+  font-size: 14pt;
+  border-bottom: 2px solid var(--theme-color);
+}
+.overview__layout .chart {
+  width: 340px;
+  height: 310px;
+}
+.overview__layout .chart.non-echart {
+  width: 340px;
+  height: 300px;
+}
+.overview__layout .numerical__aqi {
+  border-radius: 50%;
+  padding: 32px 0;
+  display: flex;
+  flex-flow: column nowrap;
+  justify-content: space-between;
+  align-items: center;
+}
+.overview__layout .numerical__aqi .group {
+  display: flex;
+  flex-flow: column;
+  justify-content: center;
+  align-items: center;
+}
+.overview__layout .numerical__aqi .en,
+.overview__layout .numerical__aqi .zh {
+  font-size: 24pt;
+}
+.overview__layout .numerical__aqi .value {
+  font-size: 16pt;
+}
+.overview__layout .ball__layout {
+  position: relative;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+.overview__layout .ball__layout:hover .ball .water {
+  height: 122%;
+}
+.overview__layout .ball__layout .ball {
+  position: relative;
+  overflow: hidden;
+  width: 280px;
+  height: 280px;
+  border: 6px solid #fff;
+  border-radius: 50%;
+  box-shadow: 0 0 0 6px #fff, 0 20px 35px rgba(0,0,0,0.5);
+}
+.overview__layout .ball__layout .ball .water {
+  filter: blur(2px) saturate(3);
+  background-image: url("/images/waves.png");
+  background-position: top right;
+  transition: all 1s ease-out;
+  bottom: 0;
+  height: 0;
+  width: 100%;
+  position: absolute;
+  z-index: 1;
+}
+.overview__layout .ball__layout .value__layout {
+  position: absolute;
+  left: 0;
+  top: 0;
+  margin: 10%;
+  width: 80%;
+  height: 80%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-flow: column;
+}
+.overview__layout .ball__layout .value__layout .value {
+  z-index: 9;
+}
