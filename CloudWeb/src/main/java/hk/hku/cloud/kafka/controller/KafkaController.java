@@ -69,7 +69,7 @@ public class KafkaController {
     /**
      * 读取 mysql actual aqi 数据
      */
-    @RequestMapping(value = "/api/getActualAqiByCity", method = RequestMethod.GET, produces = {"application/json"})
+    @RequestMapping(value = "/api/li", method = RequestMethod.GET, produces = {"application/json"})
     @ResponseBody
     public String getActualAqiByCity(@RequestParam("city") String city, @RequestParam("limit") int limit) {
         List<AqiEntity> result = kafkaService.getActualAqiDataByCity(city, limit);

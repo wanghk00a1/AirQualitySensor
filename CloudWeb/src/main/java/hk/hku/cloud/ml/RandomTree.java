@@ -21,15 +21,16 @@ import java.util.ArrayList;
 public class RandomTree {
 
     private static final Logger logger = LoggerFactory.getLogger(RandomTree.class);
-    private static final String model = "model/RandomForest.model";
+//    private static final String model = "model/RandomForest.model";
     private static RandomTree INSTANCE;
     private static Classifier classifier8;
     private static ArrayList<Attribute> attributes = new ArrayList<>();
 
-    public RandomTree() {
+    public RandomTree(String modelPath) {
         try {
-            Resource resource = new ClassPathResource(model);
+            Resource resource = new ClassPathResource(modelPath);
             classifier8 = (Classifier) weka.core.SerializationHelper.read(resource.getInputStream());
+            logger.info("random tree init");
         } catch (Exception e) {
             logger.error("Classifier Exception", e);
         }
@@ -42,10 +43,10 @@ public class RandomTree {
         attributes.add(new Attribute("weatherCount"));
     }
 
-    public static RandomTree getInstance() {
+    public static RandomTree getInstance(String modelPath) {
         synchronized (RandomTree.class) {
             if (INSTANCE == null) {
-                INSTANCE = new RandomTree();
+                INSTANCE = new RandomTree(modelPath);
             }
             return INSTANCE;
         }
@@ -65,7 +66,7 @@ public class RandomTree {
         instances.setClassIndex(instances.numAttributes() - 1);
         instances.add(instance);
 
-        logger.info(instances.instance(0).toString());
+//        logger.info(instances.instance(0).toString());
 
         double aqi_value = 0;
         try {
