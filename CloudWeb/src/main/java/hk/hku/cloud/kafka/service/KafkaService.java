@@ -42,17 +42,12 @@ import java.util.concurrent.TimeUnit;
 @Service
 public class KafkaService {
     private static final Logger logger = LoggerFactory.getLogger(KafkaService.class);
-
+    private static final String modelPath = "model/RandomForest.model";
     private static Gson gson = new Gson();
-
     private static volatile boolean consumeKafka = true;
-
     private static SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-
-    private static SimpleDateFormat sdf2 = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.sss'Z'");
-
+    private static SimpleDateFormat sdf2 = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'");
     private static DecimalFormat df = new DecimalFormat("0.00");
-
     @Autowired
     private SimpMessagingTemplate template;
 
@@ -181,7 +176,7 @@ public class KafkaService {
                         w_total += tmp.getW_total();
                     }
 
-                    entity.setRandom_tree(RandomTree.getInstance()
+                    entity.setRandom_tree(RandomTree.getInstance(modelPath)
                             .predictAQI(positive, negative, total, w_positive, w_negative, w_total));
 
 //                    waitingList.add(entity);
