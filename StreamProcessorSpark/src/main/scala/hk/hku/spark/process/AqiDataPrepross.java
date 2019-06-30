@@ -6,10 +6,12 @@ import twitter4j.JSONException;
 import twitter4j.JSONObject;
 
 import java.io.*;
+import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.TimeZone;
 
 /**
  * Created by wanghanke on 24/6/2019.
@@ -58,13 +60,14 @@ public class AqiDataPrepross {
                 JSONObject measurements = jsonObject.getJSONObject("measurements");
                 JSONArray hourlyAqi = measurements.getJSONArray("hourly");
 
+                DateFormat df = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'");
+                df.setTimeZone(TimeZone.getTimeZone("UTC"));
+
                 for(int i=0;i<hourlyAqi.length();i++){
-                    String timeStemp = hourlyAqi.getJSONObject(i).getString("ts");
-                    String response = timeStemp.replaceAll("T"," ");
-                    String response1 = response.replaceAll(".000Z","");
-                    String format = "yyyy-MM-dd HH:mm:ss";
-                    SimpleDateFormat sdf = new SimpleDateFormat(format);
-                    String time = String.valueOf(sdf.parse(response1).getTime()/1000);
+
+                    String timeStamp = hourlyAqi.getJSONObject(i).getString("ts");
+
+                    String time = String.valueOf(df.parse(timeStamp).getTime()/1000);
 
                     Integer AQI = hourlyAqi.getJSONObject(i).getInt("aqi");
 

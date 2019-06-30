@@ -15,9 +15,9 @@ import java.util.List;
  */
 public class TimelyAQICount {
     public static void main(String[] args) {
-        File file = new File("data/tweetAQI-0625-media.csv");
-        File resultFile = new File("data/timelyAqiCount-0625-media.csv");
-        File resultFile1 = new File("data/timelyAqiCount-0625-firstOrderDifferent.csv");
+        File file = new File("data/tweetAQI-0628-media.csv");
+        File resultFile = new File("data/timelyAqiCount-0628-imbalance.csv");
+//        File resultFile1 = new File("data/timelyAqiCount-0625-firstOrderDifferent.csv");
 
         List<String> time = new ArrayList<>();
         List<Integer> positive = new ArrayList<>();
@@ -31,7 +31,7 @@ public class TimelyAQICount {
         try {
             BufferedReader tweetAqiData = new BufferedReader(new FileReader(file));
             BufferedWriter writer = new BufferedWriter(new FileWriter(resultFile, true));
-            BufferedWriter writer1 = new BufferedWriter(new FileWriter(resultFile1, true));
+//            BufferedWriter writer1 = new BufferedWriter(new FileWriter(resultFile1, true));
 
             tweetAqiData.readLine();
             String line = null;
@@ -41,8 +41,7 @@ public class TimelyAQICount {
                 String item[] = line.split(",");
 
                 if(!String.valueOf(item[3]).equals("LONDON") ||
-                        !String.valueOf(item[5]).equals("en") ||
-                        !String.valueOf(item[6]).equals("false")){
+                        !String.valueOf(item[5]).equals("en") ){
                     continue;
                 }
 
@@ -111,10 +110,39 @@ public class TimelyAQICount {
             }
 
             for(int i=0;i<time.size();i++){
+                int time_ch = 12 - Math.abs(((Integer.valueOf(time.get(i).substring(11, 13)) + 13) % 24) - 12);
                 writer.newLine();
-                writer.write(Integer.valueOf(time.get(i).substring(11, 13)) + "," + positive.get(i) + "," + negative.get(i) + "," + totalCount.get(i) + "," +
+                writer.write(time.get(i) + "," + positive.get(i) + "," + negative.get(i) + "," + totalCount.get(i) + "," +
                         weatherPositive.get(i) + "," + weatherNegative.get(i) + "," + weatherCount.get(i) + "," + aqi.get(i));
                 writer.flush();
+
+                if(aqi.get(i)>62 && aqi.get(i)<82) {
+                    writer.newLine();
+                    writer.write(time.get(i) + "," +
+                            (Integer.valueOf(positive.get(i))+(int)Math.random()*10-5) + "," +
+                            (Integer.valueOf(negative.get(i))+(int)Math.random()*10-5) + "," +
+                            (Integer.valueOf(totalCount.get(i))+(int)Math.random()*20-10) + "," +
+                            (Integer.valueOf(weatherPositive.get(i))+(int)Math.random()*4-2) + "," +
+                            (Integer.valueOf(weatherNegative.get(i))+(int)Math.random()*4-2) + "," +
+                            (Integer.valueOf(weatherCount.get(i))+(int)Math.random()*4-2) + "," +
+                            (Integer.valueOf(aqi.get(i))+(int)Math.random()*4-2));
+                    writer.flush();
+                }
+                if(aqi.get(i)>82){
+                    for(int times = 0;times<7;times++){
+                        writer.newLine();
+                        writer.write(time.get(i) + "," +
+                                (Integer.valueOf(positive.get(i))+(int)Math.random()*10-5) + "," +
+                                (Integer.valueOf(negative.get(i))+(int)Math.random()*10-5) + "," +
+                                (Integer.valueOf(totalCount.get(i))+(int)Math.random()*20-10) + "," +
+                                (Integer.valueOf(weatherPositive.get(i))+(int)Math.random()*4-2) + "," +
+                                (Integer.valueOf(weatherNegative.get(i))+(int)Math.random()*4-2) + "," +
+                                (Integer.valueOf(weatherCount.get(i))+(int)Math.random()*4-2) + "," +
+                                (Integer.valueOf(aqi.get(i))+(int)Math.random()*8-4));
+                        writer.flush();
+                    }
+                }
+
             }
             writer.close();
 
