@@ -19,7 +19,7 @@ body {
 }
 
 .header {
-    margin: 80px 0 0;
+    margin: 0;
     height: 380px;
     width: 100%;
     position: relative;
@@ -45,8 +45,9 @@ body {
 }
 
 .header .title {
+    margin: 10px;
     text-align: center;
-    padding: 10rem 1rem 10rem;
+    padding: 8rem 1rem 8rem;
     background: rgba(255, 255, 255, 0.5);
     border-radius: 5px;
 }
@@ -66,7 +67,7 @@ body {
 
 .nav {
     z-index: 100;
-    position: fixed;
+/*    position: fixed;*/
     top: 0;
     height: 80px;
     width: 100%;

@@ -53,13 +53,11 @@
     </div>
 
     <div class="header">
-        <div class="inner">
-            <div class="title">
-                <h1>Social Media as a sensor of Air Quality and Public Response</h1>
-                <h2>Kai Zhang | Hanke Wang | Jiaxing Zeng</h2>
-            </div>
-            <div class="bg"></div>
+        <div class="title">
+            <h1>Social Media as a sensor of Air Quality and Public Response</h1>
+            <h2>Kai Zhang | Hanke Wang | Jiaxing Zeng</h2>
         </div>
+        <div class="bg"></div>
     </div>
     <div class="app">
         <div class="content">
@@ -82,65 +80,6 @@
 <!--                </div>-->
 <!--            </section>-->
 
-
-<!--            &lt;!&ndash; 弹幕区域 &ndash;&gt;-->
-<!--            <a name="Detailed" class="mark"></a>-->
-<!--            <section>-->
-<!--                <h2 class="subtitle">Detailed barrage display:</h2>-->
-<!--                <div style="display: inline-flex;">-->
-<!--                    <div id="scrollUpBox">-->
-<!--                        <ul id="content"></ul>-->
-<!--                    </div>-->
-<!--                    <div class="detail-text">-->
-<!--                        <div class="text-dom">-->
-<!--                            <span class="twitter-title">Twitter Text : </span>-->
-<!--                            <div class="twitter-text">-->
-<!--                                <p id="twitter-text-p"></p>-->
-<!--                            </div>-->
-<!--                        </div>-->
-<!--                        <table>-->
-<!--                            <tbody>-->
-<!--                                <tr>-->
-<!--                                    <td><span>Author : </span></td>-->
-<!--                                    <td><span id="detail-author"></span></td>-->
-<!--                                </tr>-->
-<!--                                <tr id="tr-detail-nb">-->
-<!--                                    <td><span>Naive Bayes : </span></td>-->
-<!--                                    <td><span id="detail-nb"></span></td>-->
-<!--                                </tr>-->
-<!--                                <tr id="tr-detail-nlp">-->
-<!--                                    <td><span>Stanford Core NLP : </span></td>-->
-<!--                                    <td><span id="detail-nlp"></span></td>-->
-<!--                                </tr>-->
-<!--                                <tr id="tr-detail-dl">-->
-<!--                                    <td><span>Deep Learning : </span></td>-->
-<!--                                    <td><span id="detail-dl"></span></td>-->
-<!--                                </tr>-->
-<!--                                <tr>-->
-<!--                                    <td><span>Date : </span></td>-->
-<!--                                    <td><span id="detail-date"></span></td>-->
-<!--                                </tr>-->
-<!--                                <tr>-->
-<!--                                    <td><span>latitude : </span></td>-->
-<!--                                    <td><span id="detail-latitude"></span></td>-->
-<!--                                </tr>-->
-<!--                                <tr>-->
-<!--                                    <td><span>longitude : </span></td>-->
-<!--                                    <td><span id="detail-longitude"></span></td>-->
-<!--                                </tr>-->
-<!--                            </tbody>-->
-<!--                        </table>-->
-<!--                    </div>-->
-<!--                </div>-->
-<!--                &lt;!&ndash;基础操作&ndash;&gt;-->
-<!--                <div class='basic-operation'>-->
-<!--                    <button class="btn btn-default" onclick="basicDetailOperation('start')">Start</button>-->
-<!--                    <button class="btn btn-default" onclick="basicDetailOperation('pause')">Pause</button>-->
-<!--                    <button class="btn btn-default" onclick="basicDetailOperation('clear')">Clear</button>-->
-<!--                    <button class="btn btn-default" onclick="basicDetailOperation('reset')">Reset</button>-->
-<!--                </div>-->
-<!--            </section>-->
-
             <a name="statistics" class="mark"></a>
             <section>
                 <h2 class="subtitle">Overview</h2>
@@ -159,9 +98,9 @@
                         <span class="label">AQI Predicting Value</span>
                     </div>
                     <div class="chart__wrapper">
-                        <div id="_aqi-real" class="chart" style="display: none;"></div>
+                        <div id="_aqi-actual" class="chart" style="display: none;"></div>
                         <div class="chart ball__layout numerical__aqi">
-                            <div id="aqi-real" class="ball">
+                            <div id="aqi-actual" class="ball">
                                 <div class="value__layout">
                                     <span class="en"></span>
                                     <span class="zh"></span>
@@ -169,7 +108,7 @@
                                 </div>
                             </div>
                         </div>
-                        <span class="label">AQI Real Value</span>
+                        <span class="label">AQI Actual Value</span>
                     </div>
                     <div class="chart__wrapper">
                         <div class="chart ball__layout" style="padding: 32px 0;">
@@ -187,10 +126,16 @@
                 </div>
             </section>
 
-            <!-- Growth 趋势-->
-            <a name="Trend" class="mark"></a>
+            <a name="AQI Trend" class="mark"></a>
             <section>
-                <h2 class="subtitle">Line Chart:</h2>
+                <h2 class="subtitle">AQI Line Chart</h2>
+                <div id="aqi-line-chart" class="sentiment-trend">
+                </div>
+            </section>
+
+            <a name="Tweets Trend" class="mark"></a>
+            <section>
+                <h2 class="subtitle">Tweets Line Chart</h2>
                 <div id="tweets-line-chart" class="sentiment-trend">
                 </div>
             </section>
@@ -236,6 +181,64 @@
                         <button class="btn btn-default" onclick="startSocket()">Start Socket </button>
                         <button class="btn btn-default" onclick="stopSocket()">Stop Socket </button>
                     </div>
+                </div>
+            </section>
+            
+            <!-- 弹幕区域 -->
+            <a name="Detailed" class="mark"></a>
+            <section>
+                <h2 class="subtitle">Detailed barrage display:</h2>
+                <div style="display: inline-flex;">
+                    <div id="scrollUpBox">
+                        <ul id="content"></ul>
+                    </div>
+                    <div class="detail-text">
+                        <div class="text-dom">
+                            <span class="twitter-title">Twitter Text : </span>
+                            <div class="twitter-text">
+                                <p id="twitter-text-p"></p>
+                            </div>
+                        </div>
+                        <table>
+                            <tbody>
+                                <tr>
+                                    <td><span>Author : </span></td>
+                                    <td><span id="detail-author"></span></td>
+                                </tr>
+                                <tr id="tr-detail-nb">
+                                    <td><span>Naive Bayes : </span></td>
+                                    <td><span id="detail-nb"></span></td>
+                                </tr>
+                                <tr id="tr-detail-nlp">
+                                    <td><span>Stanford Core NLP : </span></td>
+                                    <td><span id="detail-nlp"></span></td>
+                                </tr>
+                                <tr id="tr-detail-dl">
+                                    <td><span>Deep Learning : </span></td>
+                                    <td><span id="detail-dl"></span></td>
+                                </tr>
+                                <tr>
+                                    <td><span>Date : </span></td>
+                                    <td><span id="detail-date"></span></td>
+                                </tr>
+                                <tr>
+                                    <td><span>latitude : </span></td>
+                                    <td><span id="detail-latitude"></span></td>
+                                </tr>
+                                <tr>
+                                    <td><span>longitude : </span></td>
+                                    <td><span id="detail-longitude"></span></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                <!-- 基础操作 -->
+                <div class='basic-operation'>
+                    <button class="btn btn-default" onclick="basicDetailOperation('start')">Start</button>
+                    <button class="btn btn-default" onclick="basicDetailOperation('pause')">Pause</button>
+                    <button class="btn btn-default" onclick="basicDetailOperation('clear')">Clear</button>
+                    <button class="btn btn-default" onclick="basicDetailOperation('reset')">Reset</button>
                 </div>
             </section>
 

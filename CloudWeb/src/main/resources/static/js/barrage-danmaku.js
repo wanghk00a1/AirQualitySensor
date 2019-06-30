@@ -47,7 +47,7 @@ $(document).ready(function () {
     // 2秒刷一次折线图
     let lineIntervalDuration = 2000;
 
-    startLineChartInterval()
+//    startLineChartInterval()
 
     // 开启折线图绘画（刷新）
     function startLineChartInterval() {
