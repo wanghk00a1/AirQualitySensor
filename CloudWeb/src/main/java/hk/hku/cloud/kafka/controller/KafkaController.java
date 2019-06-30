@@ -1,5 +1,9 @@
 package hk.hku.cloud.kafka.controller;
 
+import com.google.gson.Gson;
+import hk.hku.cloud.kafka.domain.AqiEntity;
+import hk.hku.cloud.kafka.domain.TweetStatisticEntity;
+import hk.hku.cloud.kafka.service.KafkaService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -7,22 +11,20 @@ import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.handler.annotation.SendTo;
 import org.springframework.scheduling.annotation.EnableAsync;
 import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.*;
 
-import javax.websocket.OnClose;
-import java.text.SimpleDateFormat;
+import java.util.List;
 
 /**
  * @author: LexKaing
  * @create: 2019-04-01 23:36
  * @description: 目前不处理多页面同时访问导致的竞争情况
  **/
-@Controller
+@RestController
 @EnableAsync
 public class KafkaController {
 
     private static final Logger logger = LoggerFactory.getLogger(KafkaController.class);
-
-    private static SimpleDateFormat sdf = new SimpleDateFormat("EE MMM dd HH:mm:ss ZZ yyyy");
 
     @Autowired
     KafkaService kafkaService;
@@ -37,17 +39,13 @@ public class KafkaController {
         logger.info("receive msg : " + message);
         // 开启线程处理标志
         kafkaService.setConsumeKafka(true);
-        // 启动测试线程
-//        kafkaService.consumeKafkaTest();
-        // 启动kafka 线程
-        kafkaService.consumeKafka();
         // 启动心跳
-        kafkaService.putSentimentTimingMessage();
+        kafkaService.keepSocketAlive();
         return message;
     }
 
     /**
-     * 开关kafka sentiment 的订阅
+     * 开关kafka tweet 的订阅
      */
     @MessageMapping("/updateConsumer")
     public void updateConsumer(String message) {
@@ -59,19 +57,23 @@ public class KafkaController {
     }
 
     /**
-     * 开启statistic kafka 订阅
+     * 读取 mysql predict aqi 数据
      */
-    @MessageMapping("/initStatistic")
-    @SendTo("/topic/initStatistic")
-    public String initStatistic(String message) {
-        logger.info("receive statistic : " + message);
-        // 启动kafka 线程consume lang 统计数据
-        kafkaService.consumeStatisticLang();
-        // 启动kafka 线程consume fans 统计数据
-        kafkaService.consumeStatisticFans();
-        // 启动心跳
-        kafkaService.putStatisticTimingMessage();
-        return message;
+    @RequestMapping(value = "/api/getPredictAqiByCity", method = RequestMethod.GET, produces = {"application/json"})
+    @ResponseBody
+    public String getPredictAqiByCity(@RequestParam("city") String city, @RequestParam("limit") int limit) {
+        List<TweetStatisticEntity> result = kafkaService.getPredictAqiDataByCity(city, limit);
+        return new Gson().toJson(result);
+    }
+
+    /**
+     * 读取 mysql actual aqi 数据
+     */
+    @RequestMapping(value = "/api/getActualAqiByCity", method = RequestMethod.GET, produces = {"application/json"})
+    @ResponseBody
+    public String getActualAqiByCity(@RequestParam("city") String city, @RequestParam("limit") int limit) {
+        List<AqiEntity> result = kafkaService.getActualAqiDataByCity(city, limit);
+        return new Gson().toJson(result);
     }
 
 }

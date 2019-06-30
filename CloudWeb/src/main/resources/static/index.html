@@ -32,7 +32,7 @@
     <script src="./dist/danmaku.js"></script>
     <!-- <script src="./dist/index.min.js"></script> -->
 
-    <script src="./js/statistics.js"></script>
+    <!--<script src="./js/statistics.js"></script>-->
     <script src="./js/barrage-danmaku.js"></script>
 
 </head>
@@ -46,7 +46,6 @@
             <li><a href=""><span>Home</span></a></li>
             <li><a href="#Statistics"><span>Statistics</span></a></li>
             <li><a href="#Barrage"><span>Barrage</span></a></li>
-            <li><a href="#Trend"><span>Trend</span></a></li>
             <li><a href="https://github.com/BZbyr/7305CloudProject" target="_blank"><span>Git Repo</span></a></li>
         </ul>
     </div>
@@ -102,8 +101,8 @@
                 <div class="barrage-controller">
                     <div class="barrage-controller-inline">
                         <button class="btn btn-default" onclick="switchAnalysisMethod('nlp')">Display nlp result</button>
-                        <button class="btn btn-default" onclick="switchAnalysisMethod('nb')">Display naive bayes result</button>
-                        <button class="btn btn-default" onclick="switchAnalysisMethod('dl')">Display deep learning result</button>
+                        <!--<button class="btn btn-default" onclick="switchAnalysisMethod('nb')">Display naive bayes result</button>-->
+                        <!--<button class="btn btn-default" onclick="switchAnalysisMethod('dl')">Display deep learning result</button>-->
                     </div>
                     <div class="barrage-controller-inline">
                         <input id="interval-input" placeholder='输出速率:x+random(100)毫秒' class="interval-input" />
@@ -146,29 +145,17 @@
                                     <td><span>Author : </span></td>
                                     <td><span id="detail-author"></span></td>
                                 </tr>
-                                <tr id="tr-detail-nb">
-                                    <td><span>Naive Bayes : </span></td>
-                                    <td><span id="detail-nb"></span></td>
-                                </tr>
                                 <tr id="tr-detail-nlp">
                                     <td><span>Stanford Core NLP : </span></td>
                                     <td><span id="detail-nlp"></span></td>
-                                </tr>
-                                <tr id="tr-detail-dl">
-                                    <td><span>Deep Learning : </span></td>
-                                    <td><span id="detail-dl"></span></td>
                                 </tr>
                                 <tr>
                                     <td><span>Date : </span></td>
                                     <td><span id="detail-date"></span></td>
                                 </tr>
                                 <tr>
-                                    <td><span>latitude : </span></td>
-                                    <td><span id="detail-latitude"></span></td>
-                                </tr>
-                                <tr>
-                                    <td><span>longitude : </span></td>
-                                    <td><span id="detail-longitude"></span></td>
+                                    <td><span>City : </span></td>
+                                    <td><span id="detail-city"></span></td>
                                 </tr>
                             </tbody>
                         </table>
@@ -180,15 +167,6 @@
                     <button class="btn btn-default" onclick="basicDetailOperation('pause')">Pause</button>
                     <button class="btn btn-default" onclick="basicDetailOperation('clear')">Clear</button>
                     <button class="btn btn-default" onclick="basicDetailOperation('reset')">Reset</button>
-                </div>
-            </section>
-
-            <!-- Growth 趋势-->
-            <a name="Trend" class="mark"></a>
-            <section>
-                <h2 class="subtitle">Sentiment trend:</h2>
-                <div id="LineChart" class="sentiment-trend">
-
                 </div>
             </section>
 
