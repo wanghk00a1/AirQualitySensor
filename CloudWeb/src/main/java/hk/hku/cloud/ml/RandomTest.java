@@ -16,17 +16,27 @@ public class RandomTest {
 
     public static void main(String[] args) {
 
-        DecimalFormat df = new DecimalFormat("0.00");
+        DecimalFormat df = new DecimalFormat("#.00");
 
         try {
             String model = "model/RandomTree7981-14.model";
             Resource resource = new ClassPathResource("model/t_tweet_aqi_data.csv");
 
             FileReader fr = new FileReader(resource.getFile());
-
             BufferedReader bufferedReader = new BufferedReader(fr);
 
+            BufferedReader actualAqi = new BufferedReader(new FileReader(new ClassPathResource("model/t_aqi_data.csv").getFile()));
             String line = null;
+            List<String> aqiList = new ArrayList<>();
+            while ((line = actualAqi.readLine()) != null) {
+
+                String[] tmp = line.split(",");
+                if (tmp[0].equals("LONDON"))
+                    aqiList.add(tmp[1] + "," + tmp[2]);
+            }
+
+            System.out.println(aqiList.get(2));
+
             List<Integer> positive = new ArrayList<>();
             List<Integer> negative = new ArrayList<>();
             List<Integer> total = new ArrayList<>();
@@ -60,9 +70,12 @@ public class RandomTest {
                 int sumWN = w_negative.stream().mapToInt(x -> x).sum();
                 int sumWT = w_total.stream().mapToInt(x -> x).sum();
 
+
+                String actualAqiData = aqiList.stream().filter(x -> x.startsWith(tmp[1].substring(0, 13))).findFirst().get();
+
                 String str = sumP + "," + sumN + "," + sumT + "," + sumWP + "," + sumWN + "," + sumWT;
                 double predict = RandomTree.getInstance(model).predictAQI(sumP, sumN, sumT, sumWP, sumWN, sumWT);
-                System.out.println(line + "|| " + str + "," + df.format(predict));
+                System.out.println(line + " || " + actualAqiData + " || " + str + "," + df.format(predict));
 
                 if (positive.size() > 6) {
                     System.out.println("error : " + positive.size());
