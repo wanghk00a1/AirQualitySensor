@@ -16,7 +16,7 @@ import java.util.List;
 public class TimelyAQICount {
     public static void main(String[] args) {
         File file = new File("data/tweetAQI-0628-media.csv");
-        File resultFile = new File("data/timelyAqiCount-0628-imbalance.csv");
+        File resultFile = new File("data/timelyAqiCount-0628.csv");
 //        File resultFile1 = new File("data/timelyAqiCount-0625-firstOrderDifferent.csv");
 
         List<String> time = new ArrayList<>();
@@ -41,7 +41,7 @@ public class TimelyAQICount {
                 String item[] = line.split(",");
 
                 if(!String.valueOf(item[3]).equals("LONDON") ||
-                        !String.valueOf(item[5]).equals("en") ){
+                        !String.valueOf(item[5]).equals("en")){
                     continue;
                 }
 
@@ -116,32 +116,32 @@ public class TimelyAQICount {
                         weatherPositive.get(i) + "," + weatherNegative.get(i) + "," + weatherCount.get(i) + "," + aqi.get(i));
                 writer.flush();
 
-                if(aqi.get(i)>62 && aqi.get(i)<82) {
-                    writer.newLine();
-                    writer.write(time.get(i) + "," +
-                            (Integer.valueOf(positive.get(i))+(int)Math.random()*10-5) + "," +
-                            (Integer.valueOf(negative.get(i))+(int)Math.random()*10-5) + "," +
-                            (Integer.valueOf(totalCount.get(i))+(int)Math.random()*20-10) + "," +
-                            (Integer.valueOf(weatherPositive.get(i))+(int)Math.random()*4-2) + "," +
-                            (Integer.valueOf(weatherNegative.get(i))+(int)Math.random()*4-2) + "," +
-                            (Integer.valueOf(weatherCount.get(i))+(int)Math.random()*4-2) + "," +
-                            (Integer.valueOf(aqi.get(i))+(int)Math.random()*4-2));
-                    writer.flush();
-                }
-                if(aqi.get(i)>82){
-                    for(int times = 0;times<7;times++){
-                        writer.newLine();
-                        writer.write(time.get(i) + "," +
-                                (Integer.valueOf(positive.get(i))+(int)Math.random()*10-5) + "," +
-                                (Integer.valueOf(negative.get(i))+(int)Math.random()*10-5) + "," +
-                                (Integer.valueOf(totalCount.get(i))+(int)Math.random()*20-10) + "," +
-                                (Integer.valueOf(weatherPositive.get(i))+(int)Math.random()*4-2) + "," +
-                                (Integer.valueOf(weatherNegative.get(i))+(int)Math.random()*4-2) + "," +
-                                (Integer.valueOf(weatherCount.get(i))+(int)Math.random()*4-2) + "," +
-                                (Integer.valueOf(aqi.get(i))+(int)Math.random()*8-4));
-                        writer.flush();
-                    }
-                }
+//                if(aqi.get(i)>62 && aqi.get(i)<82) {
+//                    writer.newLine();
+//                    writer.write(time.get(i) + "," +
+//                            (Integer.valueOf(positive.get(i))+(int)Math.random()*10-5) + "," +
+//                            (Integer.valueOf(negative.get(i))+(int)Math.random()*10-5) + "," +
+//                            (Integer.valueOf(totalCount.get(i))+(int)Math.random()*20-10) + "," +
+//                            (Integer.valueOf(weatherPositive.get(i))+(int)Math.random()*4-2) + "," +
+//                            (Integer.valueOf(weatherNegative.get(i))+(int)Math.random()*4-2) + "," +
+//                            (Integer.valueOf(weatherCount.get(i))+(int)Math.random()*4-2) + "," +
+//                            (Integer.valueOf(aqi.get(i))+(int)Math.random()*4-2));
+//                    writer.flush();
+//                }
+//                if(aqi.get(i)>82){
+//                    for(int times = 0;times<7;times++){
+//                        writer.newLine();
+//                        writer.write(time.get(i) + "," +
+//                                (Integer.valueOf(positive.get(i))+(int)Math.random()*10-5) + "," +
+//                                (Integer.valueOf(negative.get(i))+(int)Math.random()*10-5) + "," +
+//                                (Integer.valueOf(totalCount.get(i))+(int)Math.random()*20-10) + "," +
+//                                (Integer.valueOf(weatherPositive.get(i))+(int)Math.random()*4-2) + "," +
+//                                (Integer.valueOf(weatherNegative.get(i))+(int)Math.random()*4-2) + "," +
+//                                (Integer.valueOf(weatherCount.get(i))+(int)Math.random()*4-2) + "," +
+//                                (Integer.valueOf(aqi.get(i))+(int)Math.random()*8-4));
+//                        writer.flush();
+//                    }
+//                }
 
             }
             writer.close();

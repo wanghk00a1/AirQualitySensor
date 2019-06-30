@@ -8,6 +8,7 @@ import weka.core.converters.CSVLoader;
 
 import java.io.File;
 import java.io.IOException;
+import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Enumeration;
 
@@ -19,13 +20,14 @@ public class Model1Build {
     static CSVLoader csv = new CSVLoader();
 
     public static void main(String[] args) throws Exception {
+        DecimalFormat df = new DecimalFormat("0.00");
 //        Classifier m_classifier = new RandomForest();
 //        File inputFile = new File("data/timelyAqiCount-0628-imbalance.csv");//训练语料文件
 
 //        csv.setFile(inputFile);
 //        Instances instancesTrain = csv.getDataSet(); // 读入训练文件
 //
-        File inputFile = new File("data/timelyAqiCount-0628-imbalance.csv");//测试语料文件
+        File inputFile = new File("data/timelyAqiCount-0630.csv");//测试语料文件
         csv.setFile(inputFile);
         Instances instancesTest = csv.getDataSet(); // 读入测试文件
         instancesTest.setClassIndex(7); //设置分类属性所在行号（第一行为0号），
@@ -57,7 +59,7 @@ public class Model1Build {
         for(int  i = 0;i<sum;i++)//测试分类结果  2 (通过)
         {
 //            System.out.println(instancesTest.instance(i));
-            System.out.println(classifier8.classifyInstance(instancesTest.instance(i))+"  "+instancesTest.instance(i).classValue());
+            System.out.println(df.format(classifier8.classifyInstance(instancesTest.instance(i)))+"  "+instancesTest.instance(i).classValue());
             right2 = right2 + Math.abs(classifier8.classifyInstance(instancesTest.instance(i))-instancesTest.instance(i).classValue());
         }
         System.out.println(right2/sum);

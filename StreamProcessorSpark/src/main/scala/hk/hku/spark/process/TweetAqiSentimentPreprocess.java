@@ -12,7 +12,7 @@ import java.util.*;
 public class TweetAqiSentimentPreprocess {
 
     public static void main(String[] args) {
-        String path = "data/tweet-0628/twitter_london_ny_preprocess";
+        String path = "data/tweet-0630/twitter_london_ny_preprocess";
         File file = new File(path);
         func(file);
 
@@ -32,7 +32,7 @@ public class TweetAqiSentimentPreprocess {
         File AqiFile = new File("data/finalAQI.csv");
         File TweetFile = new File(TweetFilePass);
         System.out.println(TweetFilePass);
-        File TweetAqiFile = new File("data/tweetAQI-0628-media.csv");
+        File TweetAqiFile = new File("data/tweetAQI-0630-media.csv");
         try {
             BufferedReader AqiData = new BufferedReader(new FileReader(AqiFile));
             BufferedReader TweetData = new BufferedReader(new FileReader(TweetFile));
