@@ -305,7 +305,7 @@ $(document).ready(function () {
             // $("#tr-detail-dl").css('display', 'none')
             $("#tr-detail-nlp").css('display', 'table-row')
             $("#detail-nlp").text(item.sentiment == 1 ? "😍" : (item.sentiment == 0 ? "😐" : "😭"))
-            $("#detail-date").text(item.createtime)
+            $("#detail-date").text(new Date(item.createtime).toLocaleString())
             $("#detail-city").text(item.geo)
         }
     });
