@@ -104,13 +104,12 @@ public class KafkaService {
         ConsumerRecords<String, String> consumerRecords;
 
         logger.info("Consumer Kafka start.");
-        while (consumeKafka) {
+        while (true) {
             // timeout(ms): buffer 中的数据未就绪情况下，等待的最长时间，如果设置为0，立即返回 buffer 中已经就绪的数据
             consumerRecords = consumer.poll(Duration.ofSeconds(1));
 //            logger.info("consumerRecords count is : " + consumerRecords.count());
 
             for (ConsumerRecord consumerRecord : consumerRecords) {
-                Object key = consumerRecord.key();
                 String value = consumerRecord.value().toString();
                 // 发送消息给订阅 "/topic/consumeTweets" 且在线的用户
                 if (value.length() > 0)
@@ -118,10 +117,10 @@ public class KafkaService {
             }
         }
 
-        consumer.close();
+//        consumer.close();
         // 后端断开连接时,通知一下前端，可以前端做校验---暂时不处理这种情况
         // template.convertAndSend("/topic/close", "closed");
-        logger.info("Consumer Kafka End.");
+//        logger.info("Consumer Kafka End.");
     }
 
     /**
