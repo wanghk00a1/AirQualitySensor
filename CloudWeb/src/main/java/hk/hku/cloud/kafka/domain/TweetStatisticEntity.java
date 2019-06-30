@@ -11,7 +11,6 @@ import java.sql.SQLException;
  * @description:
  **/
 public class TweetStatisticEntity implements RowMapper<TweetStatisticEntity> {
-    private int id;
     private String city;
     private String timestamp;
     private int positive;
@@ -21,14 +20,6 @@ public class TweetStatisticEntity implements RowMapper<TweetStatisticEntity> {
     private int w_negative;
     private int w_total;
     private double random_tree;
-
-    public int getId() {
-        return id;
-    }
-
-    public void setId(int id) {
-        this.id = id;
-    }
 
     public double getRandom_tree() {
         return random_tree;
@@ -105,7 +96,6 @@ public class TweetStatisticEntity implements RowMapper<TweetStatisticEntity> {
     @Override
     public TweetStatisticEntity mapRow(ResultSet rs, int i) throws SQLException {
         TweetStatisticEntity tmp = new TweetStatisticEntity();
-        tmp.setId(rs.getInt("id"));
         tmp.setCity(rs.getString("city"));
         tmp.setTimestamp(rs.getString("timestamp"));
         tmp.setPositive(rs.getInt("positive"));

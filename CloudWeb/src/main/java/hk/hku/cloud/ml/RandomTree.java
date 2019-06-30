@@ -3,6 +3,8 @@ package hk.hku.cloud.ml;
 import hk.hku.cloud.kafka.domain.TweetStatisticEntity;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.core.io.ClassPathResource;
+import org.springframework.core.io.Resource;
 import weka.classifiers.Classifier;
 import weka.core.Attribute;
 import weka.core.DenseInstance;
@@ -19,14 +21,16 @@ import java.util.ArrayList;
 public class RandomTree {
 
     private static final Logger logger = LoggerFactory.getLogger(RandomTree.class);
-    private static final String model = "CloudWeb/src/main/resources/model/RandomForest.model";
+//    private static final String model = "model/RandomForest.model";
     private static RandomTree INSTANCE;
     private static Classifier classifier8;
     private static ArrayList<Attribute> attributes = new ArrayList<>();
 
-    public RandomTree() {
+    public RandomTree(String modelPath) {
         try {
-            classifier8 = (Classifier) weka.core.SerializationHelper.read(model);
+            Resource resource = new ClassPathResource(modelPath);
+            classifier8 = (Classifier) weka.core.SerializationHelper.read(resource.getInputStream());
+            logger.info("random tree init");
         } catch (Exception e) {
             logger.error("Classifier Exception", e);
         }
@@ -39,30 +43,30 @@ public class RandomTree {
         attributes.add(new Attribute("weatherCount"));
     }
 
-    public static RandomTree getInstance() {
+    public static RandomTree getInstance(String modelPath) {
         synchronized (RandomTree.class) {
             if (INSTANCE == null) {
-                INSTANCE = new RandomTree();
+                INSTANCE = new RandomTree(modelPath);
             }
             return INSTANCE;
         }
     }
 
-    public double predictAQI(TweetStatisticEntity entity) {
+    public double predictAQI(int positive,int negative,int total,int w_positive,int w_negative,int w_total) {
         Instance instance = new DenseInstance(attributes.size());
 
-        instance.setValue(0, entity.getPositive());
-        instance.setValue(1, entity.getPositive());
-        instance.setValue(2, entity.getTotal());
-        instance.setValue(3, entity.getW_positive());
-        instance.setValue(4, entity.getW_negative());
-        instance.setValue(5, entity.getW_total());
+        instance.setValue(0,positive);
+        instance.setValue(1, negative);
+        instance.setValue(2, total);
+        instance.setValue(3, w_positive);
+        instance.setValue(4, w_negative);
+        instance.setValue(5, w_total);
 
         Instances instances = new Instances("repo_popular", attributes, 0);
         instances.setClassIndex(instances.numAttributes() - 1);
         instances.add(instance);
 
-        logger.info(instances.instance(0).toString());
+//        logger.info(instances.instance(0).toString());
 
         double aqi_value = 0;
         try {
