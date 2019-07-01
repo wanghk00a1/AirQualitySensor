@@ -1,56 +1,55 @@
+const AQI_LEVEL = {
+    'Good': 0,
+    'Moderate': 1,
+    'Unhealthy for Sensitive Groups': 2,
+    'Unhealthy': 3,
+    'Very Unhealthy': 4,
+    'Hazardous': 5,
+};
+const AQI_LEVEL_EN = [
+    'Good',
+    'Moderate',
+    'Unhealthy for Sensitive Groups',
+    'Unhealthy',
+    'Very Unhealthy',
+    'Hazardous',
+];
+const AQI_LEVEL_ZH = [
+    '好',
+    '中等',
+    '不适于敏感人群',
+    '不健康',
+    '非常不健康',
+    '危险',
+];
+
+const AQI_COLOR = [
+    '#00E400',
+    '#FFFF00',
+    '#FF7E00',
+    '#FF0000',
+    '#8f3f97',
+    '#7E0023'
+];
+
+/**
+ * 计算 AQI 值范围
+ * @param {number} value
+ * @returns {string}
+ */
+function calculateAQILevel(value) {
+    if (value <= 50) return AQI_LEVEL.Good;
+    if (value <= 100) return AQI_LEVEL.Moderate ;
+    if (value <= 150) return AQI_LEVEL["Unhealthy for Sensitive Groups"];
+    if (value <= 200) return AQI_LEVEL.Unhealthy;
+    if (value <= 300) return AQI_LEVEL["Very Unhealthy"];
+    if (value <= 500) return AQI_LEVEL.Hazardous;
+    throw new Error('Error Value');
+}
+
 function loadAQIFunction() {
-    const AQI_LEVEL = {
-        'Good': 0,
-        'Moderate': 1,
-        'Unhealthy for Sensitive Groups': 2,
-        'Unhealthy': 3,
-        'Very Unhealthy': 4,
-        'Hazardous': 5,
-    };
-    const AQI_LEVEL_EN = [
-        'Good',
-        'Moderate',
-        'Unhealthy for Sensitive Groups',
-        'Unhealthy',
-        'Very Unhealthy',
-        'Hazardous',
-    ];
-    const AQI_LEVEL_ZH = [
-        '好',
-        '中等',
-        '不适于敏感人群',
-        '不健康',
-        '非常不健康',
-        '危险',
-    ];
-
-    const AQI_COLOR = [
-        '#00E400',
-        '#FFFF00',
-        '#FF7E00',
-        '#FF0000',
-        '#8f3f97',
-        '#7E0023'
-    ];
-
     let actualAQIPoints = []; // 缓存真实 AQI 数据
     let predictAQIPoints = []; // 缓存预测 AQI 数据
-
-    /**
-     * 计算 AQI 值范围
-     * @param {number} value
-     * @returns {string}
-     */
-    function calculateAQILevel(value) {
-        if (value <= 50) return AQI_LEVEL.Good;
-        if (value <= 100) return AQI_LEVEL.Moderate ;
-        if (value <= 150) return AQI_LEVEL["Unhealthy for Sensitive Groups"];
-        if (value <= 200) return AQI_LEVEL.Unhealthy;
-        if (value <= 300) return AQI_LEVEL["Very Unhealthy"];
-        if (value <= 500) return AQI_LEVEL.Hazardous;
-        throw new Error('Error Value');
-    }
-
     // AQI 预测值展示
     const setAqiPredictValue = (function () {
         // const aqiPredictTitle = 'Predict';
@@ -124,6 +123,7 @@ function loadAQIFunction() {
         return function ({comingPredictAQIPoints = [], comingActualAQIPoints = []}) {
             predictAQIPoints = mergeAndSortPoints(predictAQIPoints, comingPredictAQIPoints);
             actualAQIPoints = mergeAndSortPoints(actualAQIPoints, comingActualAQIPoints);
+            setAqiAccuracyValue(calculateAccuracy(actualAQIPoints, predictAQIPoints));
             $aqiLineChart.setOption({
                 ...aqiLineChartOption,
                 xAxis: { type: 'time' },
@@ -195,8 +195,8 @@ function loadAQIFunction() {
             alert(err.message);
         }
     }
-    fetchData('LONDON', 20).then(() => {
-        setInterval(fetchData, 10000);
+    fetchData('LONDON', 30).then(() => {
+        setInterval(fetchData, 60000);
     });
 
 //    setInterval(() => {
@@ -219,7 +219,6 @@ function loadAQIFunction() {
 $(document).ready(loadAQIFunction);
 
 const API = {
-    retryTime: 0,
     ACTUAL_AQI_BY_CITY: '/api/getActualAqiByCity',
     PREDICT_AQI_BY_CITY: '/api/getPredictAqiByCity',
     /**
@@ -229,18 +228,12 @@ const API = {
      * @returns {Promise<Array<{city: string, timestamp: string, aqi: number}>>}
      */
     async fetchActualAQI(city = 'LONDON', limit = 10) {
-        if (this.retryTime > 3) return [];
-        // return JSON.parse(`
-        // [{"city":"LONDON","timestamp":"2019-06-29 23:00:00","aqi":76},{"city":"LONDON","timestamp":"2019-06-29 22:00:00","aqi":45},{"city":"LONDON","timestamp":"2019-06-29 21:00:00","aqi":41},{"city":"LONDON","timestamp":"2019-06-29 20:00:00","aqi":61},{"city":"LONDON","timestamp":"2019-06-29 19:00:00","aqi":63}]
-        // `);
         try {
             const response = await fetch(`${this.ACTUAL_AQI_BY_CITY}?city=${city}&limit=${limit}`);
             const json = await response.json();
-            this.retryTime = 0;
             return json;
         } catch (err) {
             console.error(err);
-            ++this.retryTime;
             throw new Error('[Error] Unable to fetch aqi data');
         }
     },
@@ -251,18 +244,12 @@ const API = {
      * @returns {Promise<Array<{city: string, timestamp: string, positive: number}>>}>}
      */
     async fetchPredictAQI(city = 'LONDON', limit = 10) {
-        if (this.retryTime > 3) return [];
-        // return JSON.parse(`
-        // [{"city":"LONDON","timestamp":"2019-06-30 00:35:00","positive":12,"negative":103,"total":165,"w_positive":0,"w_negative":2,"w_total":3,"random_tree":61.3},{"city":"LONDON","timestamp":"2019-06-30 00:30:00","positive":18,"negative":86,"total":157,"w_positive":0,"w_negative":4,"w_total":5,"random_tree":59.3},{"city":"LONDON","timestamp":"2019-06-30 00:25:00","positive":16,"negative":91,"total":149,"w_positive":1,"w_negative":4,"w_total":7,"random_tree":56.63},{"city":"LONDON","timestamp":"2019-06-30 00:20:00","positive":16,"negative":86,"total":155,"w_positive":0,"w_negative":2,"w_total":2,"random_tree":67.9},{"city":"LONDON","timestamp":"2019-06-30 00:15:00","positive":12,"negative":93,"total":148,"w_positive":0,"w_negative":0,"w_total":2,"random_tree":65.49},{"city":"LONDON","timestamp":"2019-06-30 00:10:00","positive":15,"negative":99,"total":172,"w_positive":1,"w_negative":4,"w_total":5,"random_tree":67.04},{"city":"LONDON","timestamp":"2019-06-30 00:05:00","positive":13,"negative":108,"total":162,"w_positive":2,"w_negative":4,"w_total":6,"random_tree":73.31},{"city":"LONDON","timestamp":"2019-06-30 00:00:00","positive":25,"negative":95,"total":168,"w_positive":0,"w_negative":3,"w_total":4,"random_tree":89.42},{"city":"LONDON","timestamp":"2019-06-29 23:55:00","positive":7,"negative":78,"total":125,"w_positive":0,"w_negative":5,"w_total":5,"random_tree":68.62},{"city":"LONDON","timestamp":"2019-06-29 23:50:00","positive":18,"negative":86,"total":146,"w_positive":0,"w_negative":2,"w_total":2,"random_tree":89.58}]
-        // `);
         try {
             const response = await fetch(`${this.PREDICT_AQI_BY_CITY}?city=${city}&limit=${limit}`);
             const json = await response.json();
-            this.retryTime = 0;
             return json;
         } catch (err) {
             console.error(err);
-            ++this.retryTime;
             throw new Error('[Error] Unable to fetch aqi data');
         }
     }
@@ -438,4 +425,33 @@ function mergeAndSortPoints(currentPoints, comingPoints) {
         // result = result.slice(-80);
     }
     return result;
+}
+
+/**
+ * @param {Array<{timestamp: string, aqi: number}>} actualPoints
+ * @param {Array<{timestamp: string, random_tree: number}>} predictPoints
+ */
+function calculateAccuracy(actualPoints, predictPoints) {
+    actualPoints = actualPoints.slice(-12).reverse();
+    predictPoints = predictPoints.reverse();
+    let matchedCount = 0;
+    let totalCount = 0;
+    for (let {timestamp: actualTS, aqi} of actualPoints) {
+        const at = new Date(actualTS);
+        for (let {timestamp: predictTS, random_tree} of predictPoints) {
+            const pt = new Date(predictTS);
+            if ([
+                at.getFullYear() === pt.getFullYear(),
+                at.getMonth() === pt.getMonth(),
+                at.getDate() === pt.getDate(),
+                at.getHours() === pt.getHours()
+            ].every(v => v)) {
+                ++totalCount;
+                if (calculateAQILevel(random_tree) === calculateAQILevel(aqi)) {
+                    ++matchedCount;
+                }
+            }
+        }
+    }
+    return (matchedCount / totalCount * 100);
 }
