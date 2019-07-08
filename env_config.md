@@ -28,13 +28,13 @@ hduser => student
 
 ||Srk8s机器上执行|Student@cocserver执行|
 |--|:--|:--|
-|NameNode|`ssh -Nf -L localhost:10331:10.244.1.7:50070 root@10.244.1.7` |`ssh -NfL 10331:127.0.0.1:10331 srk8s@202.45.128.243 -p 10846`|
-|ResourceManager| `ssh -Nf -L localhost:10332:10.244.1.7:8088 root@10.244.1.7` |`ssh -NfL 10332:127.0.0.1:10332 srk8s@202.45.128.243 -p 10846`|
-|MapReducer<br>JobHistory Server|`ssh -Nf -L localhost:10333:10.244.1.7:19888 root@10.244.1.7` |`ssh -NfL 10333:127.0.0.1:10333 srk8s@202.45.128.243 -p 10846`|
-|NodeManager|`ssh -Nf -L localhost:10334:10.244.1.7:8042 root@10.244.1.7` | `ssh -NfL 10334:127.0.0.1:10334 srk8s@202.45.128.243 -p 10846`|
-|Spark JobHistory|`ssh -Nf -L localhost:10335:10.244.1.7:18080 root@10.244.1.7` |`ssh -NfL 10335:127.0.0.1:10335 srk8s@202.45.128.243 -p 10846`|
-|CloudWeb|`ssh -Nf -L localhost:10336:10.244.1.7:9999 root@10.244.1.7` |`ssh -NfL 10336:127.0.0.1:10336 srk8s@202.45.128.243 -p 10846`|
-|Flink|`ssh -Nf -L localhost:10337:10.244.1.7:8081 root@10.244.1.7` |`ssh -NfL 10337:127.0.0.1:10337 srk8s@202.45.128.243 -p 10846`|
+|NameNode|`ssh -Nf -L localhost:10331:10.244.3.24:50070 root@10.244.3.24` |`ssh -NfL 10331:127.0.0.1:10331 srk8s@202.45.128.243 -p 10846`|
+|ResourceManager| `ssh -Nf -L localhost:10332:10.244.3.24:8088 root@10.244.3.24` |`ssh -NfL 10332:127.0.0.1:10332 srk8s@202.45.128.243 -p 10846`|
+|MapReducer<br>JobHistory Server|`ssh -Nf -L localhost:10333:10.244.3.24:19888 root@10.244.3.24` |`ssh -NfL 10333:127.0.0.1:10333 srk8s@202.45.128.243 -p 10846`|
+|NodeManager|`ssh -Nf -L localhost:10334:10.244.3.24:8042 root@10.244.3.24` | `ssh -NfL 10334:127.0.0.1:10334 srk8s@202.45.128.243 -p 10846`|
+|Spark JobHistory|`ssh -Nf -L localhost:10335:10.244.3.24:18080 root@10.244.3.24` |`ssh -NfL 10335:127.0.0.1:10335 srk8s@202.45.128.243 -p 10846`|
+|CloudWeb|`ssh -Nf -L localhost:10336:10.244.3.24:9999 root@10.244.3.24` |`ssh -NfL 10336:127.0.0.1:10336 srk8s@202.45.128.243 -p 10846`|
+|Flink|`ssh -Nf -L localhost:10337:10.244.3.24:8081 root@10.244.3.24` |`ssh -NfL 10337:127.0.0.1:10337 srk8s@202.45.128.243 -p 10846`|
 
 #### 构建镜像
 
@@ -70,11 +70,13 @@ hduser => student
     sudo apt-get upgrade
     sudo apt-get install software-properties-common
     sudo apt-get install aptitude
+    sudo apt-get install telnet
     sudo apt-get install net-tools
     sudo apt-get install inetutils-ping
     sudo apt-get install tcl tk expect
     sudo apt-get --reinstall install language-pack-en
-
+    sudo apt-get install python3-pip
+    
     # 安装 zsh  -- 需要和嘉星再对一下
     sudo curl -fL https://gist.githubusercontent.com/tsengkasing/5f0e89e8eb14aac4d8760ac35156eb53/raw/0f66fddfc18efb1045f0d1f7ad8859d38b966bed/install-zsh.sh | bash
     # 更换sh
@@ -91,8 +93,8 @@ hduser => student
 2. 修改 /etc/hosts 文件，注释掉localhost，并添加16台机器的ip映射,每次重新分配pods 会导致ip变化，需要生成pods后再更新master节点文件，并通过脚本拷贝到slaves上。
 
     ```Shell
-    10.244.1.7      master
-    10.244.1.7      fyp-678d9999b4-xmk7w
+    10.244.3.24      master
+    10.244.3.24      fyp-678d9999b4-xmk7w
     ...
     ```
 
@@ -100,6 +102,32 @@ hduser => student
     - 此时本地创建到 **cocserver 10331** 的tunnel: `ssh -L 10331:127.0.0.1:10331 student@202.45.128.135` 即可访问 [HDFS NameNode页面](http://localhost:10331/dfshealth.html#tab-datanode)
 
 4. 如有需要将 master 节点上改过的配置项，可通过 /opt/shell 或 /home/hduser/.sh 中的脚本替换到各个slave 节点里。
+
+5. 启动 hdfs&yarn,zookeeper,kafka,flink 集群环境,确认master和salves之间ssh认证过并且loop yes。
+```jshelllanguage
+//初始化 & 启动hdfs 
+hdfs namenode -format
+start-all.sh
+stop-all.sh
+
+//启动flink
+start-cluster.sh
+stop-cluster.sh
+
+//启动spark-histopry, 需要先创建 spark log目录:hadoop fs -mkdir /tmp/sparkLog
+/opt/spark-2.4.3-bin-hadoop2.7/sbin/start-history-server.sh
+
+//启动zookeeper&kafka
+zookeeper-server-start.sh -daemon /opt/kafka_2.11-2.1.1/config/zookeeper.properties
+
+for slave in 'master' 'slave01' 'slave02' 'slave03' 'slave04' 'slave05' 'slave06' 'slave07' 'slave08' 'slave09' 'slave10' 'slave11' 'slave12' 'slave13' 'slave14' 'slave15'
+do
+    ssh "$slave" '/opt/kafka_2.11-2.1.1/bin/kafka-server-start.sh -daemon /opt/kafka_2.11-2.1.1/config/server.properties'
+done
+
+//由于要使用flume调用python tweepy库,所以需要先安装好python3-pip和tweepy
+pip3 install tweepy
+```
 
 #### 页面访问
 

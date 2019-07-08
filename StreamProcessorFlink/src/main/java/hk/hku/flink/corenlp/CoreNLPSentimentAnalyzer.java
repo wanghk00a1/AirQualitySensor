@@ -73,7 +73,7 @@ public class CoreNLPSentimentAnalyzer {
     }
 
     private int normalizeCoreNLPSentiment(Double sentiment) {
-        if (sentiment <= 0.0) {
+        if (sentiment < 0.0) {
             return 0; //neutral
         } else if (sentiment < 2.0) {
             return -1; //negative
