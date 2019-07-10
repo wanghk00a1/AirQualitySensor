@@ -19,6 +19,14 @@ public class TweetAnalysisEntity {
     private Boolean hasMedia;
     private Boolean isRetweet;
 
+    public Boolean getRetweet() {
+        return isRetweet;
+    }
+
+    public void setRetweet(Boolean retweet) {
+        isRetweet = retweet;
+    }
+
     public long getCreatetime() {
         return createtime;
     }
@@ -33,14 +41,6 @@ public class TweetAnalysisEntity {
 
     public void setHasMedia(Boolean hasMedia) {
         this.hasMedia = hasMedia;
-    }
-
-    public Boolean getRetweet() {
-        return isRetweet;
-    }
-
-    public void setRetweet(Boolean retweet) {
-        isRetweet = retweet;
     }
 
     public int getSentiment() {

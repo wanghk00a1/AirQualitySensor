@@ -168,5 +168,5 @@ pip3 install tweepy
 
 7. 启动/关闭 Flink 集群: /opt/flink-1.7.2/bin/start-cluster.sh  stop-cluster.sh
 
-8. 启动 flink 任务: `flink run -c hk.hku.flink.TweetFlinkAnalyzer StreamProcessorFlink-jar-with-dependencies.jar` , 之后在 Flink 管理页面查看任务执行情况。[Flink 基本命令](https://blog.csdn.net/sunnyyoona/article/details/78316406)
+8. 启动 flink 任务: `flink run -c hk.hku.flink.TweetFlinkAnalyzer StreamProcessorFlink-jar-with-dependencies.jar 300 500` , 之后在 Flink 管理页面查看任务执行情况。[Flink 基本命令](https://blog.csdn.net/sunnyyoona/article/details/78316406)
 
