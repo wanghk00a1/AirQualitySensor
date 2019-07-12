@@ -12,12 +12,6 @@ public class PropertiesLoader {
 
     private static Config conf = ConfigFactory.load("application.conf");
 
-    // naive bayes 参数
-    public static String sentiment140TrainingFilePath = conf.getString("SENTIMENT140_TRAIN_DATA_ABSOLUTE_PATH");
-    public static String sentiment140TestingFilePath = conf.getString("SENTIMENT140_TEST_DATA_ABSOLUTE_PATH");
-    public static String nltkStopWords = conf.getString("NLTK_STOPWORDS_FILE_NAME ");
-    public static String naiveBayesModelPath = conf.getString("NAIVEBAYES_MODEL_ABSOLUTE_PATH");
-
     // core nlp 的模型都在maven依赖里，暂无需要配置的参数
 
     // consume kafka stream 数据
@@ -35,7 +29,7 @@ public class PropertiesLoader {
     public static String weatherKeywords = conf.getString("WEATHER_KEYWORD");
 
     public static void main(String[] args) {
-        System.out.println(PropertiesLoader.sentiment140TestingFilePath);
+        System.out.println(PropertiesLoader.bootstrapServers);
     }
 
 }

@@ -32,8 +32,6 @@ import java.text.SimpleDateFormat;
 import java.util.*;
 
 import static hk.hku.flink.utils.Constants.COMMA;
-import static hk.hku.flink.utils.Constants.DELIMITER;
-import static hk.hku.flink.utils.Constants.SPLIT;
 
 /**
  * @author: LexKaing
@@ -227,7 +225,7 @@ public class TweetFlinkAnalyzer {
 
         nyStream
                 .map(value -> gson.toJson(value))
-                .addSink(new FlinkKafkaProducer<String>("flink-ny", new SimpleStringSchema(), propProducer))
+                .addSink(new FlinkKafkaProducer<String>("flink-ny", new SimpleStringSchema(), propProducer2))
                 .name("new york tweets");
 
         /*

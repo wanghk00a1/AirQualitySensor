@@ -1,0 +1,44 @@
+# Kubernetes-managed hosts file.
+#127.0.0.1	localhost
+::1	localhost ip6-localhost ip6-loopback
+fe00::0	ip6-localnet
+fe00::0	ip6-mcastprefix
+fe00::1	ip6-allnodes
+fe00::2	ip6-allrouters
+#10.244.3.24	fyp-697794f759-xqxgf
+
+10.244.3.24 master
+10.244.41.13  slave01
+10.244.19.11  slave02
+10.244.9.16  slave03
+10.244.36.26  slave04
+10.244.6.12  slave05
+10.244.13.12  slave06
+10.244.5.13  slave07
+10.244.24.7 slave08
+10.244.24.6  slave09
+10.244.36.27 slave10
+10.244.21.21  slave11
+10.244.3.25  slave12
+10.244.11.18  slave13
+10.244.13.11  slave14
+10.244.16.7 slave15
+
+
+10.244.3.24 fyp-697794f759-xqxgf
+10.244.41.13  fyp-697794f759-4bwqh
+10.244.19.11  fyp-697794f759-5qftx
+10.244.9.16  fyp-697794f759-67zsw
+10.244.36.26  fyp-697794f759-bq7bf
+10.244.6.12  fyp-697794f759-cb4g2
+10.244.13.12  fyp-697794f759-cmw9d
+10.244.5.13  fyp-697794f759-gsss5
+10.244.24.7  fyp-697794f759-hczqx
+10.244.24.6  fyp-697794f759-jpx9v
+10.244.36.27 fyp-697794f759-kgxc8
+10.244.21.21  fyp-697794f759-lf9d6
+10.244.3.25  fyp-697794f759-n9bc5
+10.244.11.18  fyp-697794f759-nmlh8
+10.244.13.11  fyp-697794f759-swszf
+10.244.16.7 fyp-697794f759-vtdmr
+

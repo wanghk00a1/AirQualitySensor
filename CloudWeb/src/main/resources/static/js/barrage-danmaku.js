@@ -83,7 +83,7 @@ $(document).ready(function () {
     window.stopSocket = stopSocket
 
     // 发送弹幕
-    function lanuchBarrageOnce(message) {
+    function lanuchBarrageOnce(message, styles = {}) {
         let comment = {
             text: message,
             // 默认为 rtl（从右到左），支持 ltr、rtl、top、bottom。
@@ -305,7 +305,7 @@ $(document).ready(function () {
             // $("#tr-detail-dl").css('display', 'none')
             $("#tr-detail-nlp").css('display', 'table-row')
             $("#detail-nlp").text(item.sentiment == 1 ? "😍" : (item.sentiment == 0 ? "😐" : "😭"))
-            $("#detail-date").text(item.createtime)
+            $("#detail-date").text(new Date(item.createtime).toLocaleString())
             $("#detail-city").text(item.geo)
         }
     });

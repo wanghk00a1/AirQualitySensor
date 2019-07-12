@@ -64,7 +64,7 @@ public class CoreNLPSentimentAnalyzer {
             int sentiment = RNNCoreAnnotations.getPredictedClass(tree);
             int size = sentence.toString().length();
 
-            // 自定义规则计算文本的总感情值
+            // 计算文本的总感情值
             sentimentSum += sentiment * size;
             sizeSum += size;
         }
@@ -73,7 +73,7 @@ public class CoreNLPSentimentAnalyzer {
     }
 
     private int normalizeCoreNLPSentiment(Double sentiment) {
-        if (sentiment <= 0.0) {
+        if (sentiment < 0.0) {
             return 0; //neutral
         } else if (sentiment < 2.0) {
             return -1; //negative

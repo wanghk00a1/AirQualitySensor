@@ -18,7 +18,7 @@ import java.util.List;
  * @author: LexKaing
  * @create: 2019-06-19 22:06
  * @description:
- * 这个识别率有点低啊
+ * 这个识别率有点低, 暂未使用
  **/
 public class LanguageAnalyzer {
 

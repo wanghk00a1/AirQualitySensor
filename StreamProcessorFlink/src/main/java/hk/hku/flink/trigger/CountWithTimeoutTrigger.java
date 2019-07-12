@@ -98,7 +98,7 @@ public class CountWithTimeoutTrigger<T> extends Trigger<T, TimeWindow> {
     }
 
     @Override
-    public void clear(TimeWindow window, TriggerContext ctx) throws Exception {
+    public void clear(TimeWindow window, TriggerContext ctx) {
         ReducingState<Long> countState = ctx.getPartitionedState(countStateDescriptor);
         countState.clear();
     }
@@ -109,7 +109,7 @@ public class CountWithTimeoutTrigger<T> extends Trigger<T, TimeWindow> {
     class Sum implements ReduceFunction<Long> {
 
         @Override
-        public Long reduce(Long value1, Long value2) throws Exception {
+        public Long reduce(Long value1, Long value2) {
             return value1 + value2;
         }
     }
