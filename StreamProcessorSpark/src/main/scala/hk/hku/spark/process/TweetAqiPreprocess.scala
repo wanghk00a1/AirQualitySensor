@@ -15,13 +15,13 @@ import twitter4j.{GeoLocation, TwitterException, TwitterFactory, TwitterObjectFa
    预处理Tweet 文本数据
    spark-submit --class "hk.hku.spark.process.TweetAqiPreprocess" \
    --master yarn --deploy-mode cluster --driver-memory 4g \
-   --executor-cores 2 --num-executors 28 \
+   --executor-cores 2 --num-executors 30 \
    --conf "spark.executor.memory=4g" \
    --conf "spark.default.parallelism=60" \
    --conf "spark.memory.fraction=0.8" \
    StreamProcessorSpark-jar-with-dependencies.jar \
-   /tweets128/data-bak0621/twitter_useless.log \
-   /tweets128/spark/twitter_useless_preprocess
+   /tweets/data-bak0701-0710/twitter_london_ny.log \
+   /tweets/twitter_london_ny_preprocess
   */
 object TweetAqiPreprocess {
 
