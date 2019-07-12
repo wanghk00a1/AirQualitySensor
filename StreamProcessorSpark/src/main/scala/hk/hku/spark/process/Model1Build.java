@@ -53,16 +53,24 @@ public class Model1Build {
 //        System.out.println(right+" "+right/sum);
 
         // 获取上面保存的模型
-        Classifier classifier8 = (Classifier) weka.core.SerializationHelper.read("model/RandomTree7981-14.model");
+        Classifier classifier8 = (Classifier) weka.core.SerializationHelper.read("model/M5P-7763-18.model");
         double right2 = 0.0f;
+        int right3 = 0;
         instancesTest.deleteAttributeAt(0);
         for(int  i = 0;i<sum;i++)//测试分类结果  2 (通过)
         {
 //            System.out.println(instancesTest.instance(i));
             System.out.println(df.format(classifier8.classifyInstance(instancesTest.instance(i)))+"  "+instancesTest.instance(i).classValue());
             right2 = right2 + Math.abs(classifier8.classifyInstance(instancesTest.instance(i))-instancesTest.instance(i).classValue());
+            if(classifier8.classifyInstance(instancesTest.instance(i))<=instancesTest.instance(i).classValue()*1.3 &&
+                    classifier8.classifyInstance(instancesTest.instance(i))>=instancesTest.instance(i).classValue()*0.7){
+                right3++;
+            }
+
+
         }
         System.out.println(right2/sum);
+        System.out.println(Double.valueOf(right3)/sum);
 
 //        System.out.println(adi_predict(210,1255,2127,3,45,56));
 
