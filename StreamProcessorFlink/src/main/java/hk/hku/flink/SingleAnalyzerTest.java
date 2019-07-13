@@ -27,6 +27,7 @@ public class SingleAnalyzerTest {
     private final static Logger logger = Logger.getLogger(SingleAnalyzerTest.class);
 
     public static void main(String[] args) {
+        int size = Integer.valueOf(args[0]);
 
         Properties props = new Properties();
         props.put("bootstrap.servers", "slave01:9092,slave02:9092,slave03:9092");
@@ -45,7 +46,7 @@ public class SingleAnalyzerTest {
 
         ConsumerRecords<String, String> consumerRecords;
 
-        logger.info("Single Test collection start.");
+        logger.info("Single Test collection start with size : " + size);
 
         List<ConsumerRecord> tweetList = new ArrayList<>();
         while (true) {
@@ -53,7 +54,7 @@ public class SingleAnalyzerTest {
             for (ConsumerRecord consumerRecord : consumerRecords) {
                 tweetList.add(consumerRecord);
             }
-            if (tweetList.size() >= 2000)
+            if (tweetList.size() >= size)
                 break;
         }
 
