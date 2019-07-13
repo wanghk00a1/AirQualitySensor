@@ -42,7 +42,7 @@ import java.util.concurrent.TimeUnit;
 @Service
 public class KafkaService {
     private static final Logger logger = LoggerFactory.getLogger(KafkaService.class);
-    private static final String modelPath = "model/RandomForest.model";
+    private static final String modelPath = "model/M5P-772-14.model";
     private static Gson gson = new Gson();
     private static volatile boolean consumeKafka = true;
     private static SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");

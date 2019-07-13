@@ -133,7 +133,8 @@ public class SingleAnalyzerTest {
 
         long end = System.currentTimeMillis();
 
-        logger.info("Single Test process over.");
+        logger.info("Single Test process over. resultList size : " + resultList.size());
+        logger.info("london tweets : " + resultList.stream().filter(x->x.getGeo().toUpperCase().equals("LONDON")).count());
 
         logger.info("Duration : " + (end - start));
     }
