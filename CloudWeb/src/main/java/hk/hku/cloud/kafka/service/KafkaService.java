@@ -133,7 +133,7 @@ public class KafkaService {
         Properties props = KafkaProperties.getConsumerProperties("web-consumer");
 
         KafkaConsumer<String, String> consumer = new KafkaConsumer<>(props);
-        Collection<String> topics = Arrays.asList("flink-london-count");
+        Collection<String> topics = Arrays.asList("flink-london-count,flink-ny-count");
         consumer.subscribe(topics);
 
         ConsumerRecords<String, String> consumerRecords;
@@ -154,10 +154,10 @@ public class KafkaService {
 
                     int positive = entity.getPositive();
                     int negative = entity.getNegative();
-                    int total = entity.getTotal();
+                    int neutral = entity.getTotal() - positive - negative;
                     int w_positive = entity.getW_positive();
                     int w_negative = entity.getW_negative();
-                    int w_total = entity.getW_total();
+                    int w_neutral = entity.getW_total() - w_positive - w_negative;
 
                     String time = sdf.format(new Date(Long.valueOf(entity.getTimestamp())));
                     String timePastOneHour = sdf.format(new Date(Long.valueOf(entity.getTimestamp()) - 60 * 60 * 1000L));
@@ -169,14 +169,14 @@ public class KafkaService {
                     for (TweetStatisticEntity tmp : list) {
                         positive += tmp.getPositive();
                         negative += tmp.getNegative();
-                        total += tmp.getTotal();
+                        neutral += tmp.getTotal() - tmp.getPositive() - tmp.getNegative();
                         w_positive += tmp.getW_positive();
                         w_negative += tmp.getW_negative();
-                        w_total += tmp.getW_total();
+                        w_neutral += tmp.getW_total() - tmp.getW_positive() - tmp.getW_negative();
                     }
 
                     entity.setRandom_tree(RandomTree.getInstance(modelPath)
-                            .predictAQI(positive, negative, total, w_positive, w_negative, w_total));
+                            .predictAQI(positive, negative, neutral, w_positive, w_negative, w_neutral));
 
 //                    waitingList.add(entity);
 
