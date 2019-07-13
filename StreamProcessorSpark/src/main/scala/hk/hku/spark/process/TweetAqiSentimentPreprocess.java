@@ -29,7 +29,7 @@ public class TweetAqiSentimentPreprocess {
     }
 
     public static void process(String TweetFilePass) {
-        File AqiFile = new File("data/finalAQI.csv");
+        File AqiFile = new File("data/t_aqi_data_actual.csv");
         File TweetFile = new File(TweetFilePass);
         System.out.println(TweetFilePass);
         File TweetAqiFile = new File("data/tweetAQI-0710-media.csv");
@@ -41,7 +41,7 @@ public class TweetAqiSentimentPreprocess {
             AqiData.readLine();
             String line = null;
             List<String> AqiCity = new ArrayList<>();
-            List<String> AdiTimeStamp = new ArrayList<>();
+            List<String> AqiTimeStamp = new ArrayList<>();
             List<Integer> AqiValue = new ArrayList<>();
             while ((line = AqiData.readLine()) != null) {
                 String item[] = line.split(",");
@@ -49,8 +49,8 @@ public class TweetAqiSentimentPreprocess {
                 AqiCity.add(item[0]);
 
                 Long timeStamp = Long.valueOf(item[1]);
-                String timeString = new SimpleDateFormat("yyyy-MM-dd HH").format(new Date(timeStamp*1000));
-                AdiTimeStamp.add(timeString);
+                String timeString = new SimpleDateFormat("yyyy-MM-dd HH").format(new Date(timeStamp));
+                AqiTimeStamp.add(timeString);
 
                 AqiValue.add(Integer.valueOf(item[2]));
 
@@ -69,7 +69,7 @@ public class TweetAqiSentimentPreprocess {
 
                     for (int i = 0; i < AqiCity.size(); i++) {
                         Integer aqi = null;
-                        if (timeString.equals(AdiTimeStamp.get(i)) && city.equals(AqiCity.get(i))) {
+                        if (timeString.equals(AqiTimeStamp.get(i)) && city.equals(AqiCity.get(i))) {
                             aqi = AqiValue.get(i);
                             System.out.println(i);
                             writer.newLine();

@@ -27,7 +27,7 @@ public class Model1Build {
 //        csv.setFile(inputFile);
 //        Instances instancesTrain = csv.getDataSet(); // 读入训练文件
 //
-        File inputFile = new File("data/timelyAqiCount-0630.csv");//测试语料文件
+        File inputFile = new File("data/timelyAqiCount-0710-all.csv");//测试语料文件
         csv.setFile(inputFile);
         Instances instancesTest = csv.getDataSet(); // 读入测试文件
         instancesTest.setClassIndex(7); //设置分类属性所在行号（第一行为0号），
@@ -53,7 +53,7 @@ public class Model1Build {
 //        System.out.println(right+" "+right/sum);
 
         // 获取上面保存的模型
-        Classifier classifier8 = (Classifier) weka.core.SerializationHelper.read("model/M5P-7763-18.model");
+        Classifier classifier8 = (Classifier) weka.core.SerializationHelper.read("model/M5P-772-14.model");
         double right2 = 0.0f;
         int right3 = 0;
         instancesTest.deleteAttributeAt(0);
@@ -62,8 +62,13 @@ public class Model1Build {
 //            System.out.println(instancesTest.instance(i));
             System.out.println(df.format(classifier8.classifyInstance(instancesTest.instance(i)))+"  "+instancesTest.instance(i).classValue());
             right2 = right2 + Math.abs(classifier8.classifyInstance(instancesTest.instance(i))-instancesTest.instance(i).classValue());
-            if(classifier8.classifyInstance(instancesTest.instance(i))<=instancesTest.instance(i).classValue()*1.3 &&
-                    classifier8.classifyInstance(instancesTest.instance(i))>=instancesTest.instance(i).classValue()*0.7){
+            if((classifier8.classifyInstance(instancesTest.instance(i))<=50 && instancesTest.instance(i).classValue()<=50) ||
+                    (classifier8.classifyInstance(instancesTest.instance(i))>50 && classifier8.classifyInstance(instancesTest.instance(i))<=100
+                            &&instancesTest.instance(i).classValue()>50 && instancesTest.instance(i).classValue()<=100) ||
+                    (classifier8.classifyInstance(instancesTest.instance(i))>100 && classifier8.classifyInstance(instancesTest.instance(i))<=150
+                            &&instancesTest.instance(i).classValue()>100 && instancesTest.instance(i).classValue()<=150)||
+                    (classifier8.classifyInstance(instancesTest.instance(i))>150 && classifier8.classifyInstance(instancesTest.instance(i))<=200
+                            &&instancesTest.instance(i).classValue()>150 && instancesTest.instance(i).classValue()<=200)){
                 right3++;
             }
 
@@ -82,10 +87,10 @@ public class Model1Build {
         ArrayList<Attribute> attributes = new ArrayList<>();
         attributes.add(new Attribute("positive"));
         attributes.add(new Attribute("negative"));
-        attributes.add(new Attribute("totalCount"));
+        attributes.add(new Attribute("neutral"));
         attributes.add(new Attribute("weatherPositive"));
         attributes.add(new Attribute("weatherNegative"));
-        attributes.add(new Attribute("weatherCount"));
+        attributes.add(new Attribute("weatherNeutral"));
 
         Instance instance = new DenseInstance(attributes.size());
 

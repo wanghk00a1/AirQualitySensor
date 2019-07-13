@@ -15,8 +15,8 @@ import java.util.List;
  */
 public class TimelyAQICount {
     public static void main(String[] args) {
-        File file = new File("data/tweetAQI-0630-media.csv");
-        File resultFile = new File("data/timelyAqiCount-0630.csv");
+        File file = new File("data/tweetAQI-0710-media.csv");
+        File resultFile = new File("data/timelyAqiCount-0710.csv");
 //        File resultFile1 = new File("data/timelyAqiCount-0625-firstOrderDifferent.csv");
 
         List<String> time = new ArrayList<>();
