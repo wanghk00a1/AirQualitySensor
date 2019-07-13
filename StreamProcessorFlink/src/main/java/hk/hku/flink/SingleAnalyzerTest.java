@@ -23,7 +23,9 @@ import static hk.hku.flink.utils.Constants.COMMA;
 /**
  * @author: LexKaing
  * @create: 2019-07-13 14:51
- * @description: 测试集群环境里一台机器的性能，处理2000条数据大概需要的时间。
+ * @description:
+ * 测试集群环境里一台机器的性能，处理2000条数据大概需要的时间。
+ * java -classpath ./target/StreamProcessorFlink-jar-with-dependencies.jar hk.hku.flink.SingleAnalyzerTest
  **/
 public class SingleAnalyzerTest {
 
@@ -32,9 +34,9 @@ public class SingleAnalyzerTest {
     public static void main(String[] args) {
 
         Properties propConsumer = new Properties();
-        propConsumer.setProperty("bootstrap.servers", PropertiesLoader.bootstrapServers);
-        propConsumer.setProperty("group.id", "single-test");
-        propConsumer.setProperty("auto.offset.reset", PropertiesLoader.autoOffsetReset);
+        propConsumer.setProperty("bootstrap.servers", "slave01:9092,slave02:9092,slave03:9092");
+        propConsumer.setProperty("group.id", "single-consumer-test");
+        propConsumer.setProperty("auto.offset.reset", "latest");
 
         KafkaConsumer<String, String> consumer = new KafkaConsumer<>(propConsumer);
 
