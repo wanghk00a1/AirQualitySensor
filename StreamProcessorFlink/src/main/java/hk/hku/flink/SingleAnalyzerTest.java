@@ -3,7 +3,6 @@ package hk.hku.flink;
 import hk.hku.flink.corenlp.CoreNLPSentimentAnalyzer;
 import hk.hku.flink.domain.TweetAnalysisEntity;
 import hk.hku.flink.utils.GeoCity;
-import hk.hku.flink.utils.PropertiesLoader;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.apache.kafka.clients.consumer.ConsumerRecords;
 import org.apache.kafka.clients.consumer.KafkaConsumer;
@@ -26,6 +25,7 @@ public class SingleAnalyzerTest {
 
     private final static Logger logger = Logger.getLogger(SingleAnalyzerTest.class);
 
+    private static String weatherWords = "weather,aqi,health,smoke,air,pollution,breathe,lungs,smog,haze,cough";
     public static void main(String[] args) {
         int size = Integer.valueOf(args[0]);
 
@@ -110,7 +110,7 @@ public class SingleAnalyzerTest {
                     // 加上 weather keywords related
                     // Arrays.stream({"1","2"}).filter(word -> text.contains(word)).count();
                     Boolean weatherRelated = false;
-                    for (String word : PropertiesLoader.weatherKeywords.split(COMMA)) {
+                    for (String word : weatherWords.split(COMMA)) {
                         if (text.contains(word)) {
                             weatherRelated = true;
                             break;
