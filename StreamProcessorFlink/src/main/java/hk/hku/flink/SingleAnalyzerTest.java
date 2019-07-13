@@ -33,12 +33,17 @@ public class SingleAnalyzerTest {
 
     public static void main(String[] args) {
 
-        Properties propConsumer = new Properties();
-        propConsumer.setProperty("bootstrap.servers", "slave01:9092,slave02:9092,slave03:9092");
-        propConsumer.setProperty("group.id", "single-consumer-test");
-        propConsumer.setProperty("auto.offset.reset", "latest");
+        Properties props = new Properties();
+        props.put("bootstrap.servers", "slave01:9092,slave02:9092,slave03:9092");
+        props.put("group.id", "single-consumer-test");
+        props.put("auto.offset.reset", "latest");  //[latest(default), earliest, none]
+        props.put("enable.auto.commit", "true");// 自动commit
+        props.put("auto.commit.interval.ms", "1000");// 自动commit的间隔
+        props.put("session.timeout.ms", "30000");
+        props.put("key.deserializer", "org.apache.kafka.common.serialization.StringDeserializer");
+        props.put("value.deserializer", "org.apache.kafka.common.serialization.StringDeserializer");
 
-        KafkaConsumer<String, String> consumer = new KafkaConsumer<>(propConsumer);
+        KafkaConsumer<String, String> consumer = new KafkaConsumer<>(props);
 
         Collection<String> topics = Arrays.asList("alex1");
         consumer.subscribe(topics);
