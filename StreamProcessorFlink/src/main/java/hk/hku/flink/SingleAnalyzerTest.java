@@ -7,12 +7,7 @@ import hk.hku.flink.utils.PropertiesLoader;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.apache.kafka.clients.consumer.ConsumerRecords;
 import org.apache.kafka.clients.consumer.KafkaConsumer;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import twitter4j.GeoLocation;
-import twitter4j.Status;
-import twitter4j.TwitterException;
-import twitter4j.TwitterObjectFactory;
+import twitter4j.*;
 
 import java.time.Duration;
 import java.util.*;
@@ -29,7 +24,7 @@ import static hk.hku.flink.utils.Constants.COMMA;
  **/
 public class SingleAnalyzerTest {
 
-    private final static Logger logger = LoggerFactory.getLogger(SingleAnalyzerTest.class);
+    private final static Logger logger = Logger.getLogger(SingleAnalyzerTest.class);
 
     public static void main(String[] args) {
 
