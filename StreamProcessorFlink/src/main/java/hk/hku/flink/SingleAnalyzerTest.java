@@ -19,7 +19,7 @@ import static hk.hku.flink.utils.Constants.COMMA;
  * @create: 2019-07-13 14:51
  * @description:
  * 测试集群环境里一台机器的性能，处理2000条数据大概需要的时间。
- * java -classpath ./target/StreamProcessorFlink-jar-with-dependencies.jar hk.hku.flink.SingleAnalyzerTest
+ * java -classpath ./target/StreamProcessorFlink-jar-with-dependencies.jar hk.hku.flink.SingleAnalyzerTest 300 single-consume-1
  **/
 public class SingleAnalyzerTest {
 
@@ -28,10 +28,11 @@ public class SingleAnalyzerTest {
     private static String weatherWords = "weather,aqi,health,smoke,air,pollution,breathe,lungs,smog,haze,cough";
     public static void main(String[] args) {
         int size = Integer.valueOf(args[0]);
+        String groupid = args[1];
 
         Properties props = new Properties();
         props.put("bootstrap.servers", "slave01:9092,slave02:9092,slave03:9092");
-        props.put("group.id", "single-consumer-test");
+        props.put("group.id", groupid);
         props.put("auto.offset.reset", "latest");  //[latest(default), earliest, none]
         props.put("enable.auto.commit", "true");// 自动commit
         props.put("auto.commit.interval.ms", "1000");// 自动commit的间隔
