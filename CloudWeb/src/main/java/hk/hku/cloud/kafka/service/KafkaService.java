@@ -133,7 +133,7 @@ public class KafkaService {
         Properties props = KafkaProperties.getConsumerProperties("web-consumer-1");
 
         KafkaConsumer<String, String> consumer = new KafkaConsumer<>(props);
-        Collection<String> topics = Arrays.asList("flink-london-count,flink-ny-count");
+        Collection<String> topics = Arrays.asList("flink-london-count","flink-ny-count");
         consumer.subscribe(topics);
 
         ConsumerRecords<String, String> consumerRecords;
