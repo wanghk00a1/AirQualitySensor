@@ -37,10 +37,10 @@ public class RandomTree {
 
         attributes.add(new Attribute("positive"));
         attributes.add(new Attribute("negative"));
-        attributes.add(new Attribute("totalCount"));
+        attributes.add(new Attribute("neutral"));
         attributes.add(new Attribute("weatherPositive"));
         attributes.add(new Attribute("weatherNegative"));
-        attributes.add(new Attribute("weatherCount"));
+        attributes.add(new Attribute("weatherNeutral"));
     }
 
     public static RandomTree getInstance(String modelPath) {
