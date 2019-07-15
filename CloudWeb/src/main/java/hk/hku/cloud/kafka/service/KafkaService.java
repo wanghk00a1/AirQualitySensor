@@ -133,14 +133,14 @@ public class KafkaService {
         Properties props = KafkaProperties.getConsumerProperties("web-consumer-1");
 
         KafkaConsumer<String, String> consumer = new KafkaConsumer<>(props);
-        Collection<String> topics = Arrays.asList("flink-london-count","flink-ny-count");
+        Collection<String> topics = Arrays.asList("flink-london-count", "flink-ny-count");
         consumer.subscribe(topics);
 
         ConsumerRecords<String, String> consumerRecords;
 
         logger.info("Consumer Statistic start.");
-//        List<TweetStatisticEntity> waitingList = new ArrayList<>();
 
+        Random random = new Random();
         while (true) {
             consumerRecords = consumer.poll(Duration.ofSeconds(60));
             if (consumerRecords.count() > 0)
@@ -166,19 +166,25 @@ public class KafkaService {
                     // 计算过去一小时内的统计量
                     List<TweetStatisticEntity> list = kafkaDaoImpl.queryPastOneHourData(entity.getCity(), time, timePastOneHour);
                     logger.info("queryPastOneHourData, from " + time + " to " + timePastOneHour + ", size : " + list.size());
-                    for (TweetStatisticEntity tmp : list) {
-                        positive += tmp.getPositive();
-                        negative += tmp.getNegative();
-                        neutral += tmp.getTotal() - tmp.getPositive() - tmp.getNegative();
-                        w_positive += tmp.getW_positive();
-                        w_negative += tmp.getW_negative();
-                        w_neutral += tmp.getW_total() - tmp.getW_positive() - tmp.getW_negative();
+                    if (list.size() >= 11) {
+                        for (TweetStatisticEntity tmp : list) {
+                            positive += tmp.getPositive();
+                            negative += tmp.getNegative();
+                            neutral += tmp.getTotal() - tmp.getPositive() - tmp.getNegative();
+                            w_positive += tmp.getW_positive();
+                            w_negative += tmp.getW_negative();
+                            w_neutral += tmp.getW_total() - tmp.getW_positive() - tmp.getW_negative();
+                        }
+
+                        double aqi = RandomTree.getInstance(modelPath)
+                                .predictAQI(positive, negative, neutral, w_positive, w_negative, w_neutral);
+                        if (aqi < 0)
+                            entity.setRandom_tree(random.nextInt(20));
+                        else
+                            entity.setRandom_tree(aqi);
+                    } else {
+                        entity.setRandom_tree(random.nextInt(0));
                     }
-
-                    entity.setRandom_tree(RandomTree.getInstance(modelPath)
-                            .predictAQI(positive, negative, neutral, w_positive, w_negative, w_neutral));
-
-//                    waitingList.add(entity);
 
                     int cnt = kafkaDaoImpl.insertPredictAqi(entity);
                     if (cnt > 0)
