@@ -35,7 +35,7 @@ const AQI_COLOR = [
 /**
  * 计算 AQI 值范围
  * @param {number} value
- * @returns {string}
+ * @returns {number}
  */
 function calculateAQILevel(value) {
     if (value <= 50) return AQI_LEVEL.Good;
@@ -120,6 +120,7 @@ function loadAQIFunction() {
     const setAqiLineChartData = (function () {
         const aqiLineChartOption = generateAQILineChartOption();
         const $aqiLineChart = echarts.init(document.getElementById('aqi-line-chart'));
+        const $aqiTable = document.getElementById('aqi-table');
         return function ({comingPredictAQIPoints = [], comingActualAQIPoints = []}) {
             predictAQIPoints = mergeAndSortPoints(predictAQIPoints, comingPredictAQIPoints);
             actualAQIPoints = mergeAndSortPoints(actualAQIPoints, comingActualAQIPoints);
@@ -127,14 +128,51 @@ function loadAQIFunction() {
             $aqiLineChart.setOption({
                 ...aqiLineChartOption,
                 xAxis: { type: 'time' },
+                yAxis: {
+                    // type: 'category',
+                    min: 1,
+                    max: 200,
+                },
                 series: [{
                     ...aqiLineChartOption.series[0],
-                    data: predictAQIPoints.map(({timestamp, random_tree}) => [new Date(timestamp), random_tree]),
+                    data: predictAQIPoints.map(({timestamp, random_tree}) => [new Date(timestamp), random_tree /* AQI_LEVEL_EN[calculateAQILevel(random_tree)] */]),
                 }, {
                     ...aqiLineChartOption.series[1],
-                    data: actualAQIPoints.map(({timestamp, aqi}) => [new Date(timestamp), aqi]),
+                    data: actualAQIPoints.map(({timestamp, aqi}) => [new Date(timestamp), aqi /* AQI_LEVEL_EN[calculateAQILevel(aqi)] */]),
                 }],
             });
+            const sameIntervalActualAQIPoints = produceSameIntervalPoints(actualAQIPoints, predictAQIPoints);
+            const html = `
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th class="head">Time</th>
+                        ${predictAQIPoints.map(({timestamp}) => `<th>${formatTimeString(timestamp)}</th>`)}
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td class="head">Predict AQI Value</td>
+                        ${predictAQIPoints.map(({random_tree}) => `<td>${random_tree}</td>`)}
+                    </tr>
+                    <tr>
+                        <td class="head">Predict AQI Level</td>
+                        ${predictAQIPoints.map(({random_tree}) => {
+                            const level = calculateAQILevel(random_tree);
+                            return `<td><span style="color: ${AQI_COLOR[level]}">${AQI_LEVEL_EN[level]}</span></td>`;
+                        })}
+                    </tr>
+                    <tr>
+                        <td class="head">Actual AQI Level</td>
+                        ${sameIntervalActualAQIPoints.map(({aqi}) => {
+                            const level = calculateAQILevel(aqi);
+                            return `<td><span style="color: ${AQI_COLOR[level]}">${AQI_LEVEL_EN[level]}</span></td>`;
+                        })}
+                    </tr>
+                </tbody>
+            </table>
+            `;
+            $aqiTable.innerHTML = html.trim().replace(/,/g, '');
         };
     })();
     const setTweetLineChartData = (function () {
@@ -196,7 +234,7 @@ function loadAQIFunction() {
         }
     }
     fetchData('LONDON', 30).then(() => {
-        setInterval(fetchData, 60000);
+        // setInterval(fetchData, 60000);
     });
 
 //    setInterval(() => {
@@ -432,8 +470,8 @@ function mergeAndSortPoints(currentPoints, comingPoints) {
  * @param {Array<{timestamp: string, random_tree: number}>} predictPoints
  */
 function calculateAccuracy(actualPoints, predictPoints) {
-    actualPoints = actualPoints.slice(-12).reverse();
-    predictPoints = predictPoints.reverse();
+    actualPoints = [...actualPoints.slice(-12)].reverse();
+    predictPoints = [...predictPoints].reverse();
     let matchedCount = 0;
     let totalCount = 0;
     for (let {timestamp: actualTS, aqi} of actualPoints) {
@@ -454,4 +492,33 @@ function calculateAccuracy(actualPoints, predictPoints) {
         }
     }
     return (matchedCount / totalCount * 100);
+}
+
+/**
+ * @param {Array<{timestamp: string, aqi: number}>} actualPoints
+ * @param {Array<{timestamp: string, random_tree: number}>} predictPoints
+ */
+function produceSameIntervalPoints(actualPoints, predictPoints) {
+    const result = [];
+    actualPoints = actualPoints.slice(-12);
+    for (let {timestamp: predictTS} of predictPoints) {
+        const pt = new Date(predictTS);
+        for (let {timestamp: actualTS, aqi} of actualPoints) {
+            const at = new Date(actualTS);
+            if ([
+                at.getFullYear() === pt.getFullYear(),
+                at.getMonth() === pt.getMonth(),
+                at.getDate() === pt.getDate(),
+                at.getHours() === pt.getHours()
+            ].every(v => v)) {
+                result.push({actualTS, aqi});
+            }
+        }
+    }
+    return result;
+}
+
+function formatTimeString(timestamp) {
+    const d = new Date(timestamp);
+    return `${d.getHours()}:${d.getMinutes()}`;
 }
