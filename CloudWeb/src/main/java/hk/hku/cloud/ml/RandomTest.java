@@ -19,7 +19,7 @@ public class RandomTest {
         DecimalFormat df = new DecimalFormat("#.00");
 
         try {
-            String model = "model/RandomTree7981-14.model";
+            String model = "model/REPTree-8080-14.model";
             Resource resource = new ClassPathResource("model/t_tweet_aqi_data.csv");
 
             FileReader fr = new FileReader(resource.getFile());

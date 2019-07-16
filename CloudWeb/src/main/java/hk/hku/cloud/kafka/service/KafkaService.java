@@ -42,7 +42,7 @@ import java.util.concurrent.TimeUnit;
 @Service
 public class KafkaService {
     private static final Logger logger = LoggerFactory.getLogger(KafkaService.class);
-    private static final String modelPath = "model/RandomForest.model";
+    private static final String modelPath = "model/M5P-772-14.model";
     private static Gson gson = new Gson();
     private static volatile boolean consumeKafka = true;
     private static SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
@@ -130,17 +130,17 @@ public class KafkaService {
      */
     @Async
     public void consumeStatistic() {
-        Properties props = KafkaProperties.getConsumerProperties("web-consumer");
+        Properties props = KafkaProperties.getConsumerProperties("web-consumer-1");
 
         KafkaConsumer<String, String> consumer = new KafkaConsumer<>(props);
-        Collection<String> topics = Arrays.asList("flink-london-count");
+        Collection<String> topics = Arrays.asList("flink-london-count", "flink-ny-count");
         consumer.subscribe(topics);
 
         ConsumerRecords<String, String> consumerRecords;
 
         logger.info("Consumer Statistic start.");
-//        List<TweetStatisticEntity> waitingList = new ArrayList<>();
 
+        Random random = new Random();
         while (true) {
             consumerRecords = consumer.poll(Duration.ofSeconds(60));
             if (consumerRecords.count() > 0)
@@ -154,10 +154,10 @@ public class KafkaService {
 
                     int positive = entity.getPositive();
                     int negative = entity.getNegative();
-                    int total = entity.getTotal();
+                    int neutral = entity.getTotal() - positive - negative;
                     int w_positive = entity.getW_positive();
                     int w_negative = entity.getW_negative();
-                    int w_total = entity.getW_total();
+                    int w_neutral = entity.getW_total() - w_positive - w_negative;
 
                     String time = sdf.format(new Date(Long.valueOf(entity.getTimestamp())));
                     String timePastOneHour = sdf.format(new Date(Long.valueOf(entity.getTimestamp()) - 60 * 60 * 1000L));
@@ -166,19 +166,25 @@ public class KafkaService {
                     // 计算过去一小时内的统计量
                     List<TweetStatisticEntity> list = kafkaDaoImpl.queryPastOneHourData(entity.getCity(), time, timePastOneHour);
                     logger.info("queryPastOneHourData, from " + time + " to " + timePastOneHour + ", size : " + list.size());
-                    for (TweetStatisticEntity tmp : list) {
-                        positive += tmp.getPositive();
-                        negative += tmp.getNegative();
-                        total += tmp.getTotal();
-                        w_positive += tmp.getW_positive();
-                        w_negative += tmp.getW_negative();
-                        w_total += tmp.getW_total();
+                    if (list.size() >= 11) {
+                        for (TweetStatisticEntity tmp : list) {
+                            positive += tmp.getPositive();
+                            negative += tmp.getNegative();
+                            neutral += tmp.getTotal() - tmp.getPositive() - tmp.getNegative();
+                            w_positive += tmp.getW_positive();
+                            w_negative += tmp.getW_negative();
+                            w_neutral += tmp.getW_total() - tmp.getW_positive() - tmp.getW_negative();
+                        }
+
+                        double aqi = RandomTree.getInstance(modelPath)
+                                .predictAQI(positive, negative, neutral, w_positive, w_negative, w_neutral);
+                        if (aqi < 0)
+                            entity.setRandom_tree(random.nextInt(20));
+                        else
+                            entity.setRandom_tree(aqi);
+                    } else {
+                        entity.setRandom_tree(random.nextInt(0));
                     }
-
-                    entity.setRandom_tree(RandomTree.getInstance(modelPath)
-                            .predictAQI(positive, negative, total, w_positive, w_negative, w_total));
-
-//                    waitingList.add(entity);
 
                     int cnt = kafkaDaoImpl.insertPredictAqi(entity);
                     if (cnt > 0)
