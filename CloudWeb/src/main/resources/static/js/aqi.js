@@ -225,7 +225,7 @@ function loadAQIFunction() {
     let cityName = getParameterByName('city')
     if (!cityName) cityName = 'LONDON'; 
     fetchData(cityName, 30).then(() => {
-        // setInterval(() => fetchData(cityName, 30), 60000);
+        setInterval(() => fetchData(cityName, 30), 60000);
     });
     console.log('[LONDON, NY] is suppoerted.');
 }
