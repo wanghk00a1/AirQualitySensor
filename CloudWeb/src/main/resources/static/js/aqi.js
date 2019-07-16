@@ -52,9 +52,6 @@ function loadAQIFunction() {
     let predictAQIPoints = []; // 缓存预测 AQI 数据
     // AQI 预测值展示
     const setAqiPredictValue = (function () {
-        // const aqiPredictTitle = 'Predict';
-        // const aqiPredictOption = generateGaugeChartOption(aqiPredictTitle, 'aqi-predict');
-        // const aqiPredictChart = echarts.init(document.getElementById('aqi-predict'));
         const $aqiPredictBG = $('#aqi-predict');
         const $aqiPredictENText = $('#aqi-predict .en');
         const $aqiPredictZHText = $('#aqi-predict .zh');
@@ -63,13 +60,6 @@ function loadAQIFunction() {
          * @param {number} value
          */
         return function (value) {
-            // aqiPredictChart.setOption({
-            //     ...aqiPredictOption,
-            //     series: [{
-            //         ...aqiPredictOption.series[0],
-            //         data: [{name: aqiPredictTitle,value: predict}]
-            //     }]
-            // });
             const level = calculateAQILevel(value);
             $aqiPredictBG.css('background-color', AQI_COLOR[level]);
             $aqiPredictENText.text(AQI_LEVEL_EN[level]);
@@ -79,9 +69,6 @@ function loadAQIFunction() {
     })();
     // AQI 真实值展示
     const setAqiActualValue = (function () {
-        // const aqiActualTitle = 'Actual';
-        // const aqiActualOption = generateGaugeChartOption(aqiActualTitle, 'aqi-Actual');
-        // const aqiActualChart = echarts.init(document.getElementById('aqi-predict'));
         const $aqiActualBG = $('#aqi-actual');
         const $aqiActualENText = $('#aqi-actual .en');
         const $aqiActualZHText = $('#aqi-actual .zh');
@@ -90,13 +77,6 @@ function loadAQIFunction() {
          * @param {number} value
          */
         return function (value) {
-            // aqiActualChart.setOption({
-            //     ...aqiActualOption,
-            //     series: [{
-            //         ...aqiActualOption.series[0],
-            //         data: [{name: aqiActualTitle,value: Actual}]
-            //     }]
-            // });
             const level = calculateAQILevel(value);
             $aqiActualBG.css('background-color', AQI_COLOR[level]);
             $aqiActualENText.text(AQI_LEVEL_EN[level]);
@@ -113,7 +93,7 @@ function loadAQIFunction() {
          */
         return function (accuracy) {
             $aqiAccuracyText.innerText = `${accuracy}%`;
-            $aqiAccuracyChart.style.height = `${accuracy + 20}%`;
+            $aqiAccuracyChart.style.height = `${accuracy + 18}%`;
         };
     })();
     // AQI 线图
@@ -153,13 +133,22 @@ function loadAQIFunction() {
                 <tbody>
                     <tr>
                         <td class="head">Predict AQI Value</td>
-                        ${predictAQIPoints.map(({random_tree}) => `<td>${random_tree}</td>`)}
+                        ${predictAQIPoints.map(({random_tree}) => {
+                            const level = calculateAQILevel(random_tree);
+                            return `<td><span style="border: solid 1px ${AQI_COLOR[level]}">${random_tree}</span></td>`;
+                        })}
                     </tr>
                     <tr>
                         <td class="head">Predict AQI Level</td>
                         ${predictAQIPoints.map(({random_tree}) => {
                             const level = calculateAQILevel(random_tree);
                             return `<td><span style="color: ${AQI_COLOR[level]}">${AQI_LEVEL_EN[level]}</span></td>`;
+                        })}
+                    </tr>
+                    <tr>
+                        <td class="head">Actual AQI Level</td>
+                        ${sameIntervalActualAQIPoints.map(({timestamp}) => {
+                            return `<td>${formatTimeString(timestamp)}</td>`;
                         })}
                     </tr>
                     <tr>
@@ -233,25 +222,12 @@ function loadAQIFunction() {
             alert(err.message);
         }
     }
-    fetchData('LONDON', 30).then(() => {
-        // setInterval(fetchData, 60000);
+    let cityName = getParameterByName('city')
+    if (!cityName) cityName = 'LONDON'; 
+    fetchData(cityName, 30).then(() => {
+        // setInterval(() => fetchData(cityName, 30), 60000);
     });
-
-//    setInterval(() => {
-//        window.$lanuchBarrageMulti(
-//            new Array(parseInt(Math.random() * 20, 10) )
-//                .fill(0)
-//                .map(() => Math.random()
-//                        .toString(36)
-//                        .slice(2)
-//                        .padStart(Math.random() * 20, Math.random().toString(36).slice(3, 4))
-//                    + expressions[parseInt(Math.random() * expressions.length, 10)]
-//                ),
-//            {
-//                color: 'white',
-//                padding: '4px',
-//            });
-//    }, Math.random() * 1000 + 800);
+    console.log('[LONDON, NY] is suppoerted.');
 }
 
 $(document).ready(loadAQIFunction);
@@ -491,6 +467,7 @@ function calculateAccuracy(actualPoints, predictPoints) {
             }
         }
     }
+    if (totalCount === 0) return 0;
     return (matchedCount / totalCount * 100);
 }
 
@@ -500,7 +477,6 @@ function calculateAccuracy(actualPoints, predictPoints) {
  */
 function produceSameIntervalPoints(actualPoints, predictPoints) {
     const result = [];
-    actualPoints = actualPoints.slice(-12);
     for (let {timestamp: predictTS} of predictPoints) {
         const pt = new Date(predictTS);
         for (let {timestamp: actualTS, aqi} of actualPoints) {
@@ -511,7 +487,7 @@ function produceSameIntervalPoints(actualPoints, predictPoints) {
                 at.getDate() === pt.getDate(),
                 at.getHours() === pt.getHours()
             ].every(v => v)) {
-                result.push({actualTS, aqi});
+                result.push({timestamp: actualTS, aqi});
             }
         }
     }
@@ -520,5 +496,12 @@ function produceSameIntervalPoints(actualPoints, predictPoints) {
 
 function formatTimeString(timestamp) {
     const d = new Date(timestamp);
-    return `${d.getHours()}:${d.getMinutes()}`;
+    return `${String(d.getHours()).padStart(2, '0')}:${String(d.getMinutes()).padStart(2, '0')}`;
+}
+
+function getParameterByName(name) {
+    name = name.replace(/[\[]/, "\\\[").replace(/[\]]/, "\\\]");
+    var regex = new RegExp("[\\?&]" + name + "=([^&#]*)"),
+    results = regex.exec(location.search);
+    return results == null ? "": decodeURIComponent(results[1]);
 }
