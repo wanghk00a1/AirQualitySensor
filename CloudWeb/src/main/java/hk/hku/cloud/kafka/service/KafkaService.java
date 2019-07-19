@@ -183,7 +183,7 @@ public class KafkaService {
                         else
                             entity.setRandom_tree(aqi);
                     } else {
-                        entity.setRandom_tree(random.nextInt(0));
+                        entity.setRandom_tree(0);
                     }
 
                     int cnt = kafkaDaoImpl.insertPredictAqi(entity);
