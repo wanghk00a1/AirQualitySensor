@@ -72,7 +72,7 @@ public class KafkaDaoImpl {
 
     public List<TweetStatisticEntity> queryPastOneHourData(String city, String timestamp, String pastTimestamp) {
         String sql = "select * from t_tweet_aqi_data t " +
-                "where t.city=city and t.timestamp<:timestamp and t.timestamp>=:pastTimestamp;";
+                "where t.city=:city and t.timestamp<:timestamp and t.timestamp>=:pastTimestamp;";
         Map<String, Object> map = new HashMap();
         map.put("city", city);
         map.put("timestamp", timestamp);

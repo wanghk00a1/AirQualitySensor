@@ -166,7 +166,7 @@ public class KafkaService {
                     // 计算过去一小时内的统计量
                     List<TweetStatisticEntity> list = kafkaDaoImpl.queryPastOneHourData(entity.getCity(), time, timePastOneHour);
                     logger.info("queryPastOneHourData, from " + time + " to " + timePastOneHour + ", size : " + list.size());
-                    if (list.size() >= 11) {
+                    if (list.size() >= 12) {
                         for (TweetStatisticEntity tmp : list) {
                             positive += tmp.getPositive();
                             negative += tmp.getNegative();
@@ -179,7 +179,7 @@ public class KafkaService {
                         double aqi = RandomTree.getInstance(modelPath)
                                 .predictAQI(positive, negative, neutral, w_positive, w_negative, w_neutral);
                         if (aqi < 0)
-                            entity.setRandom_tree(random.nextInt(20));
+                            entity.setRandom_tree(random.nextInt(15));
                         else
                             entity.setRandom_tree(aqi);
                     } else {
