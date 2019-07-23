@@ -92,7 +92,7 @@ function loadAQIFunction() {
          * @param {number} accuracy
          */
         return function (accuracy) {
-            $aqiAccuracyText.innerText = `${accuracy}%`;
+            $aqiAccuracyText.innerText = `${accuracy.toFixed(0)}%`;
             $aqiAccuracyChart.style.height = `${accuracy + 18}%`;
         };
     })();
@@ -146,7 +146,7 @@ function loadAQIFunction() {
                         })}
                     </tr>
                     <tr>
-                        <td class="head">Actual AQI Level</td>
+                        <td class="head">Actual AQI Time</td>
                         ${sameIntervalActualAQIPoints.map(({timestamp}) => {
                             return `<td>${formatTimeString(timestamp)}</td>`;
                         })}
@@ -164,6 +164,22 @@ function loadAQIFunction() {
             $aqiTable.innerHTML = html.trim().replace(/,/g, '');
         };
     })();
+    const setAqiLineChartVisible = (function () {
+        const $id = 'aqi-line-chart-container';
+        return function (visible) {
+            document.getElementById($id).style.display = visible ? 'block' : 'none';
+        };
+    })();
+    console.log('你好呀！');
+    console.log('设置 AQI 线图是否显示，请使用函数： setAqiLineChartVisible(true)');
+    window.setAqiLineChartVisible = setAqiLineChartVisible;
+    
+    (function () {
+        let result = /linechart=([^&])/.exec(window.location.search.slice(1));
+        if (!result) return;
+        if (result[1] === '1') setAqiLineChartVisible(true);
+    })();
+
     const setTweetLineChartData = (function () {
         const tweetLineChartOption = generateCountLineChartOption();
         const $tweetLineChart = echarts.init(document.getElementById('tweets-line-chart'));
