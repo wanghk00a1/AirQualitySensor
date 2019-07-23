@@ -187,10 +187,13 @@ public class KafkaService {
                     }
 
                     int cnt = kafkaDaoImpl.insertPredictAqi(entity);
-                    if (cnt > 0)
+                    if (cnt > 0) {
+                        logger.info("predict data : " + positive + "," + negative + ","
+                                + neutral + "," + w_positive + "," + w_negative + "," + w_neutral);
                         logger.info("insert predict aqi " + entity.getCity() + ","
                                 + entity.getTimestamp() + ","
                                 + df.format(entity.getRandom_tree()));
+                    }
                 }
             }
 //            int[] cnt = kafkaDaoImpl.insertPredictAqiList(waitingList);
