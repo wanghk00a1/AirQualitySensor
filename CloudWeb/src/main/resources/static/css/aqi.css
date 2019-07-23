@@ -110,3 +110,8 @@
 .aqi-table td span {
   padding: 4px;
 }
+.content section.hide {
+  height: 0;
+  overflow: hidden;
+  padding: 0;
+}

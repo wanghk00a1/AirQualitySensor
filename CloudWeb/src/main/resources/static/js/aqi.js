@@ -167,7 +167,11 @@ function loadAQIFunction() {
     const setAqiLineChartVisible = (function () {
         const $id = 'aqi-line-chart-container';
         return function (visible) {
-            document.getElementById($id).style.display = visible ? 'block' : 'none';
+            if (visible) {
+                document.getElementById($id).classList.remove('hide');
+            } else {
+                document.getElementById($id).classList.add('hide');
+            }
         };
     })();
     console.log('你好呀！');
