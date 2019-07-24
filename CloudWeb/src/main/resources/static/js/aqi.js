@@ -552,6 +552,7 @@ function filterTime(timestamp) {
     if (d.getMonth() + 1 !== 7) return false;
     if (d.getDate() < 23) {
         if (d.getDate() < 22) return false;
+        return true;
     }
     if (d.getDate() > 23) return false;
     if (d.getHours() <= 12) return true;
