@@ -94,7 +94,7 @@
   box-shadow: 0 1px 1px 1px rgba(0,0,0,0.16);
 }
 .aqi-table .table {
-  background: #fff;
+  background: #e3e3e3;
 }
 .aqi-table .head {
   text-align: left;
@@ -104,9 +104,17 @@
 }
 .aqi-table th,
 .aqi-table td {
+  min-width: 50px;
+  overflow: auto;
+  text-align: center;
   padding: 0.5rem;
 }
 .aqi-table th span,
 .aqi-table td span {
   padding: 4px;
+}
+.content section.hide {
+  height: 0;
+  overflow: hidden;
+  padding: 0;
 }

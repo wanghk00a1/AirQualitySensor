@@ -92,7 +92,7 @@ function loadAQIFunction() {
          * @param {number} accuracy
          */
         return function (accuracy) {
-            $aqiAccuracyText.innerText = `${accuracy}%`;
+            $aqiAccuracyText.innerText = `${accuracy.toFixed(0)}%`;
             $aqiAccuracyChart.style.height = `${accuracy + 18}%`;
         };
     })();
@@ -102,6 +102,8 @@ function loadAQIFunction() {
         const $aqiLineChart = echarts.init(document.getElementById('aqi-line-chart'));
         const $aqiTable = document.getElementById('aqi-table');
         return function ({comingPredictAQIPoints = [], comingActualAQIPoints = []}) {
+            // FIXME: 夜间 tweets 偏少，数量不足以预测，导致预测值为 0
+            comingPredictAQIPoints = comingPredictAQIPoints.filter(({random_tree}) => random_tree !== 0);
             predictAQIPoints = mergeAndSortPoints(predictAQIPoints, comingPredictAQIPoints);
             actualAQIPoints = mergeAndSortPoints(actualAQIPoints, comingActualAQIPoints);
             setAqiAccuracyValue(calculateAccuracy(actualAQIPoints, predictAQIPoints));
@@ -126,36 +128,43 @@ function loadAQIFunction() {
             <table class="table">
                 <thead>
                     <tr>
+                        <th class="head">Date</th>
+                        ${sameIntervalActualAQIPoints.map(({predictTS}) => `<th>${formatDateString(predictTS)}</th>`)}
+                    </tr>
+                    <tr>
                         <th class="head">Time</th>
-                        ${predictAQIPoints.map(({timestamp}) => `<th>${formatTimeString(timestamp)}</th>`)}
+                        ${sameIntervalActualAQIPoints.map(({predictTS}) => `<th>${formatTimeString(predictTS)}</th>`)}
                     </tr>
                 </thead>
                 <tbody>
                     <tr>
                         <td class="head">Predict AQI Value</td>
-                        ${predictAQIPoints.map(({random_tree}) => {
+                        ${sameIntervalActualAQIPoints.map(({random_tree}) => {
                             const level = calculateAQILevel(random_tree);
                             return `<td><span style="border: solid 1px ${AQI_COLOR[level]}">${random_tree}</span></td>`;
                         })}
                     </tr>
                     <tr>
                         <td class="head">Predict AQI Level</td>
-                        ${predictAQIPoints.map(({random_tree}) => {
+                        ${sameIntervalActualAQIPoints.map(({random_tree}) => {
                             const level = calculateAQILevel(random_tree);
-                            return `<td><span style="color: ${AQI_COLOR[level]}">${AQI_LEVEL_EN[level]}</span></td>`;
+                            // return `<td><span style="color: ${AQI_COLOR[level]}">${AQI_LEVEL_EN[level]}</span></td>`;
+                            return `<td style="background-color: ${AQI_COLOR[level]}">${AQI_LEVEL_EN[level]}</td>`;
                         })}
                     </tr>
                     <tr>
-                        <td class="head">Actual AQI Level</td>
-                        ${sameIntervalActualAQIPoints.map(({timestamp}) => {
-                            return `<td>${formatTimeString(timestamp)}</td>`;
+                        <td class="head">Actual AQI Time</td>
+                        ${sameIntervalActualAQIPoints.map(({actualTS}) => {
+                            if (!actualTS) return '<td></td>';
+                            return `<td>${formatTimeString(actualTS)}</td>`;
                         })}
                     </tr>
                     <tr>
                         <td class="head">Actual AQI Level</td>
                         ${sameIntervalActualAQIPoints.map(({aqi}) => {
                             const level = calculateAQILevel(aqi);
-                            return `<td><span style="color: ${AQI_COLOR[level]}">${AQI_LEVEL_EN[level]}</span></td>`;
+                            // return `<td><span style="color: ${AQI_COLOR[level]}">${AQI_LEVEL_EN[level]}</span></td>`;
+                            return `<td style="background-color: ${AQI_COLOR[level]}">${AQI_LEVEL_EN[level]}</td>`;
                         })}
                     </tr>
                 </tbody>
@@ -164,6 +173,22 @@ function loadAQIFunction() {
             $aqiTable.innerHTML = html.trim().replace(/,/g, '');
         };
     })();
+    const setAqiLineChartVisible = (function () {
+        const $id = 'aqi-line-chart-container';
+        return function (visible) {
+            if (visible) {
+                document.getElementById($id).classList.remove('hide');
+            } else {
+                document.getElementById($id).classList.add('hide');
+            }
+        };
+    })();    
+    (function () {
+        let result = /linechart=([^&])/.exec(window.location.search.slice(1));
+        if (!result) return;
+        if (result[1] === '1') setAqiLineChartVisible(true);
+    })();
+
     const setTweetLineChartData = (function () {
         const tweetLineChartOption = generateCountLineChartOption();
         const $tweetLineChart = echarts.init(document.getElementById('tweets-line-chart'));
@@ -213,11 +238,13 @@ function loadAQIFunction() {
             setAqiPredictValue(predictAQIs[0]['random_tree']);
             setAqiActualValue(actualAQIs[0]['aqi']);
             setAqiAccuracyValue(generateRandomInt(100));
+            predictAQIs.reverse();
+            actualAQIs.reverse()
             setAqiLineChartData({
-                comingPredictAQIPoints: predictAQIs.reverse(),
-                comingActualAQIPoints: actualAQIs.reverse(),
+                comingPredictAQIPoints: predictAQIs,
+                comingActualAQIPoints: actualAQIs,
             });
-            setTweetLineChartData(predictAQIs.reverse());
+            setTweetLineChartData(predictAQIs);
         } catch(err) {
             alert(err.message);
         }
@@ -477,26 +504,37 @@ function calculateAccuracy(actualPoints, predictPoints) {
  */
 function produceSameIntervalPoints(actualPoints, predictPoints) {
     const result = [];
-    for (let {timestamp: predictTS} of predictPoints) {
-        const pt = new Date(predictTS);
-        for (let {timestamp: actualTS, aqi} of actualPoints) {
-            const at = new Date(actualTS);
+    for (let {timestamp: actualTS, aqi} of actualPoints) {
+        const at = new Date(actualTS);
+        for (let {timestamp: predictTS, random_tree} of predictPoints) {
+            const pt = new Date(predictTS);
             if ([
                 at.getFullYear() === pt.getFullYear(),
                 at.getMonth() === pt.getMonth(),
                 at.getDate() === pt.getDate(),
                 at.getHours() === pt.getHours()
             ].every(v => v)) {
-                result.push({timestamp: actualTS, aqi});
+                let item = {predictTS, aqi, random_tree};
+                if (at.getMinutes() === pt.getMinutes()) {
+                    item.actualTS = actualTS;
+                }
+                result.push(item);
             }
         }
     }
+    result.sort(({predictTS: t1}, {predictTS: t2}) => {
+        return new Date(t1).getTime() - new Date(t2).getTime()
+    });
     return result;
 }
 
 function formatTimeString(timestamp) {
     const d = new Date(timestamp);
     return `${String(d.getHours()).padStart(2, '0')}:${String(d.getMinutes()).padStart(2, '0')}`;
+}
+function formatDateString(timestamp) {
+    const d = new Date(timestamp);
+    return `${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
 }
 
 function getParameterByName(name) {
