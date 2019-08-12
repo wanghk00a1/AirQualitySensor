@@ -61,7 +61,9 @@ $(document).ready(function () {
                     }
 
                     // detailed barrage 数据保存并展示
-                    detailBarrageData.push(status);
+                    if (status.geo == 'LONDON') {
+                        detailBarrageData.push(status);
+                    }
                 }
             })
         });

@@ -184,9 +184,9 @@ function loadAQIFunction() {
         };
     })();    
     (function () {
-        let result = /linechart=([^&])/.exec(window.location.search.slice(1));
+        let result = getParameterByName('linechart');
         if (!result) return;
-        if (result[1] === '1') setAqiLineChartVisible(true);
+        if (result === '1') setAqiLineChartVisible(true);
     })();
 
     const setTweetLineChartData = (function () {
@@ -233,8 +233,11 @@ function loadAQIFunction() {
     // 定时获取数据
     async function fetchData(city = 'LONDON', limit = 5) {
         try {
-            const actualAQIs = await API.fetchActualAQI(city, limit);
-            const predictAQIs = await API.fetchPredictAQI(city, limit * 12);
+            let actualAQIs = await API.fetchActualAQI(city, limit);
+            let predictAQIs = await API.fetchPredictAQI(city, limit * 12);
+            // FIXME:  暂时过滤 2019年7月23日 中午 12:00 之后的数据
+            actualAQIs = actualAQIs.filter(({timestamp}) => filterTime(timestamp));
+            predictAQIs = predictAQIs.filter(({timestamp}) => filterTime(timestamp));
             setAqiPredictValue(predictAQIs[0]['random_tree']);
             setAqiActualValue(actualAQIs[0]['aqi']);
             setAqiAccuracyValue(generateRandomInt(100));
@@ -251,7 +254,7 @@ function loadAQIFunction() {
     }
     let cityName = getParameterByName('city')
     if (!cityName) cityName = 'LONDON'; 
-    fetchData(cityName, 30).then(() => {
+    fetchData(cityName, 60).then(() => {
         setInterval(() => fetchData(cityName, 30), 60000);
     });
     console.log('[LONDON, NY] is suppoerted.');
@@ -542,4 +545,16 @@ function getParameterByName(name) {
     var regex = new RegExp("[\\?&]" + name + "=([^&#]*)"),
     results = regex.exec(location.search);
     return results == null ? "": decodeURIComponent(results[1]);
+}
+
+function filterTime(timestamp) {
+    const d = new Date(timestamp);
+    if (d.getMonth() + 1 !== 7) return false;
+    if (d.getDate() < 23) {
+        if (d.getDate() < 22) return false;
+        return true;
+    }
+    if (d.getDate() > 23) return false;
+    if (d.getHours() <= 12) return true;
+    return false;
 }
