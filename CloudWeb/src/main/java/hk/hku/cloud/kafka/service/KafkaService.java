@@ -228,7 +228,8 @@ public class KafkaService {
      * 根据城市 LONDON / NY 获取对应的AQI数据,JSON 字符串
      */
     public List<TweetStatisticEntity> getPredictAqiDataByCity(String city, int limit) {
-        return kafkaDaoImpl.queryPredictAqi(city, limit);
+//        return kafkaDaoImpl.queryPredictAqi(city, limit);
+        return kafkaDaoImpl.queryPredictAqiCopy(city, limit);
     }
 
     /**
@@ -267,6 +268,8 @@ public class KafkaService {
     }
 
     public List<AqiEntity> getActualAqiDataByCity(String city, int limit) {
-        return kafkaDaoImpl.queryActualAqi(city, limit);
+//        return kafkaDaoImpl.queryActualAqi(city, limit);
+        return kafkaDaoImpl.queryActualAqiCopy(city, limit);
     }
+
 }

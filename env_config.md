@@ -28,7 +28,7 @@ hduser => student
 
 ||Srk8s机器上执行|Student@cocserver执行|
 |--|:--|:--|
-|NameNode|`ssh -Nf -L localhost:10331:10.244.3.24:50070 root@10.244.3.24` |`ssh -NfL 10331:127.0.0.1:10331 srk8s@202.45.128.243 -p 10846`|
+|NameNode|`ssh -Nf -L localhost:10331:10.244.3.24:50070 root@10.244.3.24` |`ssh -NfL 10381:127.0.0.1:10331 srk8s@202.45.128.243 -p 10846`|
 |ResourceManager| `ssh -Nf -L localhost:10332:10.244.3.24:8088 root@10.244.3.24` |`ssh -NfL 10332:127.0.0.1:10332 srk8s@202.45.128.243 -p 10846`|
 |MapReducer<br>JobHistory Server|`ssh -Nf -L localhost:10333:10.244.3.24:19888 root@10.244.3.24` |`ssh -NfL 10333:127.0.0.1:10333 srk8s@202.45.128.243 -p 10846`|
 |NodeManager|`ssh -Nf -L localhost:10334:10.244.3.24:8042 root@10.244.3.24` | `ssh -NfL 10334:127.0.0.1:10334 srk8s@202.45.128.243 -p 10846`|
@@ -68,16 +68,17 @@ hduser => student
     # 更新
     sudo apt-get update
     sudo apt-get upgrade
-    sudo apt-get install software-properties-common
-    sudo apt-get install aptitude
-    sudo apt-get install telnet
-    sudo apt-get install net-tools
-    sudo apt-get install inetutils-ping
-    sudo apt-get install tcl tk expect
+    sudo apt-get install software-properties-common -y
+    sudo apt-get install aptitude -y
+    sudo apt-get install telnet -y
+    sudo apt-get install net-tools -y
+    sudo apt-get install inetutils-ping -y
+    sudo apt-get install tcl tk expect -y
     sudo apt-get --reinstall install language-pack-en
-    sudo apt-get install python3-pip
+    sudo apt-get install python3-pip -y
+    sudo apt-get install git -y
     
-    # 安装 zsh  -- 需要和嘉星再对一下
+    # 安装 zsh  -- 需要和嘉星再对一下 --直接登陆到对应的用户名下,可以避免很多bug
     sudo curl -fL https://gist.githubusercontent.com/tsengkasing/5f0e89e8eb14aac4d8760ac35156eb53/raw/0f66fddfc18efb1045f0d1f7ad8859d38b966bed/install-zsh.sh | bash
     # 更换sh
     chsh -s /bin/bash
@@ -134,7 +135,7 @@ pip3 install tweepy
 1. 访问 k8s 页面需要:
    `ssh -L 8001:127.0.0.1:8030 student@202.45.128.135`
 2. 访问 NameNode 页面需要:
-   `ssh -L 10331:127.0.0.1:10331 student@202.45.128.135`
+   `ssh -L 10331:127.0.0.1:10381 student@202.45.128.135`
 3. 访问 ResourceManager 页面需要:
    `ssh -L 10332:127.0.0.1:10332 student@202.45.128.135`
 4. 访问 MapReducer(JobHistory) 页面需要:

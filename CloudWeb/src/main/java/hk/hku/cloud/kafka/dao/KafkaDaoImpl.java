@@ -117,4 +117,34 @@ public class KafkaDaoImpl {
 
         return namedParameterJdbcTemplate.query(sql, map, new AqiEntity());
     }
+
+
+    public List<TweetStatisticEntity> queryPastOneHourDataCopy(String city, String timestamp, String pastTimestamp) {
+        String sql = "select * from t_tweet_aqi_data_copy t " +
+                "where t.city=:city and t.timestamp<:timestamp and t.timestamp>=:pastTimestamp;";
+        Map<String, Object> map = new HashMap();
+        map.put("city", city);
+        map.put("timestamp", timestamp);
+        map.put("pastTimestamp", pastTimestamp);
+
+        return namedParameterJdbcTemplate.query(sql, map, new TweetStatisticEntity());
+    }
+
+    public List<TweetStatisticEntity> queryPredictAqiCopy(String city, int limit) {
+        String sql = "select * from t_tweet_aqi_data_copy t where t.city=:city order by t.timestamp desc limit :limit;";
+        Map<String, Object> map = new HashMap();
+        map.put("city", city);
+        map.put("limit", limit);
+
+        return namedParameterJdbcTemplate.query(sql, map, new TweetStatisticEntity());
+    }
+
+    public List<AqiEntity> queryActualAqiCopy(String city, int limit) {
+        String sql = "select * from t_aqi_data_copy t where t.city=:city order by t.timestamp desc limit :limit;";
+        Map<String, Object> map = new HashMap();
+        map.put("city", city);
+        map.put("limit", limit);
+
+        return namedParameterJdbcTemplate.query(sql, map, new AqiEntity());
+    }
 }
