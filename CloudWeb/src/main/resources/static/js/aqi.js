@@ -102,8 +102,6 @@ function loadAQIFunction() {
         const $aqiLineChart = echarts.init(document.getElementById('aqi-line-chart'));
         const $aqiTable = document.getElementById('aqi-table');
         return function ({comingPredictAQIPoints = [], comingActualAQIPoints = []}) {
-            // FIXME: 夜间 tweets 偏少，数量不足以预测，导致预测值为 0
-            comingPredictAQIPoints = comingPredictAQIPoints.filter(({random_tree}) => random_tree !== 0);
             predictAQIPoints = mergeAndSortPoints(predictAQIPoints, comingPredictAQIPoints);
             actualAQIPoints = mergeAndSortPoints(actualAQIPoints, comingActualAQIPoints);
             setAqiAccuracyValue(calculateAccuracy(actualAQIPoints, predictAQIPoints));
@@ -235,9 +233,11 @@ function loadAQIFunction() {
         try {
             let actualAQIs = await API.fetchActualAQI(city, limit);
             let predictAQIs = await API.fetchPredictAQI(city, limit * 12);
-            // FIXME:  暂时过滤 2019年7月23日 中午 12:00 之后的数据
             actualAQIs = actualAQIs.filter(({timestamp}) => filterTime(timestamp));
             predictAQIs = predictAQIs.filter(({timestamp}) => filterTime(timestamp));
+            // FIXME: 夜间 tweets 偏少，数量不足以预测，导致预测值为 0
+            predictAQIs = predictAQIs.filter(({random_tree}) => random_tree !== 0);
+            if (predictAQIs.length <= 0 || actualAQIs.length <= 0) return;
             setAqiPredictValue(predictAQIs[0]['random_tree']);
             setAqiActualValue(actualAQIs[0]['aqi']);
             setAqiAccuracyValue(generateRandomInt(100));
@@ -252,10 +252,12 @@ function loadAQIFunction() {
             alert(err.message);
         }
     }
-    let cityName = getParameterByName('city')
+    let cityName = getParameterByName('city');
     if (!cityName) cityName = 'LONDON'; 
-    fetchData(cityName, 60).then(() => {
-        setInterval(() => fetchData(cityName, 30), 60000);
+    let limits = getParameterByName('limit');
+    if (!limits) limits = 80;
+    fetchData(cityName, parseInt(limits, 10)).then(() => {
+        setInterval(() => fetchData(cityName, 30), 6000);
     });
     console.log('[LONDON, NY] is suppoerted.');
 }
@@ -548,13 +550,13 @@ function getParameterByName(name) {
 }
 
 function filterTime(timestamp) {
-    const d = new Date(timestamp);
-    if (d.getMonth() + 1 !== 7) return false;
-    if (d.getDate() < 23) {
-        if (d.getDate() < 22) return false;
-        return true;
-    }
-    if (d.getDate() > 23) return false;
-    if (d.getHours() <= 12) return true;
-    return false;
+    // const d = new Date(timestamp);
+    // if (d.getMonth() + 1 !== 7) return false;
+    // if (d.getDate() < 23) {
+    //     if (d.getDate() < 22) return false;
+    //     return true;
+    // }
+    // if (d.getDate() > 23) return false;
+    // if (d.getHours() <= 12) return true;
+    return true;
 }
