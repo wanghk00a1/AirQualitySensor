@@ -21,28 +21,7 @@ $ mvn package
 
 ### :beer: Runs
 
-- Pack the Jar file
-- Upload it to Machine GPU5
-    ```shell
-    $ scp -o ProxyCommand='ssh group05@202.45.128.135 -W %h:%p' AirQualitySensor.jar hduser@gpu5:~/app/temp/
-    ```
-- Execute jar file
-    ```shell
-    $ ssh ...
-    $ cd ~/app/temp
-    $ spark-submit --class AirQualitySensor.Analyzer ./AirQualitySensor.jar test04
-    ```
-- Start Kafka Producer (Option 1)
-    ```shell
-    $ kafka-console-producer.sh --broker-list gpu5:9092 --topic test04
-    $> input your text here
-    ```
-- Start Flume to migrade data to Kafka
-    > Configuration file hardcoded topic "test04"
-    ```shell
-    $ flume-ng agent -c /home/hduser/app/flume-rate-controller -f rate-control-flume-conf.properties --name agent -Dflume.root.logger=INFO,console
-    ```
-    PS: The **test04** above is the **topic** of *Kafka* , you can custom it by creating a new topic.
+- The details are written in [env_config.md](env_config.md)
 
 ## :sparkles: Project Structure
 
